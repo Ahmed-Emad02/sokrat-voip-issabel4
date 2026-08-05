@@ -7181,7 +7181,7 @@ app.get('/api/config/diagram', async (req, res) => {
 app.get('/api/config/timegroups', async (req, res) => {
     try {
         const [groups] = await pool.query('SELECT id, description FROM `asterisk`.`timegroups_groups` ORDER BY id ASC');
-        const [details] = await pool.query('SELECT id, timegroupid, time, name FROM `asterisk`.`timegroups_details` ORDER BY id ASC');
+        const [details] = await pool.query('SELECT id, timegroupid, time FROM `asterisk`.`timegroups_details` ORDER BY id ASC');
         
         const groupsWithDetails = groups.map(g => {
             const rules = details.filter(d => d.timegroupid === g.id).map(d => {
@@ -7192,7 +7192,7 @@ app.get('/api/config/timegroups', async (req, res) => {
                     weekday: parts[1] || '',
                     monthday: parts[2] || '',
                     month: parts[3] || '',
-                    name: d.name || ''
+                    name: ''
                 };
             });
             return {
@@ -7221,7 +7221,7 @@ app.post('/api/config/timegroups', async (req, res) => {
         if (rules && Array.isArray(rules)) {
             for (const rule of rules) {
                 const timeStr = `${rule.time || ''}|${rule.weekday || ''}|${rule.monthday || ''}|${rule.month || ''}`;
-                await pool.query('INSERT INTO `asterisk`.`timegroups_details` (timegroupid, time, name) VALUES (?, ?, ?)', [groupid, timeStr, '']);
+                await pool.query('INSERT INTO `asterisk`.`timegroups_details` (timegroupid, time) VALUES (?, ?)', [groupid, timeStr]);
             }
         }
         res.json({ success: true, message: 'Time Group created successfully', id: groupid });
@@ -7245,7 +7245,7 @@ app.put('/api/config/timegroups/:id', async (req, res) => {
         if (rules && Array.isArray(rules)) {
             for (const rule of rules) {
                 const timeStr = `${rule.time || ''}|${rule.weekday || ''}|${rule.monthday || ''}|${rule.month || ''}`;
-                await pool.query('INSERT INTO `asterisk`.`timegroups_details` (timegroupid, time, name) VALUES (?, ?, ?)', [id, timeStr, '']);
+                await pool.query('INSERT INTO `asterisk`.`timegroups_details` (timegroupid, time) VALUES (?, ?)', [id, timeStr]);
             }
         }
         res.json({ success: true, message: 'Time Group updated successfully' });
@@ -7305,7 +7305,7 @@ app.post('/api/config/timeconditions', async (req, res) => {
         
         const [r] = await pool.query(`
             INSERT INTO \`asterisk\`.\`timeconditions\` (displayname, \`time\`, truegoto, falsegoto, deptname, generate_hint, priority)
-            VALUES (?, ?, ?, ?, '', 0, NULL)
+            VALUES (?, ?, ?, ?, '', 0, '0')
         `, [displayname.trim(), timegroup_id, truegoto, falsegoto]);
         
         res.json({ success: true, message: 'Time Condition created successfully', id: r.insertId });

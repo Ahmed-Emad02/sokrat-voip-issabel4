@@ -788,7 +788,15 @@ function parseIax2RegistryOutput(regOut) {
     return presence;
 }
 
+let cachedIaxPresence = {};
+let lastIaxFetch = 0;
+const IAX_CACHE_TTL = 10000;
+
 async function getIax2StatusFromCliAsync() {
+    const now = Date.now();
+    if (cachedIaxPresence && (now - lastIaxFetch) < IAX_CACHE_TTL) {
+        return cachedIaxPresence;
+    }
     const presence = {};
     try {
         const { execFile: execFileCb } = require('child_process');
@@ -799,6 +807,8 @@ async function getIax2StatusFromCliAsync() {
         ]);
         Object.assign(presence, parseIax2PeersOutput(peersOut));
         Object.assign(presence, parseIax2RegistryOutput(regOut));
+        cachedIaxPresence = presence;
+        lastIaxFetch = now;
     } catch (_) {}
     return presence;
 }

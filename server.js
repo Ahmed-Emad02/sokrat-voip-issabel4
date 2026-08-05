@@ -156,30 +156,31 @@ async function initAuthDb() {
         CREATE TABLE IF NOT EXISTS dashboard_users (
             id INT AUTO_INCREMENT PRIMARY KEY,
             username VARCHAR(100) NOT NULL UNIQUE,
-            email VARCHAR(255) DEFAULT NULL,
+            email VARCHAR(190) DEFAULT NULL,
             password_hash VARCHAR(255) NOT NULL,
             reset_token VARCHAR(255) DEFAULT NULL,
             reset_expires DATETIME DEFAULT NULL,
             group_id INT DEFAULT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8
     `);
     // Add group_id column if it doesn't exist (for existing installs)
     try { await conn.execute('ALTER TABLE dashboard_users ADD COLUMN group_id INT DEFAULT NULL'); } catch (_) {}
     try { await conn.execute('ALTER TABLE dashboard_users ADD COLUMN reset_token_expires DATETIME DEFAULT NULL'); } catch (_) {}
+    try { await conn.execute('ALTER TABLE dashboard_users MODIFY COLUMN email VARCHAR(190) DEFAULT NULL'); } catch (_) {}
     try { await conn.execute('ALTER TABLE dashboard_users ADD UNIQUE KEY idx_unique_email (email)'); } catch (_) {}
     await conn.execute(`
         CREATE TABLE IF NOT EXISTS dashboard_settings (
             setting_key VARCHAR(100) PRIMARY KEY,
             setting_value TEXT DEFAULT NULL
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8
     `);
     await conn.execute(`
         CREATE TABLE IF NOT EXISTS dashboard_groups (
             id INT AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(100) NOT NULL UNIQUE,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8
     `);
     await conn.execute(`
         CREATE TABLE IF NOT EXISTS dashboard_group_permissions (
@@ -187,7 +188,7 @@ async function initAuthDb() {
             group_id INT NOT NULL,
             tab VARCHAR(50) NOT NULL,
             UNIQUE KEY idx_group_tab (group_id, tab)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8
     `);
     await conn.execute(`
         CREATE TABLE IF NOT EXISTS gsm_dongles (
@@ -199,7 +200,7 @@ async function initAuthDb() {
             dynamic_enabled TINYINT(1) NOT NULL DEFAULT 0,
             KEY idx_imsi (imsi),
             KEY idx_imei (imei)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8
     `);
     try { await conn.execute('ALTER TABLE gsm_dongles ADD COLUMN dynamic_enabled TINYINT(1) NOT NULL DEFAULT 0'); } catch (_) {}
     try { await conn.execute('UPDATE gsm_dongles SET dynamic_enabled = 0 WHERE dynamic_enabled IS NULL'); } catch (_) {}
@@ -221,7 +222,7 @@ async function initAuthDb() {
             title VARCHAR(255) DEFAULT NULL,
             emp_group VARCHAR(100) DEFAULT NULL,
             updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8
     `);
     await conn.execute(`
         CREATE TABLE IF NOT EXISTS ${tables.employeeGroups} (
@@ -229,7 +230,7 @@ async function initAuthDb() {
             name VARCHAR(100) NOT NULL UNIQUE,
             description TEXT DEFAULT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8
     `);
     await conn.execute(`
         CREATE TABLE IF NOT EXISTS storage_settings (
@@ -241,7 +242,7 @@ async function initAuthDb() {
             auto_backup_schedule VARCHAR(50) DEFAULT 'daily',
             last_backup_at DATETIME DEFAULT NULL,
             last_backup_status VARCHAR(50) DEFAULT NULL
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8
     `);
     // Migrate columns for existing partial tables
     try { await conn.execute('ALTER TABLE storage_settings ADD COLUMN auto_purge_days INT DEFAULT 90'); } catch (_) {}

@@ -1,32 +1,32 @@
 CREATE TABLE IF NOT EXISTS `dashboard_users` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `username` VARCHAR(100) NOT NULL UNIQUE,
-  `email` VARCHAR(255) DEFAULT NULL UNIQUE,
+  `email` VARCHAR(190) DEFAULT NULL UNIQUE,
   `password_hash` VARCHAR(255) NOT NULL,
   `reset_token` VARCHAR(255) DEFAULT NULL,
   `reset_expires` DATETIME DEFAULT NULL,
   `reset_token_expires` DATETIME DEFAULT NULL,
   `group_id` INT DEFAULT NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `dashboard_settings` (
   `setting_key` VARCHAR(100) PRIMARY KEY,
   `setting_value` TEXT DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `dashboard_groups` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `name` VARCHAR(100) NOT NULL UNIQUE,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `dashboard_group_permissions` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `group_id` INT NOT NULL,
   `tab` VARCHAR(50) NOT NULL,
   UNIQUE KEY `idx_group_tab` (`group_id`, `tab`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `gsm_dongles` (
   `dongle_name` VARCHAR(50) NOT NULL PRIMARY KEY,
@@ -36,14 +36,14 @@ CREATE TABLE IF NOT EXISTS `gsm_dongles` (
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   KEY `idx_imsi` (`imsi`),
   KEY `idx_imei` (`imei`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `employee_groups` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `name` VARCHAR(100) NOT NULL UNIQUE,
   `description` TEXT DEFAULT NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `employee_extras` (
   `extension` VARCHAR(50) NOT NULL PRIMARY KEY,
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS `employee_extras` (
   `title` VARCHAR(255) DEFAULT NULL,
   `emp_group` VARCHAR(100) DEFAULT NULL,
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `synq_agent_status` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS `synq_agent_status` (
   `status` VARCHAR(50) NOT NULL,
   `last_update` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY `idx_extension` (`extension`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `synq_agent_status_log` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS `synq_agent_status_log` (
   `start_time` TIMESTAMP NOT NULL,
   `end_time` TIMESTAMP NULL DEFAULT NULL,
   `duration_seconds` INT DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 CREATE TABLE IF NOT EXISTS `storage_settings` (
   `id` INT PRIMARY KEY DEFAULT 1,
   `auto_purge_days` INT DEFAULT 90,
@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS `storage_settings` (
   `auto_backup_schedule` VARCHAR(50) DEFAULT 'daily',
   `last_backup_at` DATETIME DEFAULT NULL,
   `last_backup_status` VARCHAR(50) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 -- Prioritize HD Voice / Wideband Codecs (G.722 / Opus) for high-quality extension-to-extension calls
 UPDATE `asterisk`.`sipsettings` SET `data` = '1', `seq` = 0 WHERE `keyword` = 'g722';
 UPDATE `asterisk`.`sipsettings` SET `data` = '2', `seq` = 1 WHERE `keyword` = 'opus';

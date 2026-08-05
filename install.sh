@@ -471,13 +471,7 @@ same => n,MacroExit()
 
 [dongle-hangup-cleanup]
 exten => s,1,NoOp(--- Pure Dialplan Dongle Hangup Cleanup ---)
-same => n,ExecIf($["${DONGLE_TARGET}"=""]?Set(DONGLE_TARGET=${CUT(CHANNEL,-,1)}))
-same => n,ExecIf($["${DONGLE_TARGET:0:7}"="Dongle/"]?Set(DONGLE_TARGET=${DONGLE_TARGET:7}))
-same => n,ExecIf($["${DB_EXISTS(DONGLE_DEVICE_MAP/${DONGLE_TARGET})}"="1"]?Set(DONGLE_TARGET=${DB(DONGLE_DEVICE_MAP/${DONGLE_TARGET})}))
-same => n,GotoIf($["${DONGLE_TARGET}"="" | "${DONGLE_TARGET:0:6}"!="dongle"]?done)
-same => n,Verbose(1, [DONGLE-DIALPLAN-CLEANUP] Resetting dongle ${DONGLE_TARGET} via dialplan System call (Cause: ${HANGUPCAUSE}, DialStatus: ${DIALSTATUS}))
-same => n,System(/usr/sbin/asterisk -rx "dongle restart now ${DONGLE_TARGET}" &)
-same => n(done),Return()
+same => n,Return()
 MACRO
 # Strip old [macro-dialout-one-predial-hook] before appending
 echo "  Stripping old [macro-dialout-one-predial-hook]..."

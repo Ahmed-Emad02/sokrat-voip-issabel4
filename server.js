@@ -3702,38 +3702,16 @@ function extractPhoneNumber(text) {
 // Read the hot-plug number mappings from Asterisk AstDB (sim_map, dongle_map, DONGLE_NUMBERS families) & MariaDB
 function getAstDbNumbers(callback) {
     const mappings = {};
-    function parseAstDbOutput(stdout, family) {
-        if (!stdout) return;
-        const lines = stdout.split('\n');
-        lines.forEach(line => {
-            const regex = new RegExp(`\\/${family}\\/([a-zA-Z0-9_]+)\\s*:\\s*(\\+?\\d+)`);
-            const match = regex.exec(line);
-            if (match) {
-                mappings[match[1]] = match[2];
-            }
-        });
-    }
-
-    execFile(ASTERISK_BIN, ['-rx', 'database show sim_map'], (err1, out1) => {
-        parseAstDbOutput(out1, 'sim_map');
-        execFile(ASTERISK_BIN, ['-rx', 'database show dongle_map'], (err2, out2) => {
-            parseAstDbOutput(out2, 'dongle_map');
-            execFile(ASTERISK_BIN, ['-rx', 'database show DONGLE_NUMBERS'], (err3, out3) => {
-                parseAstDbOutput(out3, 'DONGLE_NUMBERS');
-                
-                pool.query('SELECT dongle_name, imsi, imei, phone_number FROM `asterisk`.`gsm_dongles` WHERE phone_number IS NOT NULL AND phone_number != ""')
-                    .then(([rows]) => {
-                        rows.forEach(r => {
-                            if (r.dongle_name && r.phone_number) mappings[r.dongle_name] = r.phone_number;
-                            if (r.imsi && r.phone_number) mappings[r.imsi] = r.phone_number;
-                            if (r.imei && r.phone_number) mappings[r.imei] = r.phone_number;
-                        });
-                        callback(mappings);
-                    })
-                    .catch(() => callback(mappings));
+    pool.query('SELECT dongle_name, imsi, imei, phone_number FROM `asterisk`.`gsm_dongles` WHERE phone_number IS NOT NULL AND phone_number != ""')
+        .then(([rows]) => {
+            rows.forEach(r => {
+                if (r.dongle_name && r.phone_number) mappings[r.dongle_name] = r.phone_number;
+                if (r.imsi && r.phone_number) mappings[r.imsi] = r.phone_number;
+                if (r.imei && r.phone_number) mappings[r.imei] = r.phone_number;
             });
-        });
-    });
+            callback(mappings);
+        })
+        .catch(() => callback(mappings));
 }
 
 // Start background tail log monitor on the Asterisk verbose log file
@@ -8096,25 +8074,14 @@ app.get('/api/config/dongle-mappings', requireAuth, async (req, res) => {
             if (dev.ID) liveMap[dev.ID] = dev;
         }
 
-        const getAstDbMap = async (family) => {
-            const out = await execFileAsync(ASTERISK_BIN, ['-rx', `database show ${family}`]);
-            const map = {};
-            if (out) {
-                const lines = out.split('\n');
-                lines.forEach(line => {
-                    const regex = new RegExp(`\\/${family}\\/([a-zA-Z0-9_]+)\\s*:\\s*(.+)`);
-                    const m = regex.exec(line);
-                    if (m) map[m[1].trim()] = m[2].trim();
-                });
-            }
-            return map;
-        };
-
-        const [dongleMap, simMap, dongleNumMap] = await Promise.all([
-            getAstDbMap('dongle_map'),
-            getAstDbMap('sim_map'),
-            getAstDbMap('DONGLE_NUMBERS')
-        ]);
+        const dongleMap = {};
+        const simMap = {};
+        const dongleNumMap = {};
+        for (const r of dbRows) {
+            if (r.dongle_name && r.phone_number) dongleMap[r.dongle_name] = r.phone_number;
+            if (r.imsi && r.phone_number) simMap[r.imsi] = r.phone_number;
+            if (r.imei && r.phone_number) dongleNumMap[r.imei] = r.phone_number;
+        }
 
         const [routes] = await pool.query('SELECT extension, destination, description FROM `asterisk`.`incoming`');
         const routeMap = {};

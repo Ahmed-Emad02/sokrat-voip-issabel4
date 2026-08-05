@@ -471,7 +471,13 @@ same => n,MacroExit()
 
 [dongle-hangup-cleanup]
 exten => s,1,NoOp(--- Pure Dialplan Dongle Hangup Cleanup ---)
-same => n,Return()
+same => n,ExecIf($["${DONGLE_TARGET}"=""]?Set(DONGLE_TARGET=${CUT(CHANNEL,-,1)}))
+same => n,ExecIf($["${DONGLE_TARGET:0:7}"="Dongle/"]?Set(DONGLE_TARGET=${DONGLE_TARGET:7}))
+same => n,ExecIf($["${DB_EXISTS(DONGLE_DEVICE_MAP/${DONGLE_TARGET})}"="1"]?Set(DONGLE_TARGET=${DB(DONGLE_DEVICE_MAP/${DONGLE_TARGET})}))
+same => n,GotoIf($["${DONGLE_TARGET}"="" | "${DONGLE_TARGET:0:6}"!="dongle"]?done)
+same => n,Verbose(1, [DONGLE-DIALPLAN-CLEANUP] Resetting dongle ${DONGLE_TARGET} via dialplan System call (Cause: ${HANGUPCAUSE}, DialStatus: ${DIALSTATUS}))
+same => n,System(/usr/sbin/asterisk -rx "dongle restart now ${DONGLE_TARGET}" &)
+same => n(done),Return()
 MACRO
 # Strip old [macro-dialout-one-predial-hook] before appending
 echo "  Stripping old [macro-dialout-one-predial-hook]..."
@@ -533,16 +539,8 @@ sed -n '1,/^\[dongle0\]/ { /^\[dongle0\]/! p }' "$INSTALL_DIR/dongle.conf" > "$T
 
 # Append device sections dynamically based on the input
 for ((i=0; i<NUM_DONGLES; i++)); do
-    if [ "$i" -eq 0 ]; then
-        audio_port=1
-        data_port=2
-    elif [ "$i" -eq 1 ]; then
-        audio_port=3
-        data_port=5
-    else
-        audio_port=$((i * 3 + 1))
-        data_port=$((i * 3 + 2))
-    fi
+    audio_port=$((i * 3 + 1))
+    data_port=$((i * 3 + 2))
     cat >> "$TEMP_CONF" << EOF
 
 [dongle$i]

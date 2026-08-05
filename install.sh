@@ -452,9 +452,9 @@ same => n,MusicOnHold(${EXTEN})
 same => n,Hangup()
 DONGLE
 
-# Strip old [macro-dialout-trunk-predial-hook] before appending
-echo "  Stripping old [macro-dialout-trunk-predial-hook]..."
-python3 -c "import re;f=open('/etc/asterisk/extensions_custom.conf').read();f=re.sub(r'\\[macro-dialout-trunk-predial-hook\\].*?(?=\\n\\[|\\Z)', '', f, flags=re.DOTALL);open('/etc/asterisk/extensions_custom.conf','w').write(f)"
+# Strip old [macro-dialout-trunk-predial-hook] and [dongle-hangup-cleanup] before appending
+echo "  Stripping old [macro-dialout-trunk-predial-hook] and [dongle-hangup-cleanup]..."
+python3 -c "import re;f=open('/etc/asterisk/extensions_custom.conf').read();f=re.sub(r'\\[macro-dialout-trunk-predial-hook\\].*?(?=\\n\\[|\\Z)', '', f, flags=re.DOTALL);f=re.sub(r'\\[dongle-hangup-cleanup\\].*?(?=\\n\\[|\\Z)', '', f, flags=re.DOTALL);open('/etc/asterisk/extensions_custom.conf','w').write(f)"
 echo "  Stripped."
 
 # Append macro-dialout-trunk-predial-hook

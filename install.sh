@@ -533,16 +533,8 @@ sed -n '1,/^\[dongle0\]/ { /^\[dongle0\]/! p }' "$INSTALL_DIR/dongle.conf" > "$T
 
 # Append device sections dynamically based on the input
 for ((i=0; i<NUM_DONGLES; i++)); do
-    if [ "$i" -eq 0 ]; then
-        audio_port=1
-        data_port=2
-    elif [ "$i" -eq 1 ]; then
-        audio_port=3
-        data_port=5
-    else
-        audio_port=$((i * 3 + 1))
-        data_port=$((i * 3 + 2))
-    fi
+    audio_port=$((i * 3))
+    data_port=$((i * 3 + 2))
     cat >> "$TEMP_CONF" << EOF
 
 [dongle$i]

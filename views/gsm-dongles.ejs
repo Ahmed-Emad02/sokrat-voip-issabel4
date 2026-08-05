@@ -1791,16 +1791,16 @@ const initialSelectedDongleId = devices && devices.length > 0 ? devices[0].ID : 
                     if (selectedRow) selectedRow.classList.add('selected-row');
                     
                     // Fill metadata cards
-                    elId.textContent = dev.ID || '-';
-                    elNum.textContent = dev.Number || 'Unknown';
-                    elProv.textContent = dev['Provider Name'] || 'NONE';
-                    elImei.textContent = dev.IMEI || '-';
-                    elImsi.textContent = dev.IMSI || '-';
-                    elGroup.textContent = dev.Group || '0';
-                    elModel.textContent = dev.Model || '-';
-                    elFirm.textContent = dev.Firmware || '-';
-                    elMode.textContent = dev.Mode || '-';
-                    elSub.textContent = dev.Submode || '-';
+                    if (elId) elId.textContent = dev.ID || '-';
+                    if (elNum) elNum.textContent = dev.Number || 'Unknown';
+                    if (elProv) elProv.textContent = dev['Provider Name'] || 'NONE';
+                    if (elImei) elImei.textContent = dev.IMEI || '-';
+                    if (elImsi) elImsi.textContent = dev.IMSI || '-';
+                    if (elGroup) elGroup.textContent = dev.Group || '0';
+                    if (elModel) elModel.textContent = dev.Model || '-';
+                    if (elFirm) elFirm.textContent = dev.Firmware || '-';
+                    if (elMode) elMode.textContent = dev.Mode || '-';
+                    if (elSub) elSub.textContent = dev.Submode || '-';
 
                     selectedDongleId = normalizedId;
                     updateSmsInboxTitle();
@@ -2231,14 +2231,18 @@ const initialSelectedDongleId = devices && devices.length > 0 ? devices[0].ID : 
             refreshUsbDevices();
             setInterval(refreshUsbDevices, 1000);
 
-            clearLogsBtn.addEventListener('click', function() {
-                logScreen.innerHTML = '<div class="text-zinc-600">[System] Log screen cleared. Awaiting hardware events...</div>';
-            });
+            if (clearLogsBtn) {
+                clearLogsBtn.addEventListener('click', function() {
+                    if (logScreen) logScreen.innerHTML = '<div class="text-zinc-600">[System] Log screen cleared. Awaiting hardware events...</div>';
+                });
+            }
 
             // Toggle logs console container visibility
-            logsToggle.addEventListener('change', () => {
-                logScreen.classList.toggle('hidden', !logsToggle.checked);
-            });
+            if (logsToggle && logScreen) {
+                logsToggle.addEventListener('change', () => {
+                    logScreen.classList.toggle('hidden', !logsToggle.checked);
+                });
+            }
 
             // Copy to clipboard utility with green checkmark feedback (supports non-secure HTTP local IP fallback)
             window.copyToClipboard = function(text, btn) {

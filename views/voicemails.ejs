@@ -1,0 +1,731 @@
+<%
+const words = {
+    en: {
+        title: "Voicemail", subtitle: "Inbox", desc: "Listen to and manage voicemail messages",
+        thDate: "Date", thMailbox: "Mailbox", thCallerid: "Caller ID", thDuration: "Duration", thFile: "File", thRec: "Recording",
+        searchCallerid: "Caller ID", searchMailbox: "All Mailboxes", noData: "No voicemail messages found.",
+        play: "Play", download: "Download", noAudio: "No Audio", footerLeft: "Voicemails", footerRight: "Total messages:",
+        pagPrev: "Prev", pagNext: "Next", pagShowing: "Showing", pagOf: "of", pagResults: "results",
+        btn: "Search", exportCsv: "Download CSV", startTime: "Start Time", endTime: "End Time", clearBtn: "Reset Filters"
+    },
+    ar: {
+        title: "البريد الصوتي", subtitle: "صندوق الوارد", desc: "استمع إلى رسائل البريد الصوتي وأدرها",
+        thDate: "التاريخ", thMailbox: "صندوق البريد", thCallerid: "رقم المتصل", thDuration: "المدة", thFile: "الملف", thRec: "التسجيل",
+        searchCallerid: "رقم المتصل", searchMailbox: "جميع صناديق البريد", noData: "لم يتم العثور على رسائل بريد صوتي.",
+        play: "تشغيل", download: "تحميل", noAudio: "لا يوجد صوت", footerLeft: "البريد الصوتي", footerRight: "إجمالي الرسائل:",
+        pagPrev: "السابق", pagNext: "التالي", pagShowing: "عرض", pagOf: "من", pagResults: "نتيجة",
+        btn: "بحث", exportCsv: "تحميل CSV", startTime: "وقت البداية", endTime: "وقت النهاية", clearBtn: "إعادة ضبط التصفية"
+    }
+};
+const t = words[currentLang];
+const isRtl = currentLang === 'ar';
+function fmtDur(s) {
+    s = parseInt(s) || 0;
+    const h = Math.floor(s / 3600); const m = Math.floor((s % 3600) / 60); const sec = s % 60;
+    return h > 0 ? h + ':' + String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0')
+                 : m + ':' + String(sec).padStart(2,'0');
+}
+%>
+<!DOCTYPE html>
+<html lang="<%= currentLang %>" dir="<%= isRtl ? 'rtl' : 'ltr' %>">
+<head>
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme') || 'dark';
+            if (theme === 'light') { document.documentElement.classList.add('light-theme'); }
+            else { document.documentElement.classList.remove('light-theme'); }
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sokrat VOIP - Voicemails</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <style>
+        :root {
+            --bg-primary: #09090b; --bg-secondary: #121212; --bg-card: #18181b; --bg-hover: #27272a;
+            --border-primary: #27272a; --border-accent: #3f3f46;
+            --text-primary: #ffffff; --text-secondary: #a1a1aa; --text-muted: #71717a;
+            --accent-color: var(--accent-color); --accent-hover: var(--accent-hover);
+        }
+        body { background-color: var(--bg-primary); font-family: 'Roboto', 'IBM Plex Sans Arabic', sans-serif; color: var(--text-primary); }
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 10% 20%, rgba(255, 59, 48, 0.06) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.02) 0%, transparent 45%);
+            pointer-events: none; z-index: -1;
+        }
+        .panel-surface { background-color: var(--bg-secondary); border: 1px solid var(--border-primary); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); }
+        .accent-orange { color: var(--accent-color); }
+        .font-vibrant-display { font-weight: 900; letter-spacing: -0.01em; }
+        input, select, button { transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1); }
+        /* Custom Sokrat VoIP Flatpickr Dark Theme (Matches user's image) */
+        .flatpickr-calendar {
+            background: #0c0c0e !important;
+            border: 1px solid #27272a !important;
+            border-radius: 1rem !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85) !important;
+            font-family: 'Roboto', 'IBM Plex Sans Arabic', sans-serif !important;
+            padding: 0.5rem !important;
+            width: 310px !important;
+        }
+        .flatpickr-calendar.arrowTop:before,
+        .flatpickr-calendar.arrowTop:after,
+        .flatpickr-calendar.arrowBottom:before,
+        .flatpickr-calendar.arrowBottom:after {
+            display: none !important;
+        }
+        .flatpickr-months {
+            align-items: center !important;
+            padding: 0.25rem 0.5rem !important;
+        }
+        .flatpickr-months .flatpickr-month {
+            color: #ffffff !important;
+            fill: #ffffff !important;
+            font-weight: 800 !important;
+            font-size: 1.1rem !important;
+        }
+        .flatpickr-months .flatpickr-prev-month,
+        .flatpickr-months .flatpickr-next-month {
+            color: #e53e3e !important;
+            fill: #e53e3e !important;
+            padding: 0.5rem !important;
+        }
+        .flatpickr-months .flatpickr-prev-month:hover svg,
+        .flatpickr-months .flatpickr-next-month:hover svg {
+            fill: #fc8181 !important;
+        }
+        .flatpickr-current-month select.flatpickr-monthDropdown-months {
+            background: #18181b !important;
+            border: 1px solid #3f3f46 !important;
+            border-radius: 0.35rem !important;
+            color: #ffffff !important;
+            font-weight: 800 !important;
+            font-size: 0.9rem !important;
+            padding: 1px 4px !important;
+            cursor: pointer !important;
+            appearance: auto !important;
+            -webkit-appearance: menulist !important;
+            max-width: 120px !important;
+        }
+        .flatpickr-current-month .flatpickr-monthDropdown-months option {
+            background-color: #121215 !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+        }
+        /* Media Slider range input styling */
+        .media-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            background: linear-gradient(to right, var(--accent-color, #ff3b30) 0%, var(--accent-color, #ff3b30) var(--seek-before-width, 0%), var(--border-primary, #27272a) var(--seek-before-width, 0%), var(--border-primary, #27272a) 100%);
+            border-radius: 9999px;
+            height: 6px;
+            outline: none;
+            transition: background 0.05s ease;
+        }
+        .media-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent-color, #ff3b30);
+            box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+            transition: transform 0.15s ease, background-color 0.15s ease;
+        }
+        .media-slider:hover::-webkit-slider-thumb,
+        .media-slider:active::-webkit-slider-thumb {
+            transform: scale(1.3);
+            background: #ffffff;
+            box-shadow: 0 0 8px var(--accent-color, #ff3b30);
+        }
+        .media-slider::-moz-range-thumb {
+            width: 12px;
+            height: 12px;
+            border: none;
+            border-radius: 50%;
+            background: var(--accent-color, #ff3b30);
+            box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+            transition: transform 0.15s ease, background-color 0.15s ease;
+        }
+        .media-slider:hover::-moz-range-thumb,
+        .media-slider:active::-moz-range-thumb {
+            transform: scale(1.3);
+            background: #ffffff;
+            box-shadow: 0 0 8px var(--accent-color, #ff3b30);
+        }
+        .vol-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            background: linear-gradient(to right, var(--accent-color, #ff3b30) 0%, var(--accent-color, #ff3b30) var(--vol-before-width, 100%), var(--border-primary, #27272a) var(--vol-before-width, 100%), var(--border-primary, #27272a) 100%);
+            border-radius: 9999px;
+            height: 4px;
+            outline: none;
+        }
+        .vol-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+        }
+        .vol-slider::-moz-range-thumb {
+            width: 9px;
+            height: 9px;
+            border: none;
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+        }
+        .flatpickr-current-month .numInputWrapper input.cur-year {
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            font-size: 0.9rem !important;
+        }
+        .flatpickr-weekdays {
+            margin-top: 0.5rem !important;
+            margin-bottom: 0.25rem !important;
+        }
+        span.flatpickr-weekday {
+            color: #a1a1aa !important;
+            font-weight: 700 !important;
+            font-size: 0.75rem !important;
+        }
+        .flatpickr-day {
+            color: #f4f4f5 !important;
+            border-radius: 50% !important;
+            font-weight: 600 !important;
+            font-size: 0.9rem !important;
+            height: 38px !important;
+            line-height: 38px !important;
+        }
+        .flatpickr-day:hover {
+            background: #1e1e24 !important;
+            border-color: transparent !important;
+        }
+        .flatpickr-day.today {
+            border-color: #e53e3e !important;
+            color: #ffffff !important;
+        }
+        .flatpickr-day.selected,
+        .flatpickr-day.selected:hover {
+            background: #e53e3e !important;
+            border-color: #e53e3e !important;
+            color: #ffffff !important;
+            font-weight: 800 !important;
+            box-shadow: 0 4px 14px rgba(229, 62, 62, 0.4) !important;
+        }
+        .flatpickr-time {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            border-top: 1px solid #27272a !important;
+            margin-top: 0.5rem !important;
+            padding: 6px 10px !important;
+            background: #09090b !important;
+            border-radius: 0.75rem !important;
+            height: 48px !important;
+            max-height: 48px !important;
+            overflow: hidden !important;
+            box-sizing: border-box !important;
+        }
+        .flatpickr-time .numInputWrapper {
+            flex: 0 0 54px !important;
+            height: 36px !important;
+            position: relative !important;
+        }
+        .flatpickr-time .numInputWrapper input.numInput {
+            background: #18181b !important;
+            border: 1px solid #27272a !important;
+            border-radius: 0.5rem !important;
+            color: #ffffff !important;
+            font-family: 'JetBrains Mono', monospace !important;
+            font-weight: 800 !important;
+            font-size: 0.95rem !important;
+            text-align: center !important;
+            height: 36px !important;
+            line-height: normal !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            box-sizing: border-box !important;
+            width: 100% !important;
+        }
+        .flatpickr-time .numInputWrapper input.numInput:focus {
+            border-color: #e53e3e !important;
+            outline: none !important;
+            background: #27272a !important;
+        }
+        .flatpickr-time .flatpickr-time-separator {
+            color: #ffffff !important;
+            font-weight: 900 !important;
+            font-size: 1.2rem !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            height: 36px !important;
+            width: 12px !important;
+        }
+        .flatpickr-time .flatpickr-am-pm {
+            background: #18181b !important;
+            border: 1px solid #27272a !important;
+            border-radius: 0.5rem !important;
+            color: #ffffff !important;
+            font-weight: 800 !important;
+            font-size: 0.85rem !important;
+            height: 36px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 54px !important;
+            cursor: pointer !important;
+            box-sizing: border-box !important;
+        }
+        .flatpickr-time .flatpickr-am-pm:hover {
+            background: #27272a !important;
+            border-color: #e53e3e !important;
+            color: #e53e3e !important;
+        }
+        .flatpickr-time .numInputWrapper span.arrowUp,
+        .flatpickr-time .numInputWrapper span.arrowDown {
+            display: none !important;
+        }
+        .flatpickr-input[readonly], .flatpickr-input.flatpickr-mobile {
+            background-color: #09090b !important;
+            border: 1px solid #27272a !important;
+            border-radius: 0.5rem !important;
+            color: #ffffff !important;
+            font-family: 'JetBrains Mono', monospace !important;
+            font-weight: 700 !important;
+            font-size: 0.875rem !important;
+            padding: 0.5rem 0.75rem !important;
+        }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row min-h-screen m-0 p-0">
+    <%- include('sidebar') %>
+    <div class="flex-1 p-8 relative">
+        <!-- Header Bar with Integrated Action -->
+        <div class="mb-4 flex items-center justify-between gap-4">
+            <div>
+                <h2 class="text-2xl font-vibrant-display text-white tracking-tight"><%= t.title %> <span class="accent-orange"><%= t.subtitle %></span></h2>
+            </div>
+            <button type="button" onclick="exportCSV()" class="config-btn-secondary px-3.5 py-2 rounded-lg text-xs font-bold flex items-center gap-2 cursor-pointer shadow-sm">
+                <svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span><%= t.exportCsv %></span>
+            </button>
+        </div>
+
+        <form id="vmFilterForm" action="/voicemails" method="GET" class="panel-surface p-4 rounded-xl mb-4 shadow-lg grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+            <input type="hidden" name="lang" value="<%= currentLang %>">
+            <input type="hidden" name="page" value="<%= filters.page %>">
+            <input type="hidden" name="perPage" value="<%= filters.perPage %>">
+            <div>
+                <label class="block text-[11px] font-bold uppercase text-zinc-400 mb-1 tracking-wider"><%= t.thMailbox %></label>
+                <select name="searchMailbox" class="w-full bg-[#09090b] border border-[#27272a] rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-[var(--accent-color)]">
+                    <option value=""><%= t.searchMailbox %></option>
+                    <% mailboxes.forEach(mb => { %>
+                        <option value="<%= mb %>" <%= filters.searchMailbox === mb ? 'selected' : '' %>><%= mb %></option>
+                    <% }) %>
+                </select>
+            </div>
+            <div>
+                <label class="block text-[11px] font-bold uppercase text-zinc-400 mb-1 tracking-wider"><%= t.thCallerid %></label>
+                <input type="text" name="searchCallerid" value="<%= filters.searchCallerid %>" placeholder="e.g., 010..." class="w-full bg-[#09090b] border border-[#27272a] rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-zinc-700 focus:outline-none focus:border-[var(--accent-color)]">
+            </div>
+            <div>
+                <label class="block text-[11px] font-bold uppercase text-zinc-400 mb-1 tracking-wider"><%= t.startTime %></label>
+                <input type="datetime-local" name="startDate" value="<%= filters.startDate ? moment(filters.startDate).format('YYYY-MM-DDTHH:mm') : '' %>" class="w-full bg-[#09090b] border border-[#27272a] rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-[var(--accent-color)]">
+            </div>
+            <div>
+                <label class="block text-[11px] font-bold uppercase text-zinc-400 mb-1 tracking-wider"><%= t.endTime %></label>
+                <input type="datetime-local" name="endDate" value="<%= filters.endDate ? moment(filters.endDate).format('YYYY-MM-DDTHH:mm') : '' %>" class="w-full bg-[#09090b] border border-[#27272a] rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-[var(--accent-color)]">
+            </div>
+            <div class="flex items-center gap-2">
+                <button type="submit" class="btn-primary flex-1 py-1.5 text-xs uppercase tracking-wider h-[34px] flex items-center justify-center cursor-pointer"><%= t.btn %></button>
+                <a href="/voicemails?lang=<%= currentLang %>" class="px-3 py-1.5 text-xs font-bold text-zinc-400 hover:text-white bg-zinc-800 hover:bg-zinc-700 rounded-lg h-[34px] flex items-center justify-center transition cursor-pointer" title="<%= t.clearBtn %>">✕</a>
+            </div>
+        </form>
+
+        <% if (pagination.totalPages > 1) { %>
+        <div class="flex items-center justify-between px-4 py-3 mb-2">
+            <span class="text-xs text-zinc-500 font-bold">
+                <%= t.pagShowing %> <%= (pagination.page - 1) * pagination.perPage + 1 %>-<%= Math.min(pagination.page * pagination.perPage, pagination.total) %> <%= t.pagOf %> <%= pagination.total %> <%= t.pagResults %>
+            </span>
+            <div class="flex items-center gap-1">
+                <button onclick="goToPage(<%= pagination.page - 1 %>)" <%= pagination.page <= 1 ? 'disabled' : '' %> class="px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider transition cursor-pointer <%= pagination.page <= 1 ? 'text-zinc-700 bg-zinc-900/50 cursor-not-allowed' : 'text-zinc-300 bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] hover:text-white' %>"><%= t.pagPrev %></button>
+                <% for (let p = Math.max(1, pagination.page - 2); p <= Math.min(pagination.totalPages, pagination.page + 2); p++) { %>
+                    <button onclick="goToPage(<%= p %>)" class="px-3 py-1.5 rounded-lg text-xs font-black tracking-wider transition cursor-pointer <%= p === pagination.page ? 'bg-[var(--accent-color)] text-white shadow-sm' : 'text-zinc-400 bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] hover:text-white' %>"><%= p %></button>
+                <% } %>
+                <button onclick="goToPage(<%= pagination.page + 1 %>)" <%= pagination.page >= pagination.totalPages ? 'disabled' : '' %> class="px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider transition cursor-pointer <%= pagination.page >= pagination.totalPages ? 'text-zinc-700 bg-zinc-900/50 cursor-not-allowed' : 'text-zinc-300 bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] hover:text-white' %>"><%= t.pagNext %></button>
+            </div>
+        </div>
+        <% } %>
+
+        <div class="panel-surface rounded-2xl overflow-hidden shadow-2xl">
+            <div class="overflow-x-auto">
+                <table class="w-full text-start border-collapse">
+                    <thead>
+                        <tr class="bg-black/40 text-zinc-400 text-xs font-bold uppercase border-b border-[#27272a]">
+                            <th class="p-4 tracking-wider text-start"><%= t.thDate %></th>
+                            <th class="p-4 tracking-wider text-start"><%= t.thMailbox %></th>
+                            <th class="p-4 tracking-wider text-start"><%= t.thCallerid %></th>
+                            <th class="p-4 tracking-wider text-start"><%= t.thDuration %></th>
+                            <th class="p-4 tracking-wider text-start"><%= t.thFile %></th>
+                            <th class="p-4 tracking-wider text-end min-w-[340px]"><%= t.thRec %></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-zinc-800/30 text-sm font-sans">
+                        <% if (messages.length === 0) { %>
+                            <tr><td colspan="6" class="p-8 text-center text-zinc-500 font-sans"><%= t.noData %></td></tr>
+                        <% } %>
+                        <% messages.forEach(msg => { %>
+                            <tr class="hover:bg-zinc-900/60 transition">
+                                <td class="p-4 text-slate-400"><%= msg.origtime ? moment(msg.origtime).format('YYYY-MM-DD HH:mm:ss') : '-' %></td>
+                                <td class="p-4 font-bold text-white"><%= msg.mailbox %></td>
+                                <td class="p-4 text-zinc-300"><%= msg.callerid || '-' %></td>
+                                <td class="p-4 text-zinc-400"><%= fmtDur(msg.duration) %></td>
+                                <td class="p-4 text-zinc-500 text-[11px] font-mono"><%= msg.wavFile || '-' %></td>
+                                <td class="p-4 text-end min-w-[340px]">
+                                    <% if (msg.wavFile) { %>
+                                        <div class="audio-player flex items-center gap-1.5 min-w-[320px] max-w-[360px] <%= isRtl ? 'flex-row-reverse ml-auto' : 'ml-auto' %>">
+                                            <audio preload="none" data-player-audio>
+                                                <source src="/vm-audio/<%= msg.mailbox %>/<%= msg.wavFile %>">
+                                            </audio>
+                                            <button data-player-playpause class="shrink-0 w-7 h-7 rounded-full bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] flex items-center justify-center transition cursor-pointer shadow-sm" title="Play / Pause">
+                                                <svg data-icon-play class="w-3.5 h-3.5 text-white fill-white" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                                <svg data-icon-pause class="w-3.5 h-3.5 text-white fill-white hidden" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                                            </button>
+                                            <span data-player-current class="text-[10px] font-mono font-bold text-[var(--text-muted)] w-7 text-right shrink-0 select-none">0:00</span>
+                                            <div class="relative flex-1 min-w-[80px] flex items-center group py-1">
+                                                <input type="range" data-player-slider min="0" max="100" value="0" step="0.1"
+                                                       class="media-slider w-full cursor-pointer focus:outline-none"
+                                                       title="Seek Media Slider" style="--seek-before-width: 0%;">
+                                            </div>
+                                            <span data-player-duration class="text-[10px] font-mono font-bold text-[var(--text-muted)] w-7 shrink-0 select-none"><%= fmtDur(msg.duration) %></span>
+                                            <div class="flex items-center gap-1 shrink-0">
+                                                <div class="relative flex items-center group/vol shrink-0">
+                                                    <button type="button" data-player-mute class="shrink-0 w-6 h-6 rounded-full bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] border border-[var(--border-primary)] flex items-center justify-center text-[var(--text-muted)] hover:text-white transition cursor-pointer" title="Mute / Unmute">
+                                                        <svg data-icon-vol-high class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M18.364 5.636a9 9 0 010 12.728M11 5L6 9H2v6h4l5 4V5z"/></svg>
+                                                        <svg data-icon-vol-mute class="w-3 h-3 text-red-400 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/><path stroke-linecap="round" stroke-linejoin="round" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/></svg>
+                                                    </button>
+                                                    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/vol:flex items-center p-1.5 bg-[#18181b] border border-[var(--border-primary)] rounded-lg shadow-xl z-30 transition-all duration-150">
+                                                        <input type="range" data-player-volume min="0" max="1" step="0.05" value="1"
+                                                               class="vol-slider w-16 h-1 cursor-pointer focus:outline-none"
+                                                               title="Volume" style="--vol-before-width: 100%;">
+                                                    </div>
+                                                </div>
+                                                <select data-player-speed class="shrink-0 appearance-none bg-[var(--bg-card)] text-[var(--text-secondary)] border border-[var(--border-primary)] rounded-md text-[10px] font-bold px-1.5 py-0.5 focus:outline-none focus:border-[var(--accent-color)] cursor-pointer" title="Playback Speed">
+                                                    <option value="0.5">0.5x</option>
+                                                    <option value="1" selected>1x</option>
+                                                    <option value="1.25">1.25x</option>
+                                                    <option value="1.5">1.5x</option>
+                                                    <option value="2">2x</option>
+                                                </select>
+                                                <button type="button" onclick="triggerAudioDownload(event, '/vm-audio/<%= msg.mailbox %>/<%= msg.wavFile %>?download=1')" class="shrink-0 w-7 h-7 rounded-full bg-[var(--bg-card)] hover:bg-[var(--accent-color)] border border-[var(--border-primary)] flex items-center justify-center transition cursor-pointer group/dl" title="<%= t.download %>">
+                                                    <svg class="w-3.5 h-3.5 text-[var(--text-muted)] group-hover/dl:text-white transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m0 0l-4-4m4 4l4-4M5 19h14"/></svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    <% } else { %>
+                                        <span class="text-xs font-sans text-zinc-500/30 font-bold italic select-none"><%= t.noAudio %></span>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+            <div class="px-6 py-4 border-t border-[#27272a] bg-black/40">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-widest text-zinc-500"><%= t.footerLeft %></span>
+                    <span class="text-sm font-black text-white"><%= t.footerRight %> <span class="text-[var(--accent-color)]"><%= pagination.total %></span></span>
+                </div>
+                <% if (pagination.totalPages > 1) { %>
+                <div class="flex items-center justify-between mt-3 pt-3 border-t border-zinc-800/30">
+                    <span class="text-xs text-zinc-500 font-bold">
+                        <%= t.pagShowing %> <%= (pagination.page - 1) * pagination.perPage + 1 %>-<%= Math.min(pagination.page * pagination.perPage, pagination.total) %> <%= t.pagOf %> <%= pagination.total %> <%= t.pagResults %>
+                    </span>
+                    <div class="flex items-center gap-1">
+                        <button onclick="goToPage(<%= pagination.page - 1 %>)" <%= pagination.page <= 1 ? 'disabled' : '' %> class="px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider transition cursor-pointer <%= pagination.page <= 1 ? 'text-zinc-700 bg-zinc-900/50 cursor-not-allowed' : 'text-zinc-300 bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] hover:text-white' %>"><%= t.pagPrev %></button>
+                        <% for (let p = Math.max(1, pagination.page - 2); p <= Math.min(pagination.totalPages, pagination.page + 2); p++) { %>
+                            <button onclick="goToPage(<%= p %>)" class="px-3 py-1.5 rounded-lg text-xs font-black tracking-wider transition cursor-pointer <%= p === pagination.page ? 'bg-[var(--accent-color)] text-white shadow-sm' : 'text-zinc-400 bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] hover:text-white' %>"><%= p %></button>
+                        <% } %>
+                        <button onclick="goToPage(<%= pagination.page + 1 %>)" <%= pagination.page >= pagination.totalPages ? 'disabled' : '' %> class="px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider transition cursor-pointer <%= pagination.page >= pagination.totalPages ? 'text-zinc-700 bg-zinc-900/50 cursor-not-allowed' : 'text-zinc-300 bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] hover:text-white' %>"><%= t.pagNext %></button>
+                    </div>
+                </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+    <script>
+        function triggerAudioDownload(e, url) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            window.location.href = url;
+        }
+
+        function goToPage(page) {
+            const formEl = document.getElementById('vmFilterForm');
+            const pageEl = formEl ? formEl.querySelector('input[name="page"]') : null;
+            if (pageEl && formEl) { pageEl.value = page; formEl.submit(); }
+        }
+
+        (function() {
+            var saved = localStorage.getItem('vmPerPage');
+            var current = '<%= filters.perPage %>';
+            var formEl = document.getElementById('vmFilterForm');
+            if (formEl) {
+                var perPageInput = formEl.querySelector('input[name="perPage"]');
+                if (saved && perPageInput) {
+                    perPageInput.value = saved;
+                }
+                formEl.addEventListener('submit', function() {
+                    var s = localStorage.getItem('vmPerPage');
+                    if (s && perPageInput) perPageInput.value = s;
+                });
+            }
+            if (saved && parseInt(saved) !== parseInt(current)) {
+                var url = new URL(window.location);
+                url.searchParams.set('perPage', saved);
+                url.searchParams.set('page', '1');
+                window.location.replace(url.toString());
+            }
+        })();
+
+        function exportCSV() {
+            const formEl = document.getElementById('vmFilterForm');
+            if (formEl) {
+                const formData = new FormData(formEl);
+                const params = new URLSearchParams(formData);
+                params.delete('page');
+                params.delete('perPage');
+                window.location.href = '/vm-export?' + params.toString();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            let currentlyPlaying = null;
+            function fmtTime(s) {
+                if (!s || !isFinite(s)) return '0:00';
+                const m = Math.floor(s / 60);
+                const sec = Math.floor(s % 60);
+                return m + ':' + String(sec).padStart(2, '0');
+            }
+            document.querySelectorAll('.audio-player').forEach(player => {
+                const audio       = player.querySelector('[data-player-audio]');
+                const playBtn     = player.querySelector('[data-player-playpause]');
+                const iconPlay    = player.querySelector('[data-icon-play]');
+                const iconPause   = player.querySelector('[data-icon-pause]');
+                const slider      = player.querySelector('[data-player-slider]');
+                const curEl       = player.querySelector('[data-player-current]');
+                const durEl       = player.querySelector('[data-player-duration]');
+                const speedSel    = player.querySelector('[data-player-speed]');
+                const muteBtn     = player.querySelector('[data-player-mute]');
+                const iconVolHigh = player.querySelector('[data-icon-vol-high]');
+                const iconVolMute = player.querySelector('[data-icon-vol-mute]');
+                const volSlider   = player.querySelector('[data-player-volume]');
+
+                let isScrubbing = false;
+                let lastVolume = 1;
+
+                function updateSliderBackground(val) {
+                    if (slider) {
+                        slider.style.setProperty('--seek-before-width', val + '%');
+                    }
+                }
+
+                function updateVolBackground(val) {
+                    if (volSlider) {
+                        volSlider.style.setProperty('--vol-before-width', (val * 100) + '%');
+                    }
+                }
+
+                playBtn.addEventListener('click', () => {
+                    if (audio.paused) {
+                        if (currentlyPlaying && currentlyPlaying !== audio) {
+                            currentlyPlaying.pause();
+                            currentlyPlaying.currentTime = 0;
+                            const otherPlayer = currentlyPlaying.closest('.audio-player');
+                            if (otherPlayer) {
+                                otherPlayer.querySelector('[data-icon-play]')?.classList.remove('hidden');
+                                otherPlayer.querySelector('[data-icon-pause]')?.classList.add('hidden');
+                                const otherSlider = otherPlayer.querySelector('[data-player-slider]');
+                                if (otherSlider) {
+                                    otherSlider.value = 0;
+                                    otherSlider.style.setProperty('--seek-before-width', '0%');
+                                }
+                                const otherCur = otherPlayer.querySelector('[data-player-current]');
+                                if (otherCur) otherCur.textContent = '0:00';
+                            }
+                        }
+                        audio.play();
+                        currentlyPlaying = audio;
+                        iconPlay.classList.add('hidden');
+                        iconPause.classList.remove('hidden');
+                    } else {
+                        audio.pause();
+                        iconPlay.classList.remove('hidden');
+                        iconPause.classList.add('hidden');
+                    }
+                });
+
+                audio.addEventListener('loadedmetadata', () => {
+                    durEl.textContent = fmtTime(audio.duration);
+                });
+
+                audio.addEventListener('timeupdate', () => {
+                    if (!audio.duration || isScrubbing) return;
+                    const pct = (audio.currentTime / audio.duration) * 100;
+                    if (slider) {
+                        slider.value = pct;
+                        updateSliderBackground(pct);
+                    }
+                    curEl.textContent = fmtTime(audio.currentTime);
+                });
+
+                audio.addEventListener('ended', () => {
+                    iconPlay.classList.remove('hidden');
+                    iconPause.classList.add('hidden');
+                    if (slider) {
+                        slider.value = 0;
+                        updateSliderBackground(0);
+                    }
+                    curEl.textContent = '0:00';
+                    currentlyPlaying = null;
+                });
+
+                if (slider) {
+                    ['mousedown', 'touchstart'].forEach(evt => {
+                        slider.addEventListener(evt, () => {
+                            isScrubbing = true;
+                        });
+                    });
+
+                    slider.addEventListener('input', () => {
+                        isScrubbing = true;
+                        const pct = parseFloat(slider.value);
+                        updateSliderBackground(pct);
+                        if (audio.duration) {
+                            curEl.textContent = fmtTime((pct / 100) * audio.duration);
+                        }
+                    });
+
+                    slider.addEventListener('change', () => {
+                        if (audio.duration) {
+                            audio.currentTime = (parseFloat(slider.value) / 100) * audio.duration;
+                        }
+                        isScrubbing = false;
+                    });
+
+                    ['mouseup', 'touchend'].forEach(evt => {
+                        slider.addEventListener(evt, () => {
+                            if (isScrubbing && audio.duration) {
+                                audio.currentTime = (parseFloat(slider.value) / 100) * audio.duration;
+                            }
+                            isScrubbing = false;
+                        });
+                    });
+                }
+
+                if (speedSel) {
+                    speedSel.addEventListener('change', () => {
+                        audio.playbackRate = parseFloat(speedSel.value);
+                    });
+                }
+
+                if (muteBtn) {
+                    muteBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (audio.muted || audio.volume === 0) {
+                            audio.muted = false;
+                            audio.volume = lastVolume > 0 ? lastVolume : 1;
+                            if (volSlider) volSlider.value = audio.volume;
+                            updateVolBackground(audio.volume);
+                            iconVolHigh?.classList.remove('hidden');
+                            iconVolMute?.classList.add('hidden');
+                        } else {
+                            lastVolume = audio.volume;
+                            audio.muted = true;
+                            if (volSlider) volSlider.value = 0;
+                            updateVolBackground(0);
+                            iconVolHigh?.classList.add('hidden');
+                            iconVolMute?.classList.remove('hidden');
+                        }
+                    });
+                }
+
+                if (volSlider) {
+                    volSlider.addEventListener('input', (e) => {
+                        e.stopPropagation();
+                        const v = parseFloat(volSlider.value);
+                        audio.volume = v;
+                        audio.muted = (v === 0);
+                        updateVolBackground(v);
+                        if (v === 0) {
+                            iconVolHigh?.classList.add('hidden');
+                            iconVolMute?.classList.remove('hidden');
+                        } else {
+                            lastVolume = v;
+                            iconVolHigh?.classList.remove('hidden');
+                            iconVolMute?.classList.add('hidden');
+                        }
+                    });
+                }
+            });
+            flatpickr("input[name='startDate'], input[name='endDate']", {
+                enableTime: true,
+                dateFormat: "Y-m-d H:i:S",
+                altInput: true,
+                altFormat: "m/d/Y h:i K",
+                time_24hr: false,
+                allowInput: true,
+                scrollInputIntoView: false,
+                appendTo: document.body,
+                monthSelectorType: "dropdown"
+            });
+        });
+    </script>
+    <script>
+        (function() {
+            function forceMonthSelect() {
+                document.querySelectorAll('.flatpickr-current-month').forEach(function(el) {
+                    var sel = el.querySelector('.flatpickr-monthDropdown-months');
+                    var cur = el.querySelector('.cur-month');
+                    if (!sel) return;
+                    if (cur) cur.style.setProperty('display', 'none', 'important');
+                    sel.style.setProperty('display', 'inline-block', 'important');
+                    sel.style.setProperty('pointer-events', 'auto', 'important');
+                    sel.style.setProperty('cursor', 'pointer', 'important');
+                    sel.style.setProperty('opacity', '1', 'important');
+                });
+            }
+            // Force month select element display
+            forceMonthSelect();
+            var pollTimer = setInterval(function() { forceMonthSelect(); }, 100);
+            setTimeout(function() { clearInterval(pollTimer); }, 3000);
+            var obs = new MutationObserver(function(muts) {
+                muts.forEach(function(mut) {
+                    mut.addedNodes.forEach(function(n) {
+                        if (n.nodeType === 1 && n.querySelectorAll) forceMonthSelect();
+                    });
+                });
+            });
+            obs.observe(document.body, { childList: true, subtree: true });
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,995 @@
+<%
+const words = {
+    en: {
+        title: "Employees", subtitle: "",
+        desc: "Per-extension analytics and consolidated employee metrics",
+        startTime: "Start Time", endTime: "End Time",
+        direction: "Direction", allDir: "All", inbound: "Inbound", outbound: "Outbound",
+        apply: "Apply Filters",
+        selectExt: "Select an extension from the list",
+        totalCalls: "Total Calls", answered: "Answered", answerRate: "Answer Rate",
+        uniqueContacts: "Unique Contacts", avgTalk: "Avg Talk Time",
+        inboundLabel: "Inbound", outboundLabel: "Outbound",
+        talkTime: "Talk Time", sec: "s", min: "min",
+        disposition: "Call Disposition", daily: "Daily Call Volume",
+        recentCalls: "Recent Calls", noData: "No data found",
+        src: "Source", dst: "Destination", duration: "Duration", status: "Status",
+        footerLeft: "Agent Analytics Engine", footerRight: "Monitored Extensions:",
+        extList: "Extensions",
+        overview: "Overview",
+        employee: "Employee",
+        inboundDuration: "Inbound Dur.",
+        outboundDuration: "Outbound Dur.",
+        totalDuration: "Total Talk Time",
+        online: "Online",
+        offline: "Offline",
+        agentStatus: "Agent Status",
+        interactiveTable: "Click a row to inspect an extension."
+    },
+    ar: {
+        title: "الموظفين", subtitle: "",
+        desc: "تحليلات شاملة لكل وكيل مع مقاييس أداء الموظفين المدمجة",
+        startTime: "وقت البداية", endTime: "وقت النهاية",
+        direction: "الاتجاه", allDir: "الكل", inbound: "وارد", outbound: "صادر",
+        apply: "تطبيق الفلتر",
+        selectExt: "اختر وكيل من القائمة",
+        totalCalls: "إجمالي المكالمات", answered: "تم الرد", answerRate: "نسبة الرد",
+        uniqueContacts: "جهات اتصال فريدة", avgTalk: "متوسط وقت التحدث",
+        inboundLabel: "وارد", outboundLabel: "صادر",
+        talkTime: "وقت التحدث", sec: "ث", min: "د",
+        disposition: "حالة المكالمة", daily: "حجم المكالمات اليومي",
+        recentCalls: "آخر المكالمات", noData: "لا توجد بيانات",
+        src: "المصدر", dst: "الوجهة", duration: "المدة", status: "الحالة",
+        footerLeft: "محرك تحليلات الوكلاء", footerRight: "الوكلاء المراقبة:",
+        extList: "قائمة الوكلاء",
+        overview: "نظرة عامة على المقاييس",
+        employee: "الموظف",
+        inboundDuration: "مدة الوارد",
+        outboundDuration: "مدة الصادر",
+        totalDuration: "إجمالي وقت التحدث",
+        online: "متصل",
+        offline: "غير متصل",
+        agentStatus: "حالة الوكيل",
+        interactiveTable: "جدول ملخص أداء الموظفين (انقر فوق أي صف لعرض التحليلات العميقة)"
+    }
+};
+const t = words[currentLang];
+const isRtl = currentLang === 'ar';
+%>
+<!DOCTYPE html>
+<html lang="<%= currentLang %>" dir="<%= isRtl ? 'rtl' : 'ltr' %>">
+<head>
+    <!-- Prevent theme flickering -->
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme') || 'dark';
+            if (theme === 'light') {
+                document.documentElement.classList.add('light-theme');
+            } else {
+                document.documentElement.classList.remove('light-theme');
+            }
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sokrat VOIP - Agent Stats</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <style>
+        :root {
+            --bg-primary: #09090b;
+            --bg-secondary: #121212;
+            --bg-card: #18181b;
+            --bg-hover: #27272a;
+            --border-primary: #27272a;
+            --border-accent: #3f3f46;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --accent-color: var(--accent-color);
+            --accent-hover: var(--accent-hover);
+            --status-online: var(--accent-color);
+            --status-offline: #71717a;
+            --status-active: var(--accent-color);
+        }
+        body { 
+            background-color: var(--bg-primary); 
+            font-family: 'Roboto', 'IBM Plex Sans Arabic', sans-serif; 
+            color: var(--text-primary); 
+        }
+        /* Modern background pattern with subtle gradients */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(255, 59, 48, 0.06) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.02) 0%, transparent 45%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        .panel-surface { 
+            background-color: var(--bg-secondary); 
+            border: 1px solid var(--border-primary); 
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .accent-orange { color: var(--accent-color); }
+        .font-vibrant-display { font-weight: 900; letter-spacing: -0.01em; }
+        
+        .card-stat { 
+            transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1),
+                        border-color 150ms ease, 
+                        box-shadow 200ms ease; 
+        }
+        .card-stat:hover { 
+            transform: translateY(-1px);
+            border-color: var(--border-accent); 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.22);
+        }
+        .ext-card {
+            transition: all 150ms ease;
+            cursor: pointer;
+        }
+        .ext-card:hover {
+            background-color: var(--bg-hover);
+            border-color: var(--border-accent);
+        }
+        .ext-card.active {
+            background-color: #27272a;
+            border-color: var(--accent-color);
+            box-shadow: inset 0 0 0 1px rgba(255, 59, 48, 0.18);
+        }
+        input, select, button { 
+            transition: all 150ms ease; 
+        }
+        /* Custom Sokrat VoIP Flatpickr Dark Theme (Matches user's image) */
+        .flatpickr-calendar {
+            background: #0c0c0e !important;
+            border: 1px solid #27272a !important;
+            border-radius: 1rem !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85) !important;
+            font-family: 'Roboto', 'IBM Plex Sans Arabic', sans-serif !important;
+            padding: 0.5rem !important;
+            width: 310px !important;
+        }
+        .flatpickr-calendar.arrowTop:before,
+        .flatpickr-calendar.arrowTop:after,
+        .flatpickr-calendar.arrowBottom:before,
+        .flatpickr-calendar.arrowBottom:after {
+            display: none !important;
+        }
+        .flatpickr-months {
+            align-items: center !important;
+            padding: 0.25rem 0.5rem !important;
+        }
+        .flatpickr-months .flatpickr-month {
+            color: #ffffff !important;
+            fill: #ffffff !important;
+            font-weight: 800 !important;
+            font-size: 1.1rem !important;
+        }
+        .flatpickr-months .flatpickr-prev-month,
+        .flatpickr-months .flatpickr-next-month {
+            color: #e53e3e !important;
+            fill: #e53e3e !important;
+            padding: 0.5rem !important;
+        }
+        .flatpickr-months .flatpickr-prev-month:hover svg,
+        .flatpickr-months .flatpickr-next-month:hover svg {
+            fill: #fc8181 !important;
+        }
+        .flatpickr-current-month select.flatpickr-monthDropdown-months {
+            background: #18181b !important;
+            border: 1px solid #3f3f46 !important;
+            border-radius: 0.35rem !important;
+            color: #ffffff !important;
+            font-weight: 800 !important;
+            font-size: 0.9rem !important;
+            padding: 1px 4px !important;
+            cursor: pointer !important;
+            appearance: auto !important;
+            -webkit-appearance: menulist !important;
+            max-width: 120px !important;
+        }
+        .flatpickr-current-month .flatpickr-monthDropdown-months option {
+            background-color: #121215 !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+        }
+        .flatpickr-current-month .numInputWrapper input.cur-year {
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            font-size: 0.9rem !important;
+        }
+        .flatpickr-weekdays {
+            margin-top: 0.5rem !important;
+            margin-bottom: 0.25rem !important;
+        }
+        span.flatpickr-weekday {
+            color: #a1a1aa !important;
+            font-weight: 700 !important;
+            font-size: 0.75rem !important;
+        }
+        .flatpickr-day {
+            color: #f4f4f5 !important;
+            border-radius: 50% !important;
+            font-weight: 600 !important;
+            font-size: 0.9rem !important;
+            height: 38px !important;
+            line-height: 38px !important;
+        }
+        .flatpickr-day.prevMonthDay,
+        .flatpickr-day.nextMonthDay {
+            color: #52525b !important;
+            opacity: 0.4 !important;
+        }
+        .flatpickr-day.prevMonthDay:hover,
+        .flatpickr-day.nextMonthDay:hover {
+            background: #1e1e24 !important;
+            color: #a1a1aa !important;
+        }
+        .flatpickr-day:hover {
+            background: #1e1e24 !important;
+            border-color: transparent !important;
+        }
+        .flatpickr-day.today {
+            border-color: #e53e3e !important;
+            color: #ffffff !important;
+        }
+        .flatpickr-day.selected,
+        .flatpickr-day.selected:hover {
+            background: #e53e3e !important;
+            border-color: #e53e3e !important;
+            color: #ffffff !important;
+            font-weight: 800 !important;
+            box-shadow: 0 4px 14px rgba(229, 62, 62, 0.4) !important;
+        }
+        .flatpickr-time {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            border-top: 1px solid #27272a !important;
+            margin-top: 0.5rem !important;
+            padding: 6px 10px !important;
+            background: #09090b !important;
+            border-radius: 0.75rem !important;
+            height: 48px !important;
+            max-height: 48px !important;
+            overflow: hidden !important;
+            box-sizing: border-box !important;
+        }
+        .flatpickr-time .numInputWrapper {
+            flex: 0 0 54px !important;
+            height: 36px !important;
+            position: relative !important;
+        }
+        .flatpickr-time .numInputWrapper input.numInput {
+            background: #18181b !important;
+            border: 1px solid #27272a !important;
+            border-radius: 0.5rem !important;
+            color: #ffffff !important;
+            font-family: 'JetBrains Mono', monospace !important;
+            font-weight: 800 !important;
+            font-size: 0.95rem !important;
+            text-align: center !important;
+            height: 36px !important;
+            line-height: normal !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            box-sizing: border-box !important;
+            width: 100% !important;
+        }
+        .flatpickr-time .numInputWrapper input.numInput:focus {
+            border-color: #e53e3e !important;
+            outline: none !important;
+            background: #27272a !important;
+        }
+        .flatpickr-time .flatpickr-time-separator {
+            color: #ffffff !important;
+            font-weight: 900 !important;
+            font-size: 1.2rem !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            height: 36px !important;
+            width: 12px !important;
+        }
+        .flatpickr-time .flatpickr-am-pm {
+            background: #18181b !important;
+            border: 1px solid #27272a !important;
+            border-radius: 0.5rem !important;
+            color: #ffffff !important;
+            font-weight: 800 !important;
+            font-size: 0.85rem !important;
+            height: 36px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 54px !important;
+            cursor: pointer !important;
+            box-sizing: border-box !important;
+        }
+        .flatpickr-time .flatpickr-am-pm:hover {
+            background: #27272a !important;
+            border-color: #e53e3e !important;
+            color: #e53e3e !important;
+        }
+        .flatpickr-time .numInputWrapper span.arrowUp,
+        .flatpickr-time .numInputWrapper span.arrowDown {
+            display: none !important;
+        }
+        .flatpickr-input[readonly], .flatpickr-input.flatpickr-mobile {
+            background-color: #09090b !important;
+            border: 1px solid #27272a !important;
+            border-radius: 0.5rem !important;
+            color: #ffffff !important;
+            font-family: 'JetBrains Mono', monospace !important;
+            font-weight: 700 !important;
+            font-size: 0.875rem !important;
+            padding: 0.5rem 0.75rem !important;
+        }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row min-h-screen m-0 p-0">
+    <%- include('sidebar') %>
+    <div class="flex-1 p-8 flex flex-col min-h-0">
+        
+        <div class="mb-6 shrink-0 flex items-center justify-between <%= isRtl ? 'flex-row-reverse' : '' %>">
+            <div>
+                <h2 class="text-3xl font-vibrant-display text-white tracking-tight"><%= t.title %> <span class="accent-orange"><%= t.subtitle %></span></h2>
+            </div>
+            <!-- Back to Overview Button in Title Bar -->
+            <button id="overviewHeaderBtn" onclick="selectOverview()" class="hidden bg-[#18181b] hover:bg-[#27272a] border border-[#27272a] text-[var(--accent-color)] hover:text-[var(--accent-hover)] px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/></svg>
+                <%= t.overview %>
+            </button>
+        </div>
+
+        <!-- Filter Form -->
+        <form id="filterForm" class="panel-surface p-5 rounded-2xl mb-6 shrink-0 grid grid-cols-1 md:grid-cols-5 gap-4 items-end shadow-2xl">
+            <input type="hidden" name="lang" value="<%= currentLang %>">
+            <div>
+                <label class="block text-xs font-black uppercase text-zinc-400 mb-2 tracking-wider"><%= t.startTime %></label>
+                <input type="datetime-local" id="startDate" name="startDate" class="w-full bg-[#09090b] border border-[#27272a] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[var(--accent-color)]">
+            </div>
+            <div>
+                <label class="block text-xs font-black uppercase text-zinc-400 mb-2 tracking-wider"><%= t.endTime %></label>
+                <input type="datetime-local" id="endDate" name="endDate" class="w-full bg-[#09090b] border border-[#27272a] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[var(--accent-color)]">
+            </div>
+            <div id="dirFilterCol">
+                <label class="block text-xs font-black uppercase text-zinc-400 mb-2 tracking-wider"><%= t.direction %></label>
+                <select id="direction" name="direction" class="w-full bg-[#09090b] border border-[#27272a] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[var(--accent-color)]">
+                    <option value="all"><%= t.allDir %></option>
+                    <option value="inbound"><%= t.inbound %></option>
+                    <option value="outbound"><%= t.outbound %></option>
+                </select>
+            </div>
+            <div class="md:col-span-2 flex items-end gap-2">
+                <button type="submit" class="btn-primary flex-1 py-2.5 text-xs uppercase tracking-wider"><%= t.apply %></button>
+            </div>
+        </form>
+
+        <!-- Main Content Area -->
+        <div class="flex gap-6 flex-1 min-h-0">
+            <!-- Left Extensions List -->
+            <div class="panel-surface rounded-2xl shadow-2xl w-60 shrink-0 flex flex-col min-h-0">
+                <div class="px-4 py-3.5 border-b border-[#27272a] bg-black/30 shrink-0 flex items-center justify-between <%= isRtl ? 'flex-row-reverse' : '' %>">
+                    <span class="text-xs font-bold uppercase tracking-widest text-zinc-400"><%= t.extList %></span>
+                </div>
+                
+                <!-- Navigation Items -->
+                <div class="p-2 border-b border-[#27272a]/60 bg-black/10 shrink-0">
+                    <div id="btnOverview" class="ext-card panel-surface rounded-xl px-3 py-2.5 text-sm flex items-center gap-3 active font-black tracking-wide text-[var(--accent-color)] border border-[#27272a]" onclick="selectOverview()">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/></svg>
+                        <span><%= t.overview %></span>
+                    </div>
+                </div>
+
+                <div id="extList" class="flex-1 overflow-y-auto p-2 space-y-1 min-h-0">
+                    <% roster.forEach(emp => { %>
+                        <div class="ext-card panel-surface rounded-xl px-3 py-2.5 text-sm flex items-center gap-3 <%= !emp.online ? 'opacity-40' : '' %> <%= isRtl ? 'flex-row-reverse' : '' %>" data-ext="<%= emp.extension %>" onclick="selectExtension('<%= emp.extension %>')">
+                            <span class="text-[var(--accent-color)] font-bold font-mono text-xs"><%= emp.extension %></span>
+                            <span class="text-white font-sans font-bold truncate flex-1"><%= emp.name %></span>
+                            <span class="w-2 h-2 rounded-full <%= emp.online ? 'bg-[var(--accent-color)]' : 'bg-zinc-700' %> shrink-0"></span>
+                        </div>
+                    <% }) %>
+                </div>
+                <div class="px-4 py-2.5 border-t border-[#27272a] bg-black/30 text-center shrink-0">
+                    <span class="text-[10px] font-bold text-zinc-500"><%= t.footerRight %> <span class="text-[var(--accent-color)]"><%= roster.length %></span></span>
+                </div>
+            </div>
+
+            <!-- Right Detail Panel (Consolidated Table or Deep-dive) -->
+            <div id="detailPanel" class="flex-1 panel-surface rounded-2xl shadow-2xl overflow-y-auto min-h-0 p-6 flex flex-col">
+                <!-- Fallback Loading spinner placeholder -->
+                <div class="flex-1 flex items-center justify-center text-zinc-500">
+                    <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--accent-color)]"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentExtension = null;
+        let dispositionChart = null;
+        let dailyChart = null;
+        let overviewData = [];
+        let sortColumn = 'extension';
+        let sortDirection = 'asc';
+        let overviewPage = 1;
+        let overviewPerPage = 25;
+
+        function formatDate(d) {
+            const dt = new Date(d);
+            return dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0') +
+                'T' + String(dt.getHours()).padStart(2,'0') + ':' + String(dt.getMinutes()).padStart(2,'0');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const now = new Date();
+            const start = new Date(now);
+            start.setDate(start.getDate() - 7);
+            document.getElementById('startDate').value = formatDate(start);
+            document.getElementById('endDate').value = formatDate(now);
+
+            // Initialize Flatpickr on datetime inputs
+            flatpickr('input[type="datetime-local"]', {
+                enableTime: true,
+                dateFormat: "Y-m-d\\TH:i",
+                altInput: true,
+                altFormat: "m/d/Y h:i K",
+                time_24hr: false,
+                allowInput: true,
+                scrollInputIntoView: false,
+                appendTo: document.body,
+                monthSelectorType: "dropdown"
+            });
+
+            document.getElementById('filterForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (currentExtension) {
+                    loadStats(currentExtension);
+                } else {
+                    loadOverview();
+                }
+            });
+
+            // Initialize digital clock in sidebar
+            const clockEl = document.getElementById('digitalClock');
+            if (clockEl) { setInterval(() => { clockEl.textContent = new Date().toTimeString().split(' ')[0]; }, 1000); }
+
+            // Default to overview mode on load
+            selectOverview();
+        });
+
+        function selectOverview() {
+            currentExtension = null;
+            document.querySelectorAll('.ext-card').forEach(c => c.classList.remove('active'));
+            document.getElementById('btnOverview').classList.add('active');
+            document.getElementById('overviewHeaderBtn').classList.add('hidden');
+            document.getElementById('dirFilterCol').classList.add('hidden'); // Hide direction filter since overview spans all
+            loadOverview();
+        }
+
+        function selectExtension(ext) {
+            currentExtension = ext;
+            document.querySelectorAll('.ext-card').forEach(c => c.classList.remove('active'));
+            document.getElementById('btnOverview').classList.remove('active');
+            const card = document.querySelector(`.ext-card[data-ext="${ext}"]`);
+            if (card) card.classList.add('active');
+            document.getElementById('overviewHeaderBtn').classList.remove('hidden');
+            document.getElementById('dirFilterCol').classList.remove('hidden');
+            loadStats(ext);
+        }
+
+        function loadOverview() {
+            overviewPage = 1;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const lang = '<%= currentLang %>';
+            const panel = document.getElementById('detailPanel');
+            
+            panel.innerHTML = `
+                <div class="flex-1 flex items-center justify-center text-zinc-500">
+                    <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--accent-color)]"></div>
+                </div>
+            `;
+
+            const params = new URLSearchParams({ startDate, endDate, lang });
+            fetch(`/api/ext-overview?${params}`)
+                .then(r => r.json())
+                .then(data => {
+                    overviewData = data;
+                    renderOverview();
+                })
+                .catch(err => {
+                    panel.innerHTML = `<div class="text-center text-red-400 p-8"><p class="text-lg font-bold">Error loading overview</p><p class="text-sm mt-2">${err.message}</p></div>`;
+                });
+        }
+
+        function sortOverview(col) {
+            if (sortColumn === col) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = col;
+                sortDirection = 'desc'; // Default to desc for metrics
+            }
+            overviewPage = 1;
+            renderOverview();
+        }
+
+        function fmtDur(s) {
+            s = parseInt(s) || 0;
+            const h = Math.floor(s / 3600); const m = Math.floor((s % 3600) / 60); const sec = s % 60;
+            return h > 0 ? h + ':' + String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0')
+                         : m + ':' + String(sec).padStart(2,'0');
+        }
+
+        function renderOverview() {
+            const panel = document.getElementById('detailPanel');
+            const lang = '<%= currentLang %>';
+            const rtl = <%= isRtl %>;
+
+            // Sort data
+            const sorted = [...overviewData].sort((a, b) => {
+                let valA = a[sortColumn];
+                let valB = b[sortColumn];
+                
+                // Handle strings vs numbers
+                if (typeof valA === 'string') {
+                    return sortDirection === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                } else {
+                    return sortDirection === 'asc' ? valA - valB : valB - valA;
+                }
+            });
+
+            // Paginate
+            overviewPerPage = parseInt(localStorage.getItem('cdrPerPage')) || 25;
+            const totalItems = sorted.length;
+            const totalPages = Math.max(1, Math.ceil(totalItems / overviewPerPage));
+            if (overviewPage > totalPages) overviewPage = totalPages;
+            const startIdx = (overviewPage - 1) * overviewPerPage;
+            const pageData = sorted.slice(startIdx, startIdx + overviewPerPage);
+
+            const caret = sortDirection === 'asc' ? '▲' : '▼';
+            const sortIndicator = (col) => sortColumn === col ? `<span class="text-[var(--accent-color)] ml-1 text-[9px]">${caret}</span>` : '';
+
+            let html = `
+                <div class="w-full flex flex-col h-full">
+                    <div class="mb-4 flex items-center justify-between shrink-0 ${rtl ? 'flex-row-reverse' : ''}">
+                        <div>
+                            <h3 class="text-lg font-bold text-white"><%= t.overview %></h3>
+                            <p class="text-xs text-zinc-500 mt-0.5"><%= t.interactiveTable %></p>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto overflow-y-auto flex-1 border border-[#27272a]/50 rounded-xl bg-black/10">
+                        <table class="w-full text-start border-collapse">
+                            <thead>
+                                <tr class="bg-black/40 text-zinc-400 text-xs font-black uppercase border-b border-[#27272a]">
+                                    <th class="p-4 tracking-wider text-start cursor-pointer hover:text-white transition select-none" onclick="sortOverview('extension')"><%= t.extension %> ${sortIndicator('extension')}</th>
+                                    <th class="p-4 tracking-wider text-start cursor-pointer hover:text-white transition select-none" onclick="sortOverview('name')"><%= t.employee %> ${sortIndicator('name')}</th>
+                                    <th class="p-4 tracking-wider text-center cursor-pointer hover:text-white transition select-none" onclick="sortOverview('totalCalls')"><%= t.totalCalls %> ${sortIndicator('totalCalls')}</th>
+                                    <th class="p-4 tracking-wider text-center cursor-pointer hover:text-white transition select-none" onclick="sortOverview('inboundCalls')"><%= t.inboundLabel %> ${sortIndicator('inboundCalls')}</th>
+                                    <th class="p-4 tracking-wider text-center cursor-pointer hover:text-white transition select-none" onclick="sortOverview('outboundCalls')"><%= t.outboundLabel %> ${sortIndicator('outboundCalls')}</th>
+                                    <th class="p-4 tracking-wider text-end cursor-pointer hover:text-white transition select-none" onclick="sortOverview('totalTalkSec')"><%= t.totalDuration %> ${sortIndicator('totalTalkSec')}</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-[#27272a]/20 text-sm font-mono">
+            `;
+
+            if (sorted.length === 0) {
+                html += `<tr><td colspan="6" class="p-8 text-center text-zinc-500 font-sans"><%= t.noData %></td></tr>`;
+            } else {
+                pageData.forEach(row => {
+                    const talkMin = Math.round(row.totalTalkSec / 60);
+                    
+                    html += `
+                        <tr class="hover:bg-zinc-900/50 cursor-pointer transition" onclick="selectExtension('${row.extension}')">
+                            <td class="p-4 text-[var(--accent-color)] font-black text-sm">${row.extension}</td>
+                            <td class="p-4 text-white font-sans font-bold text-sm">${row.name}</td>
+                            <td class="p-4 text-center text-white font-bold text-sm">${row.totalCalls}</td>
+                            <td class="p-4 text-center text-slate-300">${row.inboundCalls}</td>
+                            <td class="p-4 text-center text-slate-300">${row.outboundCalls}</td>
+                            <td class="p-4 text-end text-[var(--accent-color)] font-bold text-sm">${talkMin} <%= t.min %> <span class="text-[11px] text-zinc-500">(${row.totalTalkSec}s)</span></td>
+                        </tr>
+                    `;
+                });
+            }
+
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+            `;
+            // Pagination controls
+            if (totalPages > 1) {
+                html += '<div class="flex items-center justify-between mt-3 shrink-0">';
+                html += '<span class="text-xs text-zinc-500">' + (startIdx + 1) + '-' + Math.min(startIdx + overviewPerPage, totalItems) + ' of ' + totalItems + '</span>';
+                html += '<div class="flex gap-1">';
+                html += '<button onclick="overviewPage=' + Math.max(1, overviewPage - 1) + ';renderOverview()" class="px-2.5 py-1 rounded text-xs font-bold uppercase tracking-wider transition cursor-pointer ' + (overviewPage <= 1 ? 'text-zinc-700 bg-zinc-900/50 cursor-not-allowed' : 'text-zinc-300 bg-zinc-900 hover:bg-zinc-800 hover:text-white') + '" ' + (overviewPage <= 1 ? 'disabled' : '') + '>Prev</button>';
+                for (let p = Math.max(1, overviewPage - 2); p <= Math.min(totalPages, overviewPage + 2); p++) {
+                    html += '<button onclick="overviewPage=' + p + ';renderOverview()" class="px-2.5 py-1 rounded text-xs font-bold tracking-wider transition cursor-pointer ' + (p === overviewPage ? 'bg-[var(--accent-color)] text-white shadow-sm' : 'text-zinc-400 bg-zinc-900 hover:bg-zinc-800 hover:text-white') + '">' + p + '</button>';
+                }
+                html += '<button onclick="overviewPage=' + Math.min(totalPages, overviewPage + 1) + ';renderOverview()" class="px-2.5 py-1 rounded text-xs font-bold uppercase tracking-wider transition cursor-pointer ' + (overviewPage >= totalPages ? 'text-zinc-700 bg-zinc-900/50 cursor-not-allowed' : 'text-zinc-300 bg-zinc-900 hover:bg-zinc-800 hover:text-white') + '" ' + (overviewPage >= totalPages ? 'disabled' : '') + '>Next</button>';
+                html += '</div></div>';
+            }
+
+            html += `</div>`;
+
+            panel.innerHTML = html;
+        }
+
+        function loadStats(ext) {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const direction = document.getElementById('direction').value;
+            const lang = '<%= currentLang %>';
+            const panel = document.getElementById('detailPanel');
+
+            panel.innerHTML = `
+                <div class="flex-1 flex items-center justify-center text-zinc-500">
+                    <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--accent-color)]"></div>
+                </div>
+            `;
+
+            const params = new URLSearchParams({ startDate, endDate, direction, lang });
+            fetch(`/api/ext-stats/${ext}?${params}`)
+                .then(r => r.json())
+                .then(data => renderStats(data))
+                .catch(err => {
+                    panel.innerHTML = `<div class="text-center text-red-400 p-8"><p class="text-lg font-bold">Error loading telemetry</p><p class="text-sm mt-2">${err.message}</p></div>`;
+                });
+        }
+
+        function renderStats(data) {
+            const panel = document.getElementById('detailPanel');
+            const rtl = <%= isRtl %>;
+            
+            const name = document.querySelector(`.ext-card[data-ext="${data.extension}"]`)?.querySelector('span:nth-child(2)')?.textContent || data.extension;
+            data.name = name;
+            data.answerRate = data.totalCalls ? Math.round((data.answeredCalls / data.totalCalls) * 100) : 0;
+            data.hasDirectionData = data.inboundCalls > 0 || data.outboundCalls > 0;
+            data.inboundMin = Math.round(data.inboundTalkSec / 60);
+            data.outboundMin = Math.round(data.outboundTalkSec / 60);
+            data.contacts = data.uniqueContacts || [];
+            data.recentCalls = (data.recentCalls || []).slice(0, 20);
+
+            let html = '<div class="w-full flex flex-col h-full">';
+            
+            // Header
+            html += `<div class="flex items-center justify-between mb-5 shrink-0 ${rtl ? 'flex-row-reverse' : ''}">
+                <div>
+                    <h3 class="text-xl font-bold text-white flex items-center gap-2 ${rtl ? 'flex-row-reverse' : ''}">
+                        <span class="accent-orange font-mono bg-[#18181b] border border-[#27272a] px-2.5 py-1 rounded-lg text-base">${data.extension}</span>
+                        <span class="text-zinc-300 font-sans">${data.name}</span>
+                    </h3>
+                </div>
+            </div>`;
+
+            // Stat Cards Grid
+            html += '<div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6 shrink-0">';
+            html += `<div class="panel-surface rounded-xl p-4 card-stat border border-[#27272a]/30">
+                <p class="text-[9px] font-black uppercase text-zinc-500 tracking-wider"><%= t.totalCalls %></p>
+                <p class="text-2xl font-black text-white mt-1">${data.totalCalls}</p>
+            </div>`;
+            html += `<div class="panel-surface rounded-xl p-4 card-stat border border-[#27272a]/30">
+                <p class="text-[9px] font-black uppercase text-zinc-500 tracking-wider"><%= t.answered %></p>
+                <p class="text-2xl font-black text-white mt-1">${data.answeredCalls}</p>
+            </div>`;
+            html += `<div class="panel-surface rounded-xl p-4 card-stat border border-[#27272a]/30">
+                <p class="text-[9px] font-black uppercase text-zinc-500 tracking-wider"><%= t.answerRate %></p>
+                <p class="text-2xl font-black text-[var(--accent-color)] mt-1">${data.answerRate}%</p>
+            </div>`;
+            html += `<div class="panel-surface rounded-xl p-4 card-stat border border-[#27272a]/30">
+                <p class="text-[9px] font-black uppercase text-zinc-500 tracking-wider"><%= t.uniqueContacts %></p>
+                <p class="text-2xl font-black text-zinc-300 mt-1">${data.uniqueContactCount}</p>
+            </div>`;
+            html += `<div class="panel-surface rounded-xl p-4 card-stat border border-[#27272a]/30">
+                <p class="text-[9px] font-black uppercase text-zinc-500 tracking-wider"><%= t.avgTalk %></p>
+                <p class="text-2xl font-black text-zinc-400 mt-1">${data.avgTalkSec}<span class="text-xs text-[var(--accent-color)] ml-0.5">s</span></p>
+            </div>`;
+            html += '</div>';
+
+            // Split metrics
+            if (data.hasDirectionData) {
+                html += '<div class="grid grid-cols-2 gap-3 mb-6 shrink-0">';
+                html += `<div class="panel-surface rounded-xl p-4 border border-[#27272a]/40 flex items-center justify-between ${rtl ? 'flex-row-reverse' : ''}">
+                    <div>
+                        <p class="text-[10px] font-black uppercase text-white tracking-wider"><%= t.inboundLabel %></p>
+                        <p class="text-3xl font-black text-white mt-1">${data.inboundCalls}</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs text-zinc-500 block uppercase font-bold"><%= t.talkTime %></span>
+                        <span class="text-base font-black text-white">${data.inboundMin} <%= t.min %></span>
+                    </div>
+                </div>`;
+                html += `<div class="panel-surface rounded-xl p-4 border border-[#27272a]/40 flex items-center justify-between ${rtl ? 'flex-row-reverse' : ''}">
+                    <div>
+                        <p class="text-[10px] font-black uppercase text-[var(--accent-color)] tracking-wider"><%= t.outboundLabel %></p>
+                        <p class="text-3xl font-black text-white mt-1">${data.outboundCalls}</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs text-zinc-500 block uppercase font-bold"><%= t.talkTime %></span>
+                        <span class="text-base font-black text-white">${data.outboundMin} <%= t.min %></span>
+                    </div>
+                </div>`;
+                html += '</div>';
+            }
+
+            // Charts Grid
+            html += '<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 shrink-0">';
+            html += `<div class="panel-surface rounded-xl p-4 border border-[#27272a]/30">
+                <h4 class="text-xs font-black uppercase text-zinc-400 tracking-wider mb-4"><%= t.disposition %></h4>
+                <div id="dispositionChart" class="w-full h-64"></div>
+            </div>`;
+            html += `<div class="panel-surface rounded-xl p-4 border border-[#27272a]/30">
+                <h4 class="text-xs font-black uppercase text-zinc-400 tracking-wider mb-4"><%= t.daily %></h4>
+                <div id="dailyChart" class="w-full h-64"></div>
+            </div>`;
+            html += '</div>';
+
+            // Tag Cloud
+            if (data.contacts.length) {
+                html += `<div class="panel-surface rounded-xl p-4 border border-[#27272a]/30 mb-6 shrink-0">
+                    <h4 class="text-xs font-black uppercase text-zinc-400 tracking-wider mb-3"><%= t.uniqueContacts %> (${data.uniqueContactCount})</h4>
+                    <div class="flex flex-wrap gap-1.5">`;
+                data.contacts.forEach(c => {
+                    html += `<span class="bg-[#09090b] border border-[#27272a] rounded-lg px-2.5 py-1.5 text-xs font-mono text-[var(--accent-color)] hover:border-[var(--accent-color)]/50 transition">${c}</span>`;
+                });
+                html += '</div></div>';
+            }
+
+            // Recent Calls Table
+            if (data.recentCalls && data.recentCalls.length) {
+                html += `<div class="panel-surface rounded-xl border border-[#27272a]/30 overflow-hidden flex-1 flex flex-col min-h-0">
+                    <div class="px-4 py-3 border-b border-[#27272a] bg-black/25 shrink-0">
+                        <h4 class="text-xs font-black uppercase text-zinc-400 tracking-wider"><%= t.recentCalls %></h4>
+                    </div>
+                    <div class="overflow-y-auto flex-1 min-h-0">
+                        <table class="w-full text-start border-collapse">
+                            <thead>
+                                <tr class="bg-black/40 text-zinc-500 text-[9px] font-black uppercase border-b border-[#27272a]">
+                                    <th class="p-3 tracking-wider text-start"><%= t.src %></th>
+                                    <th class="p-3 tracking-wider text-start"><%= t.dst %></th>
+                                    <th class="p-3 tracking-wider text-start"><%= t.duration %></th>
+                                    <th class="p-3 tracking-wider text-start"><%= t.status %></th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-[#27272a]/10 text-xs font-mono">`;
+                const dispMap = {
+                    ANSWERED: 'bg-[var(--accent-color)]/10 text-[var(--accent-color)] border border-[var(--accent-color)]/25',
+                    BUSY: 'bg-amber-400/10 text-amber-400 border border-amber-400/25',
+                    'NO ANSWER': 'bg-teal-400/10 text-teal-400 border border-teal-400/25',
+                    FAILED: 'bg-purple-400/10 text-purple-400 border border-purple-400/25'
+                };
+                data.recentCalls.forEach(call => {
+                    html += `
+                        <tr class="hover:bg-zinc-900/30 transition">
+                            <td class="p-3 text-white font-bold">${call.src}</td>
+                            <td class="p-3 text-white">${call.dst}</td>
+                            <td class="p-3 text-zinc-400">${fmtDur(call.billsec)}</td>
+                            <td class="p-3">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-black tracking-wider ${dispMap[call.disposition] || 'bg-zinc-800 text-zinc-400 border border-zinc-700/50'}">
+                                    ${call.disposition}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                });
+                html += '</tbody></table></div></div>';
+            }
+
+            html += '</div>';
+            panel.className = 'flex-1 panel-surface rounded-2xl shadow-2xl overflow-y-auto min-h-0 p-6 flex flex-col';
+            panel.innerHTML = html;
+
+            // Trigger ECharts rendering
+            if (data.dispositionData && data.dispositionData.length) {
+                initDispositionChart(data.dispositionData);
+            }
+            if (data.dailyData && data.dailyData.length) {
+                initDailyChart(data.dailyData);
+            }
+        }
+
+        function initDispositionChart(data) {
+            if (dispositionChart) dispositionChart.dispose();
+            const isLight = document.body.classList.contains('light-theme');
+            dispositionChart = echarts.init(document.getElementById('dispositionChart'), isLight ? null : 'dark');
+            const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim() || '#dc2626';
+            
+            // Build rich vibrant gradient mapping - rebranded in Red, White, and Black/Silver
+            const colorGradients = {
+                ANSWERED: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                    { offset: 0, color: accent },
+                    { offset: 1, color: '#991b1b' }
+                ]),
+                BUSY: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                    { offset: 0, color: '#fbbf24' },
+                    { offset: 1, color: '#d97706' }
+                ]),
+                'NO ANSWER': new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                    { offset: 0, color: '#2dd4bf' },
+                    { offset: 1, color: '#0d9488' }
+                ]),
+                FAILED: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                    { offset: 0, color: '#a855f7' },
+                    { offset: 1, color: '#7e22ce' }
+                ]),
+                CANCEL: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                    { offset: 0, color: '#78716c' },
+                    { offset: 1, color: '#44403c' }
+                ])
+            };
+            const defaultGradient = new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: isLight ? '#27272a' : '#a1a1aa' },
+                { offset: 1, color: isLight ? '#71717a' : '#71717a' }
+            ]);
+
+            dispositionChart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: { 
+                    trigger: 'item', 
+                    formatter: '{b}: {c} ({d}%)',
+                    backgroundColor: isLight ? '#ffffff' : '#18181b',
+                    borderColor: isLight ? '#e4e4e7' : '#27272a',
+                    textStyle: { color: isLight ? '#09090b' : '#ffffff', fontSize: 11 }
+                },
+                legend: { 
+                    bottom: '0%', 
+                    textStyle: { color: isLight ? '#27272a' : '#a1a1aa', fontSize: 10, fontWeight: 'bold' } 
+                },
+                series: [{
+                    name: 'Disposition',
+                    type: 'pie',
+                    radius: ['45%', '70%'],
+                    itemStyle: { 
+                        borderRadius: 10, 
+                        borderColor: isLight ? '#ffffff' : '#121212', 
+                        borderWidth: 2.5,
+                        shadowBlur: 15,
+                        shadowColor: 'rgba(0, 0, 0, 0.2)'
+                    },
+                    label: { show: false },
+                    data: data.map(d => ({
+                        value: d.value,
+                        name: d.name,
+                        itemStyle: { color: colorGradients[d.name] || defaultGradient }
+                    })),
+                    // Short chart reveal keeps data readable without delaying the task.
+                    animationType: 'expansion',
+                    animationEasing: 'cubicOut',
+                    animationDuration: 650
+                }]
+            });
+            window.addEventListener('resize', () => dispositionChart && dispositionChart.resize());
+        }
+
+        function initDailyChart(data) {
+            if (dailyChart) dailyChart.dispose();
+            const isLight = document.body.classList.contains('light-theme');
+            dailyChart = echarts.init(document.getElementById('dailyChart'), isLight ? null : 'dark');
+            const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim() || '#dc2626';
+            
+            // Rebranded gradients
+            const totalGradient = new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: accent },
+                { offset: 1, color: '#991b1b' }
+            ]);
+            const answeredGradient = new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: '#00b4d8' },
+                { offset: 1, color: '#0077b6' }
+            ]);
+
+            dailyChart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: { 
+                    trigger: 'axis',
+                    backgroundColor: isLight ? '#ffffff' : '#18181b',
+                    borderColor: isLight ? '#e4e4e7' : '#27272a',
+                    textStyle: { color: isLight ? '#09090b' : '#ffffff', fontSize: 11 }
+                },
+                legend: { 
+                    bottom: '0%', 
+                    textStyle: { color: isLight ? '#27272a' : '#a1a1aa', fontSize: 10, fontWeight: 'bold' } 
+                },
+                grid: { left: '8%', right: '4%', top: '8%', bottom: '18%' },
+                xAxis: {
+                    type: 'category',
+                    data: data.map(d => d.date.slice(5)),
+                    axisLabel: { color: isLight ? '#27272a' : '#a1a1aa', fontSize: 9, fontWeight: 'bold' },
+                    axisLine: { lineStyle: { color: isLight ? '#e4e4e7' : '#27272a' } }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: { color: isLight ? '#27272a' : '#a1a1aa', fontSize: 9 },
+                    splitLine: { lineStyle: { color: isLight ? '#e4e4e7' : '#27272a', type: 'dashed' } }
+                },
+                series: [
+                    { 
+                        name: 'Total', 
+                        type: 'bar', 
+                        data: data.map(d => d.total), 
+                        itemStyle: { 
+                            color: totalGradient, 
+                            borderRadius: [5,5,0,0],
+                            shadowBlur: 10,
+                            shadowColor: 'rgba(255, 59, 48, 0.3)'
+                        }, 
+                        barWidth: '35%',
+                        animationEasing: 'cubicOut',
+                        animationDuration: 1200
+                    },
+                    { 
+                        name: 'Answered', 
+                        type: 'bar', 
+                        data: data.map(d => d.answered), 
+                        itemStyle: { 
+                            color: answeredGradient, 
+                            borderRadius: [5,5,0,0],
+                            shadowBlur: 10,
+                            shadowColor: 'rgba(0, 0, 0, 0.1)'
+                        }, 
+                        barWidth: '35%',
+                        animationEasing: 'cubicOut',
+                        animationDuration: 1400
+                    }
+                ]
+            });
+            window.addEventListener('resize', () => dailyChart && dailyChart.resize());
+        }
+    </script>
+    <script>
+        (function() {
+            function forceMonthSelect() {
+                document.querySelectorAll('.flatpickr-current-month').forEach(function(el) {
+                    var sel = el.querySelector('.flatpickr-monthDropdown-months');
+                    var cur = el.querySelector('.cur-month');
+                    if (!sel) return;
+                    if (cur) cur.style.setProperty('display', 'none', 'important');
+                    sel.style.setProperty('display', 'inline-block', 'important');
+                    sel.style.setProperty('pointer-events', 'auto', 'important');
+                    sel.style.setProperty('cursor', 'pointer', 'important');
+                    sel.style.setProperty('opacity', '1', 'important');
+                });
+            }
+            document.addEventListener('click', function(e) {
+                var el = e.target.closest('.flatpickr-current-month');
+                if (!el) return;
+                var sel = el.querySelector('.flatpickr-monthDropdown-months');
+                if (!sel) return;
+                if (e.target === sel) return;
+                e.preventDefault();
+                e.stopPropagation();
+                if (typeof sel.showPicker === 'function') {
+                    sel.showPicker();
+                } else {
+                    try { sel.click(); } catch(_) {}
+                }
+            }, true);
+            forceMonthSelect();
+            var pollTimer = setInterval(function() { forceMonthSelect(); }, 100);
+            setTimeout(function() { clearInterval(pollTimer); }, 3000);
+            var obs = new MutationObserver(function(muts) {
+                muts.forEach(function(mut) {
+                    mut.addedNodes.forEach(function(n) {
+                        if (n.nodeType === 1 && n.querySelectorAll) forceMonthSelect();
+                    });
+                });
+            });
+            obs.observe(document.body, { childList: true, subtree: true });
+        })();
+    </script>
+</body>
+</html>

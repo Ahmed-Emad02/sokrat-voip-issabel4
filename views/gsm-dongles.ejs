@@ -1,0 +1,2596 @@
+<%
+const words = {
+    en: {
+        title: "GSM Dongles", subtitle: "Console",
+        thID: "Dongle ID",
+        thProvider: "Provider Name",
+        thNumber: "SIM Number",
+        thIMEI: "IMEI",
+        thIMSI: "IMSI",
+        thRSSI: "Signal (RSSI)",
+        thState: "State",
+        thActions: "Actions",
+        refreshBtn: "Refresh Dongle",
+        sending: "Executing...",
+        sendBtn: "Send USSD Request",
+        selectedDongle: "Selected Dongle: ",
+        selectPlaceholder: "Select active dongle",
+        ussdTitle: "USSD Console",
+        ussdHelper: "Ensure the SIM card in the selected dongle is active and registered to the network.",
+        terminalTitle: "USSD Response Screen",
+        logTitle: "Live chan_dongle Logs",
+        logToggle: "Show Live Logs",
+        autoscroll: "Auto-scroll",
+        clearBtn: "Clear View",
+        noDongles: "No configured GSM dongles found.",
+        stateFree: "Free",
+        stateConnected: "Connected",
+        stateDisconnected: "Not connected",
+        stateGsmNotResponding: "GSM Not Responding",
+        stateNotInitializing: "Not Initialized",
+        reloadedSuccess: "Reload command sent successfully",
+        terminalPlaceholder: "Terminal ready. Input a USSD code and execute a request above.",
+        sendUssdError: "Error executing USSD request",
+        deviceDetails: "Device Details",
+        model: "Model",
+        firmware: "Firmware",
+        group: "Group",
+        mode: "Mode",
+        submode: "Submode",
+        running: "Active",
+        usbDevices: "USB Serial Devices",
+        usbDesc: "/dev/ttyUSB* ports visible to the OS",
+        usbNone: "No ttyUSB devices detected",
+        usbNoneHint: "Check physical connection or run: ls /dev/ | grep -i ttyusb",
+        btnRestartDongle: "Restart",
+        btnRebootModem: "Reboot Modem",
+        btnVirtualReplug: "Virtual Re-plug",
+        btnResetUsb: "Reset USB",
+        btnResetAllUsb: "Reset All USB Ports on the Server",
+        legendTitle: "Action Buttons & State Guide",
+        legendTopHeaderDesc: "Resets all USB ports & reloads Asterisk chan_dongle module server-wide.",
+        legendRestartDesc: "Restarts the dongle channel in Asterisk without touching hardware.",
+        legendRebootDesc: "Reboots modem internal firmware & SIM module via AT command.",
+        legendReplugDesc: "Simulates physically pulling & replugging USB cable (sysfs)."
+    },
+    ar: {
+        title: "شرائح الاتصال", subtitle: "GSM",
+        thID: "رمز الشريحة",
+        thProvider: "شبكة الاتصال",
+        thNumber: "رقم الهاتف",
+        thIMEI: "كود IMEI",
+        thIMSI: "كود IMSI",
+        thRSSI: "قوة الإشارة",
+        thState: "الحالة",
+        thActions: "الإجراءات",
+        refreshBtn: "تحديث الشريحة",
+        sending: "جاري التنفيذ...",
+        sendBtn: "تنفيذ طلب USSD",
+        selectedDongle: "الشريحة المختارة: ",
+        selectPlaceholder: "اختر شريحة اتصال نشطة",
+        ussdTitle: "لوحة طلبات USSD",
+        ussdHelper: "تأكد من أن شريحة الاتصال نشطة ومسجلة في شبكة الجوال.",
+        terminalTitle: "شاشة استجابة USSD",
+        logTitle: "سجل عمليات chan_dongle المباشر",
+        logToggle: "عرض السجلات المباشرة",
+        autoscroll: "التمرير التلقائي",
+        clearBtn: "مسح الشاشة",
+        noDongles: "لا توجد شرائح GSM مهيأة.",
+        stateFree: "شريحة نشطة (Free)",
+        stateConnected: "متصل",
+        stateDisconnected: "غير متصل",
+        stateGsmNotResponding: "GSM لا يستجيب",
+        stateNotInitializing: "لم يتم التهيئة",
+        reloadedSuccess: "تم إرسال أمر إعادة التحميل بنجاح",
+        terminalPlaceholder: "الشاشة جاهزة. أدخل رمز USSD وقم بتنفيذ الطلب في الأعلى.",
+        sendUssdError: "فشل تنفيذ طلب USSD",
+        deviceDetails: "تفاصيل الجهاز",
+        model: "الموديل",
+        firmware: "البرنامج الثابت",
+        group: "المجموعة",
+        mode: "الوضع",
+        submode: "الوضع الفرعي",
+        running: "نشط",
+        usbDevices: "أجهزة USB التسلسلية",
+        btnVirtualReplug: "إعادة توصيل USB",
+        btnResetUsb: "إعادة تعيين USB",
+        btnResetAllUsb: "إعادة تعيين كافة منافذ USB في السيرفر",
+        legendTitle: "دليل أزرار الإجراءات والحالات",
+        legendTopHeaderDesc: "إعادة تعيين كافة منافذ USB وإعادة تحميل تعريف chan_dongle على مستوى السيرفر.",
+        legendRestartDesc: "إعادة تشغيل قناة الشريحة داخل Asterisk دون مساس بالجهاز.",
+        legendRebootDesc: "إعادة تشغيل نظام المودم الداخلي ووحدة الشريحة عبر أمر AT.",
+        legendReplugDesc: "محاكاة فصل وإعادة توصيل كابل الـ USB في النواة (Sysfs)."
+    }
+};
+const t = words[currentLang] || words['en'];
+const isRtl = currentLang === 'ar';
+const initialSelectedDongleId = devices && devices.length > 0 ? devices[0].ID : '';
+%>
+<!DOCTYPE html>
+<html lang="<%= currentLang %>" dir="<%= isRtl ? 'rtl' : 'ltr' %>">
+<head>
+    <!-- Prevent theme flickering -->
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme') || 'dark';
+            if (theme === 'light') {
+                document.documentElement.classList.add('light-theme');
+            } else {
+                document.documentElement.classList.remove('light-theme');
+            }
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sokrat VOIP - GSM Dongles</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=Roboto:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        :root {
+            --bg-primary: #050507; /* Sleek OLED black background */
+            --bg-secondary: #0c0c0e; /* Vantablack card background */
+            --bg-card: #121215; /* Charcoal card surfaces */
+            --bg-hover: #1e1e24; /* Zinc hover state */
+            --border-primary: #18181c; /* Soft dark border */
+            --border-accent: #2c2c34; /* Slightly brighter border */
+            --text-primary: #f4f4f5; /* High contrast Zinc 50 */
+            --text-secondary: #a1a1aa; /* Zinc 400 */
+            --text-muted: #8e8e93; /* Compliant muted text (contrast 6.4:1) */
+            --accent-color: #e53e3e; /* Deep rich crimson red */
+            --accent-hover: #fc8181; /* Accent hover color */
+            --accent-soft: rgba(229, 62, 62, 0.14);
+            --accent-border: rgba(229, 62, 62, 0.42);
+            --bg-selected: rgba(229, 62, 62, 0.2); /* Translucent crimson selection */
+        }
+        body.light-theme {
+            --bg-primary: #f4f4f6 !important; /* Clean light grey background */
+            --bg-secondary: #ffffff !important; /* Pure white card background */
+            --bg-card: #f4f4f6 !important;
+            --bg-hover: #e4e4e9 !important;
+            --border-primary: #e4e4e9 !important;
+            --border-accent: #d4d4de !important;
+            --text-primary: #18181b !important;
+            --text-secondary: #3f3f46 !important;
+            --text-muted: #71717a !important; /* Compliant muted text (contrast 4.68:1) */
+            --accent-color: #b91c1c !important; /* Accessible deep red for light mode */
+            --accent-hover: #991b1b !important;
+            --accent-soft: rgba(254, 226, 226, 0.72) !important;
+            --accent-border: rgba(220, 38, 38, 0.36) !important;
+            --bg-selected: rgba(220, 38, 38, 0.22) !important;
+        }
+        body { 
+            background-color: var(--bg-primary); 
+            font-family: 'Roboto', 'IBM Plex Sans Arabic', sans-serif; 
+            color: var(--text-primary); 
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(229, 62, 62, 0.04) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.01) 0%, transparent 45%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        .panel-surface { 
+            background-color: var(--bg-secondary); 
+            border: 1px solid var(--border-primary); 
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .accent-orange { color: var(--accent-color); }
+        .font-vibrant-display { font-weight: 900; letter-spacing: -0.01em; }
+        
+        .terminal-screen {
+            background-color: #030303;
+            border: 1px solid #1a1a1a;
+            font-family: 'JetBrains Mono', 'Courier New', Courier, monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .log-screen {
+            background-color: #050505;
+            border: 1px solid #1f1f23;
+            font-family: 'JetBrains Mono', monospace;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        .pulse-dot {
+            position: relative;
+        }
+        .pulse-dot.active::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0; left: 0;
+            border-radius: 50%;
+            background-color: inherit;
+            animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+        @media (min-width: 1400px) {
+            #dongles-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            }
+        }
+        .dongle-device-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-primary);
+            min-width: 0;
+            overflow: hidden;
+            transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease, background-color 180ms ease;
+        }
+        .dongle-device-card:hover {
+            border-color: var(--border-accent);
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+            transform: translateY(-2px);
+        }
+        
+        /* State-driven card color themes — Matte background surfaces and bolder state accents */
+        
+        /* 1. FREE / READY (Purple) */
+        .dongle-device-card.dongle-state-purple {
+            background-color: #23153c !important;
+            border-color: #a855f7 !important;
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.25);
+        }
+        .dongle-device-card.dongle-state-purple:hover {
+            border-color: #c084fc !important;
+            box-shadow: 0 10px 30px rgba(192, 132, 252, 0.4);
+        }
+        .dongle-device-card.dongle-state-purple .dongle-icon-box {
+            background-color: #581c87 !important;
+            border: 1px solid #a855f7 !important;
+            color: #e9d5ff !important;
+        }
+        .dongle-device-card.dongle-state-purple .dongle-status-pill {
+            background-color: #9333ea !important;
+            border: 1px solid #c084fc !important;
+            color: #ffffff !important;
+        }
+        .dongle-device-card.dongle-state-purple .dongle-status-dot {
+            background-color: #f3e8ff !important;
+        }
+        .dongle-device-card.dongle-state-purple .dongle-metric,
+        .dongle-device-card.dongle-state-purple .dongle-priority-metric {
+            background: #1a0f30 !important;
+            border: 1px solid rgba(168, 85, 247, 0.4) !important;
+        }
+        .dongle-device-card.dongle-state-purple .dongle-hardware-summary,
+        .dongle-device-card.dongle-state-purple .dongle-routing-panel {
+            background: #1c1130 !important;
+            border: 1px solid rgba(168, 85, 247, 0.4) !important;
+        }
+        .dongle-device-card.dongle-state-purple .dongle-routing-trunk {
+            background: #160d26 !important;
+            border: 1px solid rgba(168, 85, 247, 0.3) !important;
+        }
+        .dongle-device-card.dongle-state-purple .dongle-card-footer {
+            background-color: #160d26 !important;
+            border-top: 1px solid rgba(168, 85, 247, 0.4) !important;
+        }
+        .dongle-device-card.dongle-state-purple .dongle-action-button.dongle-action-primary {
+            background-color: #9333ea !important;
+            border-color: #c084fc !important;
+            color: #ffffff !important;
+        }
+        .dongle-device-card.dongle-state-purple .dongle-action-button.dongle-action-primary:hover {
+            background-color: #7e22ce !important;
+        }
+        .dongle-device-card.selected-row.dongle-state-purple {
+            border-color: #e9d5ff !important;
+            outline: 3px solid #c084fc !important;
+            outline-offset: 1px;
+            box-shadow: 0 0 32px rgba(192, 132, 252, 0.6) !important;
+        }
+
+        /* 2. ACTIVE / IN CALL (Green / Emerald) */
+        /* 2. ACTIVE / IN CALL (Deep Dark Green) */
+        .dongle-device-card.dongle-state-green {
+            background-color: #06261b !important;
+            border-color: #047857 !important;
+            box-shadow: 0 6px 20px rgba(4, 120, 87, 0.25);
+        }
+        .dongle-device-card.dongle-state-green:hover {
+            border-color: #059669 !important;
+            box-shadow: 0 10px 30px rgba(5, 150, 105, 0.4);
+        }
+        .dongle-device-card.dongle-state-green .dongle-icon-box {
+            background-color: #064e3b !important;
+            border: 1px solid #047857 !important;
+            color: #6ee7b7 !important;
+        }
+        .dongle-device-card.dongle-state-green .dongle-status-pill {
+            background-color: #047857 !important;
+            border: 1px solid #059669 !important;
+            color: #ffffff !important;
+        }
+        .dongle-device-card.dongle-state-green .dongle-status-dot {
+            background-color: #a7f3d0 !important;
+        }
+        .dongle-device-card.dongle-state-green .dongle-metric,
+        .dongle-device-card.dongle-state-green .dongle-priority-metric {
+            background: #041c14 !important;
+            border: 1px solid rgba(4, 120, 87, 0.4) !important;
+        }
+        .dongle-device-card.dongle-state-green .dongle-hardware-summary,
+        .dongle-device-card.dongle-state-green .dongle-routing-panel {
+            background: #03160f !important;
+            border: 1px solid rgba(4, 120, 87, 0.4) !important;
+        }
+        .dongle-device-card.dongle-state-green .dongle-routing-trunk {
+            background: #02100b !important;
+            border: 1px solid rgba(4, 120, 87, 0.3) !important;
+        }
+        .dongle-device-card.dongle-state-green .dongle-card-footer {
+            background-color: #02100b !important;
+            border-top: 1px solid rgba(4, 120, 87, 0.4) !important;
+        }
+        .dongle-device-card.dongle-state-green .dongle-action-button.dongle-action-primary {
+            background-color: #047857 !important;
+            border-color: #059669 !important;
+            color: #ffffff !important;
+        }
+        .dongle-device-card.dongle-state-green .dongle-action-button.dongle-action-primary:hover {
+            background-color: #064e3b !important;
+        }
+        .dongle-device-card.selected-row.dongle-state-green {
+            border-color: #6ee7b7 !important;
+            outline: 3px solid #059669 !important;
+            outline-offset: 1px;
+            box-shadow: 0 0 32px rgba(5, 150, 105, 0.6) !important;
+        }
+
+        /* 2b. SMS PROCESSING (Vibrant Pink) */
+        .dongle-device-card.dongle-state-pink {
+            background-color: #340d25 !important;
+            border-color: #ec4899 !important;
+            box-shadow: 0 6px 20px rgba(236, 72, 153, 0.25);
+        }
+        .dongle-device-card.dongle-state-pink:hover {
+            border-color: #f472b6 !important;
+            box-shadow: 0 10px 30px rgba(244, 114, 182, 0.4);
+        }
+        .dongle-device-card.dongle-state-pink .dongle-icon-box {
+            background-color: #9d174d !important;
+            border: 1px solid #ec4899 !important;
+            color: #fbcfe8 !important;
+        }
+        .dongle-device-card.dongle-state-pink .dongle-status-pill {
+            background-color: #db2777 !important;
+            border: 1px solid #f472b6 !important;
+            color: #ffffff !important;
+        }
+        .dongle-device-card.dongle-state-pink .dongle-status-dot {
+            background-color: #fce7f3 !important;
+        }
+        .dongle-device-card.dongle-state-pink .dongle-metric,
+        .dongle-device-card.dongle-state-pink .dongle-priority-metric {
+            background: #280a1c !important;
+            border: 1px solid rgba(236, 72, 153, 0.4) !important;
+        }
+        .dongle-device-card.dongle-state-pink .dongle-hardware-summary,
+        .dongle-device-card.dongle-state-pink .dongle-routing-panel {
+            background: #220817 !important;
+            border: 1px solid rgba(236, 72, 153, 0.4) !important;
+        }
+        .dongle-device-card.dongle-state-pink .dongle-routing-trunk {
+            background: #190511 !important;
+            border: 1px solid rgba(236, 72, 153, 0.3) !important;
+        }
+        .dongle-device-card.dongle-state-pink .dongle-card-footer {
+            background-color: #190511 !important;
+            border-top: 1px solid rgba(236, 72, 153, 0.4) !important;
+        }
+        .dongle-device-card.dongle-state-pink .dongle-action-button.dongle-action-primary {
+            background-color: #db2777 !important;
+            border-color: #f472b6 !important;
+            color: #ffffff !important;
+        }
+        .dongle-device-card.dongle-state-pink .dongle-action-button.dongle-action-primary:hover {
+            background-color: #be185d !important;
+        }
+        .dongle-device-card.selected-row.dongle-state-pink {
+            border-color: #fbcfe8 !important;
+            outline: 3px solid #f472b6 !important;
+            outline-offset: 1px;
+            box-shadow: 0 0 32px rgba(244, 114, 182, 0.6) !important;
+        }
+        /* 3. DIALING / RINGING (Blue) */
+        .dongle-device-card.dongle-state-blue {
+            background-color: #112347 !important;
+            border-color: #3b82f6 !important;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.25);
+        }
+        .dongle-device-card.dongle-state-blue:hover {
+            border-color: #60a5fa !important;
+            box-shadow: 0 10px 30px rgba(96, 165, 250, 0.4);
+        }
+        .dongle-device-card.dongle-state-blue .dongle-icon-box {
+            background-color: #1e40af !important;
+            border: 1px solid #3b82f6 !important;
+            color: #bfdbfe !important;
+        }
+        .dongle-device-card.dongle-state-blue .dongle-status-pill {
+            background-color: #2563eb !important;
+            border: 1px solid #60a5fa !important;
+            color: #ffffff !important;
+        }
+        .dongle-device-card.dongle-state-blue .dongle-status-dot {
+            background-color: #eff6ff !important;
+        }
+        .dongle-device-card.dongle-state-blue .dongle-metric,
+        .dongle-device-card.dongle-state-blue .dongle-priority-metric {
+            background: #0c1f3d !important;
+            border: 1px solid rgba(59, 130, 246, 0.4) !important;
+        }
+        .dongle-device-card.dongle-state-blue .dongle-hardware-summary,
+        .dongle-device-card.dongle-state-blue .dongle-routing-panel {
+            background: #0a1a33 !important;
+            border: 1px solid rgba(59, 130, 246, 0.4) !important;
+        }
+        .dongle-device-card.dongle-state-blue .dongle-routing-trunk {
+            background: #071329 !important;
+            border: 1px solid rgba(59, 130, 246, 0.3) !important;
+        }
+        .dongle-device-card.dongle-state-blue .dongle-card-footer {
+            background-color: #071329 !important;
+            border-top: 1px solid rgba(59, 130, 246, 0.4) !important;
+        }
+        .dongle-device-card.dongle-state-blue .dongle-action-button.dongle-action-primary {
+            background-color: #2563eb !important;
+            border-color: #60a5fa !important;
+            color: #ffffff !important;
+        }
+        .dongle-device-card.dongle-state-blue .dongle-action-button.dongle-action-primary:hover {
+            background-color: #1d4ed8 !important;
+        }
+        .dongle-device-card.selected-row.dongle-state-blue {
+            border-color: #bfdbfe !important;
+            outline: 3px solid #60a5fa !important;
+            outline-offset: 1px;
+            box-shadow: 0 0 32px rgba(96, 165, 250, 0.6) !important;
+        }
+
+        /* 4. NOT INITIALIZED / SEARCHING (Yellow / Amber) */
+        .dongle-device-card.dongle-state-yellow {
+            background-color: #331b08 !important;
+            border-color: #f59e0b !important;
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.25);
+        }
+        .dongle-device-card.dongle-state-yellow:hover {
+            border-color: #fbbf24 !important;
+            box-shadow: 0 10px 30px rgba(251, 191, 36, 0.4);
+        }
+        .dongle-device-card.dongle-state-yellow .dongle-icon-box {
+            background-color: #92400e !important;
+            border: 1px solid #f59e0b !important;
+            color: #fde68a !important;
+        }
+        .dongle-device-card.dongle-state-yellow .dongle-status-pill {
+            background-color: #d97706 !important;
+            border: 1px solid #fbbf24 !important;
+            color: #ffffff !important;
+        }
+        .dongle-device-card.dongle-state-yellow .dongle-status-dot {
+            background-color: #fffbeb !important;
+        }
+        .dongle-device-card.dongle-state-yellow .dongle-metric,
+        .dongle-device-card.dongle-state-yellow .dongle-priority-metric {
+            background: #261406 !important;
+            border: 1px solid rgba(245, 158, 11, 0.4) !important;
+        }
+        .dongle-device-card.dongle-state-yellow .dongle-hardware-summary,
+        .dongle-device-card.dongle-state-yellow .dongle-routing-panel {
+            background: #291706 !important;
+            border: 1px solid rgba(245, 158, 11, 0.4) !important;
+        }
+        .dongle-device-card.dongle-state-yellow .dongle-routing-trunk {
+            background: #211204 !important;
+            border: 1px solid rgba(245, 158, 11, 0.3) !important;
+        }
+        .dongle-device-card.dongle-state-yellow .dongle-card-footer {
+            background-color: #211204 !important;
+            border-top: 1px solid rgba(245, 158, 11, 0.4) !important;
+        }
+        .dongle-device-card.dongle-state-yellow .dongle-action-button.dongle-action-primary {
+            background-color: #d97706 !important;
+            border-color: #fbbf24 !important;
+            color: #ffffff !important;
+        }
+        .dongle-device-card.dongle-state-yellow .dongle-action-button.dongle-action-primary:hover {
+            background-color: #b45309 !important;
+        }
+        .dongle-device-card.selected-row.dongle-state-yellow {
+            border-color: #fde68a !important;
+            outline: 3px solid #fbbf24 !important;
+            outline-offset: 1px;
+            box-shadow: 0 0 32px rgba(251, 191, 36, 0.6) !important;
+        }
+
+        /* 5. DISCONNECTED / NOT RESPONDING (Dark Crimson Red) */
+        .dongle-device-card.dongle-state-red {
+            background-color: #1c0508 !important;
+            border-color: #9f1239 !important;
+            box-shadow: 0 6px 20px rgba(159, 18, 57, 0.25);
+        }
+        .dongle-device-card.dongle-state-red:hover {
+            border-color: #be123c !important;
+            box-shadow: 0 10px 30px rgba(190, 18, 60, 0.4);
+        }
+        .dongle-device-card.dongle-state-red .dongle-icon-box {
+            background-color: #710e23 !important;
+            border: 1px solid #9f1239 !important;
+            color: #fecdd3 !important;
+        }
+        .dongle-device-card.dongle-state-red .dongle-status-pill {
+            background-color: #881337 !important;
+            border: 1px solid #be123c !important;
+            color: #ffffff !important;
+        }
+        .dongle-device-card.dongle-state-red .dongle-status-dot {
+            background-color: #fecdd3 !important;
+        }
+        .dongle-device-card.dongle-state-red .dongle-metric,
+        .dongle-device-card.dongle-state-red .dongle-priority-metric {
+            background: #160407 !important;
+            border: 1px solid rgba(159, 18, 57, 0.4) !important;
+        }
+        .dongle-device-card.dongle-state-red .dongle-hardware-summary,
+        .dongle-device-card.dongle-state-red .dongle-routing-panel {
+            background: #140306 !important;
+            border: 1px solid rgba(159, 18, 57, 0.4) !important;
+        }
+        .dongle-device-card.dongle-state-red .dongle-routing-trunk {
+            background: #100204 !important;
+            border: 1px solid rgba(159, 18, 57, 0.3) !important;
+        }
+        .dongle-device-card.dongle-state-red .dongle-card-footer {
+            background-color: #100204 !important;
+            border-top: 1px solid rgba(159, 18, 57, 0.4) !important;
+        }
+        .dongle-device-card.dongle-state-red .dongle-action-button.dongle-action-primary {
+            background-color: #881337 !important;
+            border-color: #be123c !important;
+            color: #ffffff !important;
+        }
+        .dongle-device-card.dongle-state-red .dongle-action-button.dongle-action-primary:hover {
+            background-color: #710e23 !important;
+        }
+        .dongle-device-card.selected-row.dongle-state-red {
+            border-color: #fecdd3 !important;
+            outline: 3px solid #be123c !important;
+            outline-offset: 1px;
+            box-shadow: 0 0 32px rgba(190, 18, 60, 0.6) !important;
+        }
+
+        /* Common Card High-Contrast Typography & Accents */
+        .dongle-device-card .dongle-metric-label {
+            color: rgba(255, 255, 255, 0.75) !important;
+            font-weight: 800 !important;
+        }
+        .dongle-device-card .dongle-metric-value,
+        .dongle-device-card .dongle-priority-value {
+            color: #ffffff !important;
+            font-weight: 900 !important;
+            font-size: 1rem !important;
+        }
+        .dongle-device-card .dongle-hardware-summary {
+            color: rgba(255, 255, 255, 0.85) !important;
+        }
+        .dongle-device-card .dongle-dial-string {
+            color: #ffffff !important;
+            background: rgba(0, 0, 0, 0.35) !important;
+        }
+
+        /* Light Theme Dongle State Overrides */
+        .light-theme .dongle-device-card.dongle-state-purple {
+            background-color: #f3e8ff !important;
+            border-color: #a855f7 !important;
+        }
+        .light-theme .dongle-device-card.dongle-state-purple .dongle-metric,
+        .light-theme .dongle-device-card.dongle-state-purple .dongle-priority-metric,
+        .light-theme .dongle-device-card.dongle-state-purple .dongle-routing-panel,
+        .light-theme .dongle-device-card.dongle-state-purple .dongle-hardware-summary {
+            background: #e9d5ff !important;
+            border-color: #c084fc !important;
+        }
+        .light-theme .dongle-device-card.dongle-state-purple .dongle-routing-trunk {
+            background: #ffffff !important;
+        }
+        .light-theme .dongle-device-card.dongle-state-purple .dongle-card-footer {
+            background-color: #e9d5ff !important;
+            border-top-color: #c084fc !important;
+        }
+
+        .light-theme .dongle-device-card.dongle-state-green {
+            background-color: #dcfce7 !important;
+            border-color: #10b981 !important;
+        }
+        .light-theme .dongle-device-card.dongle-state-green .dongle-metric,
+        .light-theme .dongle-device-card.dongle-state-green .dongle-priority-metric,
+        .light-theme .dongle-device-card.dongle-state-green .dongle-routing-panel,
+        .light-theme .dongle-device-card.dongle-state-green .dongle-hardware-summary {
+            background: #bbf7d0 !important;
+            border-color: #34d399 !important;
+        }
+        .light-theme .dongle-device-card.dongle-state-green .dongle-routing-trunk {
+            background: #ffffff !important;
+        }
+        .light-theme .dongle-device-card.dongle-state-green .dongle-card-footer {
+            background-color: #bbf7d0 !important;
+            border-top-color: #34d399 !important;
+        }
+        .light-theme .dongle-device-card.dongle-state-green {
+            background-color: #d1fae5 !important;
+            border-color: #047857 !important;
+        }
+        .light-theme .dongle-device-card.dongle-state-green .dongle-metric,
+        .light-theme .dongle-device-card.dongle-state-green .dongle-priority-metric,
+        .light-theme .dongle-device-card.dongle-state-green .dongle-routing-panel,
+        .light-theme .dongle-device-card.dongle-state-green .dongle-hardware-summary {
+            background: #a7f3d0 !important;
+            border-color: #34d399 !important;
+        }
+        .light-theme .dongle-device-card.dongle-state-green .dongle-routing-trunk {
+            background: #ffffff !important;
+        }
+        .light-theme .dongle-device-card.dongle-state-green .dongle-card-footer {
+            background-color: #a7f3d0 !important;
+            border-top-color: #34d399 !important;
+        }
+
+        .light-theme .dongle-device-card.dongle-state-pink {
+            background-color: #fce7f3 !important;
+            border-color: #ec4899 !important;
+        }
+        .light-theme .dongle-device-card.dongle-state-pink .dongle-metric,
+        .light-theme .dongle-device-card.dongle-state-pink .dongle-priority-metric,
+        .light-theme .dongle-device-card.dongle-state-pink .dongle-routing-panel,
+        .light-theme .dongle-device-card.dongle-state-pink .dongle-hardware-summary {
+            background: #fbcfe8 !important;
+            border-color: #f472b6 !important;
+        }
+        .light-theme .dongle-device-card.dongle-state-pink .dongle-routing-trunk {
+            background: #ffffff !important;
+        }
+        .light-theme .dongle-device-card.dongle-state-pink .dongle-card-footer {
+            background-color: #fbcfe8 !important;
+            border-top-color: #f472b6 !important;
+        }
+        .light-theme .dongle-device-card.dongle-state-blue {
+            background-color: #dbeafe !important;
+            border-color: #3b82f6 !important;
+        }
+        .light-theme .dongle-device-card.dongle-state-red {
+            background-color: #ffe4e6 !important;
+            border-color: #9f1239 !important;
+        }
+        .light-theme .dongle-device-card.dongle-state-red .dongle-metric,
+        .light-theme .dongle-device-card.dongle-state-red .dongle-priority-metric,
+        .light-theme .dongle-device-card.dongle-state-red .dongle-routing-panel,
+        .light-theme .dongle-device-card.dongle-state-red .dongle-hardware-summary {
+            background: #fecdd3 !important;
+            border-color: #fb7185 !important;
+        }
+        .light-theme .dongle-device-card.dongle-state-red .dongle-routing-trunk {
+            background: #ffffff !important;
+        }
+        .light-theme .dongle-device-card.dongle-state-red .dongle-card-footer {
+            background-color: #fecdd3 !important;
+            border-top-color: #fb7185 !important;
+        }
+
+        .light-theme .dongle-device-card.dongle-state-yellow {
+            background-color: #fef3c7 !important;
+            border-color: #f59e0b !important;
+        }
+        .light-theme .dongle-device-card.dongle-state-yellow .dongle-metric,
+        .light-theme .dongle-device-card.dongle-state-yellow .dongle-priority-metric,
+        .light-theme .dongle-device-card.dongle-state-yellow .dongle-routing-panel,
+        .light-theme .dongle-device-card.dongle-state-yellow .dongle-hardware-summary {
+            background: #fde68a !important;
+            border-color: #fbbf24 !important;
+        }
+        .light-theme .dongle-device-card.dongle-state-yellow .dongle-routing-trunk {
+            background: #ffffff !important;
+        }
+        .light-theme .dongle-device-card.dongle-state-yellow .dongle-card-footer {
+            background-color: #fde68a !important;
+            border-top-color: #fbbf24 !important;
+        }
+
+        .light-theme .dongle-device-card.dongle-state-red {
+            background-color: #ffe4e6 !important;
+            border-color: #f43f5e !important;
+        }
+        .light-theme .dongle-device-card.dongle-state-red .dongle-metric,
+        .light-theme .dongle-device-card.dongle-state-red .dongle-priority-metric,
+        .light-theme .dongle-device-card.dongle-state-red .dongle-routing-panel,
+        .light-theme .dongle-device-card.dongle-state-red .dongle-hardware-summary {
+            background: #fecdd3 !important;
+            border-color: #fb7185 !important;
+        }
+        .light-theme .dongle-device-card.dongle-state-red .dongle-routing-trunk {
+            background: #ffffff !important;
+        }
+        .light-theme .dongle-device-card.dongle-state-red .dongle-card-footer {
+            background-color: #fecdd3 !important;
+            border-top-color: #fb7185 !important;
+        }
+        .light-theme .dongle-device-card .dongle-metric-label {
+            color: #374151 !important;
+        }
+        .light-theme .dongle-device-card .dongle-metric-value,
+        .light-theme .dongle-device-card .dongle-priority-value {
+            color: #111827 !important;
+        }
+
+        .selected-row {
+            outline: 3px solid var(--accent-color) !important;
+            outline-offset: 1px;
+            box-shadow: 0 0 24px rgba(229, 62, 62, 0.4) !important;
+        }
+        .dongle-status-pill {
+            white-space: nowrap;
+        }
+        .dongle-priority-grid {
+            margin-bottom: 0.5rem;
+        }
+        .dongle-priority-metric {
+            background: linear-gradient(135deg, color-mix(in srgb, var(--accent-soft) 68%, var(--bg-primary)), color-mix(in srgb, var(--bg-primary) 58%, transparent));
+            border: 1px solid var(--accent-border);
+            border-radius: 0.75rem;
+            min-width: 0;
+            padding: 0.5rem 0.55rem;
+        }
+        .dongle-priority-value {
+            color: var(--text-primary);
+            font-size: 1rem !important;
+            font-weight: 900 !important;
+            letter-spacing: 0.01em;
+            line-height: 1.25;
+            overflow-wrap: anywhere;
+        }
+        .dongle-hardware-summary {
+            background: color-mix(in srgb, var(--bg-primary) 28%, transparent);
+            border: 1px dashed color-mix(in srgb, var(--border-primary) 78%, transparent);
+            border-radius: 0.55rem;
+            color: var(--text-muted);
+            font-size: 0.58rem;
+            line-height: 1.3;
+            padding: 0.35rem 0.55rem;
+        }
+        .dongle-routing-panel {
+            background: color-mix(in srgb, var(--bg-primary) 38%, transparent);
+            border: 1px solid color-mix(in srgb, var(--border-accent) 80%, transparent);
+            border-radius: 0.72rem;
+            margin-top: 0.5rem;
+            padding: 0.55rem;
+        }
+        .dongle-routing-trunk {
+            background: color-mix(in srgb, var(--bg-card) 82%, transparent);
+            border: 1px solid var(--border-primary);
+            border-radius: 0.58rem;
+            padding: 0.5rem;
+        }
+        .dongle-dial-string {
+            background: color-mix(in srgb, var(--bg-primary) 58%, transparent);
+            border-radius: 0.38rem;
+            color: var(--text-secondary);
+            font-size: 0.58rem;
+            line-height: 1.35;
+            overflow-wrap: anywhere;
+            padding: 0.3rem 0.4rem;
+        }
+        .dongle-route-chip {
+            background: rgba(14, 165, 233, 0.1);
+            border: 1px solid rgba(14, 165, 233, 0.24);
+            border-radius: 999px;
+            color: #38bdf8;
+            display: inline-flex;
+            font-size: 0.58rem;
+            font-weight: 700;
+            line-height: 1.2;
+            max-width: 100%;
+            padding: 0.22rem 0.42rem;
+        }
+        .dongle-metric {
+            background: color-mix(in srgb, var(--bg-primary) 46%, transparent);
+            border: 1px solid color-mix(in srgb, var(--border-primary) 75%, transparent);
+            border-radius: 0.6rem;
+            min-width: 0;
+            padding: 0.52rem 0.62rem;
+        }
+        .dongle-metric-label,
+        .gsm-detail-label {
+            color: var(--text-muted);
+            display: block;
+            font-size: 0.58rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            line-height: 1;
+            margin-bottom: 0.32rem;
+            text-transform: uppercase;
+        }
+        .dongle-metric-value,
+        .gsm-detail-value {
+            color: var(--text-primary);
+            display: block;
+            font-size: 1rem !important;
+            font-weight: 800 !important;
+            line-height: 1.3;
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+        .dongle-action-button {
+            align-items: center;
+            border: 1px solid var(--border-primary);
+            border-radius: 0.52rem;
+            display: inline-flex;
+            font-size: 0.68rem;
+            font-weight: 700;
+            gap: 0.35rem;
+            justify-content: center;
+            min-height: 1.9rem;
+            padding: 0.36rem 0.6rem;
+            transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, color 180ms ease;
+            white-space: nowrap;
+        }
+        .dongle-action-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.65;
+        }
+        .dongle-action-primary {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            color: #ffffff;
+            box-shadow: 0 6px 14px rgba(185, 28, 28, 0.16);
+        }
+        .dongle-action-primary:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+        }
+        .dongle-action-secondary {
+            background: rgba(0, 0, 0, 0.4);
+            border-color: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+        }
+        .dongle-action-secondary:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.45);
+        }
+        .light-theme .dongle-action-secondary {
+            background: rgba(255, 255, 255, 0.85);
+            border-color: rgba(0, 0, 0, 0.2);
+            color: #111827;
+        }
+        .light-theme .dongle-action-secondary:hover {
+            background: #ffffff;
+            border-color: rgba(0, 0, 0, 0.4);
+        }
+        .lower-console-grid > * {
+            min-width: 0;
+            width: 100%;
+        }
+        .gsm-console-panel {
+            min-height: 0;
+            min-width: 0;
+        }
+        .gsm-detail-field {
+            background: color-mix(in srgb, var(--bg-primary) 42%, transparent);
+            border: 1px solid color-mix(in srgb, var(--border-primary) 72%, transparent);
+            border-radius: 0.7rem;
+            min-width: 0;
+            padding: 0.65rem 0.75rem;
+        }
+        .sms-inbox-panel {
+            height: 36rem;
+            min-height: 0;
+            overflow: hidden;
+        }
+        .sms-inbox-scroll {
+            min-height: 0;
+            overscroll-behavior: contain;
+            scrollbar-color: var(--border-accent) transparent;
+            scrollbar-gutter: stable;
+            scrollbar-width: thin;
+        }
+        .sms-inbox-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .sms-inbox-scroll::-webkit-scrollbar-thumb {
+            background: var(--border-accent);
+            border-radius: 999px;
+        }
+        .sms-inbox-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .sms-message-card {
+            flex-shrink: 0;
+        }
+        @media (min-width: 1280px) {
+            .lower-console-grid {
+                grid-template-rows: minmax(0, 1fr);
+                height: 45rem;
+            }
+            .lower-console-grid > * {
+                height: 100%;
+                min-height: 0;
+            }
+            .sms-inbox-panel {
+                height: 100%;
+            }
+        }
+        
+        /* Light Theme Page-Specific Overrides for gsm-dongles.ejs */
+        .light-theme .panel-surface {
+            background-color: var(--bg-secondary) !important;
+            border-color: var(--border-primary) !important;
+        }
+        .light-theme .bg-black\/40 {
+            background-color: #e2e8f0 !important;
+        }
+        .light-theme .bg-black\/25 {
+            background-color: #f1f5f9 !important;
+        }
+        .light-theme .bg-zinc-950 {
+            background-color: var(--bg-card) !important;
+            border-color: #cbd5e1 !important;
+        }
+        .light-theme select,
+        .light-theme select option,
+        .light-theme input {
+            background-color: var(--bg-card) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-primary) !important;
+        }
+        .light-theme .border-b,
+        .light-theme .border-t,
+        .light-theme .border {
+            border-color: #cbd5e1 !important;
+        }
+        .light-theme .text-zinc-400,
+        .light-theme .text-zinc-500,
+        .light-theme .text-zinc-300 {
+            color: #334155 !important;
+        }
+        .light-theme .text-white {
+            color: #000000 !important;
+        }
+        .light-theme [class*="border-[#27272a]"] {
+            border-color: #cbd5e1 !important;
+        }
+        .light-theme .terminal-screen {
+            background-color: #030303 !important;
+            border: 1px solid #1a1a1a !important;
+        }
+        .light-theme .log-screen {
+            background-color: #050505 !important;
+            border: 1px solid #1f1f23 !important;
+        }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row min-h-screen m-0 p-0">
+    <%- include('sidebar') %>
+    
+    <div class="flex-1 p-4 sm:p-6 xl:p-8 relative flex flex-col min-w-0 min-h-screen">
+        
+        <!-- Header Section -->
+        <div class="mb-6 shrink-0 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+            <div class="flex items-start gap-3.5">
+                <div class="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 text-[var(--accent-color)] flex items-center justify-center shrink-0">
+                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.5 16.5a5 5 0 017 0M5.5 13.5a9 9 0 0113 0M2.5 10.5a13 13 0 0119 0M12 20h.01"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-[10px] font-black uppercase tracking-[0.18em] text-[var(--accent-color)] mb-1"><%= isRtl ? 'مراقبة الشبكة الخلوية' : 'Cellular Hardware Monitor' %></p>
+                    <h2 class="text-2xl sm:text-3xl font-vibrant-display text-[var(--text-primary)] tracking-tight"><%= t.title %> <span class="accent-orange"><%= t.subtitle %></span></h2>
+                    <p class="text-xs text-[var(--text-muted)] mt-1 max-w-2xl"><%= isRtl ? 'راقب الشرائح والإشارة والرسائل ونفّذ أوامر USSD من لوحة موحدة.' : 'Monitor SIM state, signal, messages, and USSD operations from one focused workspace.' %></p>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2.5">
+                <div class="px-3 py-2 rounded-xl bg-[var(--bg-card)] border border-[var(--border-primary)]">
+                    <span class="text-[9px] uppercase tracking-wider text-[var(--text-muted)] block"><%= isRtl ? 'الأجهزة' : 'Devices' %></span>
+                    <span id="gsm-device-total" class="text-sm font-black text-[var(--text-primary)] font-mono">0</span>
+                </div>
+                <div class="px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                    <span class="text-[9px] uppercase tracking-wider text-emerald-400/80 block"><%= isRtl ? 'جاهز' : 'Ready' %></span>
+                    <span id="gsm-device-ready" class="text-sm font-black text-emerald-400 font-mono">0</span>
+                </div>
+                <button id="global-reset-usb-btn" class="dongle-action-button dongle-action-primary cursor-pointer px-3.5 py-2 font-bold text-xs flex items-center gap-2">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg>
+                    <span><%= t.btnResetAllUsb %></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content Stack -->
+        <div class="flex flex-col gap-6 mb-6">
+            <!-- Responsive GSM Dongle Fleet -->
+            <section class="panel-surface rounded-2xl overflow-hidden shrink-0">
+                <div class="px-5 sm:px-6 py-4 border-b border-[var(--border-primary)] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-black/20">
+                    <div>
+                        <h3 class="text-base font-extrabold text-[var(--text-primary)] flex items-center gap-2">
+                            <svg class="text-[var(--accent-color)]" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 17h16M7 13h10M10 9h4M12 5v.01"/>
+                            </svg>
+                            <%= isRtl ? 'أجهزة GSM النشطة' : 'GSM Dongle Fleet' %>
+                        </h3>
+                        <p class="text-[11px] text-[var(--text-muted)] mt-0.5"><%= isRtl ? 'اختر جهازاً لعرض تفاصيله ورسائله وحالة الخدمة.' : 'Select a device to inspect hardware, messages, and live service health.' %></p>
+                    </div>
+                    <span class="inline-flex self-start sm:self-auto items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-[10px] font-bold">
+                        <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+                        <%= isRtl ? 'تحديث مباشر' : 'Live status' %>
+                    </span>
+                </div>
+
+                <!-- Action Buttons & Dongle State Legend -->
+                <div class="px-5 sm:px-6 py-3 bg-[var(--bg-card)]/80 border-b border-[var(--border-primary)]">
+                    <div class="flex items-center justify-between gap-2 cursor-pointer select-none" onclick="toggleLegendBlock()">
+                        <div class="flex items-center gap-2">
+                            <div class="w-6 h-6 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                            </div>
+                            <span class="text-xs font-black uppercase tracking-wider text-[var(--text-primary)]"><%= t.legendTitle %></span>
+                        </div>
+                        <button type="button" class="text-[10px] font-bold text-blue-400 hover:underline flex items-center gap-1">
+                            <span id="legend-toggle-text"><%= isRtl ? 'عرض الدليل' : 'Show Guide' %></span>
+                            <svg id="legend-toggle-icon" class="w-3.5 h-3.5 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+                    </div>
+
+                    <div id="legend-content-block" class="mt-3 pt-3 border-t border-[var(--border-primary)] space-y-4 hidden">
+                        <!-- 1. Action Buttons Guide -->
+                        <div>
+                            <span class="text-[10px] font-black uppercase tracking-wider text-[var(--text-secondary)] block mb-2"><%= isRtl ? 'أزرار الإجراءات والتحكم:' : 'Action & Control Buttons:' %></span>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                                <div class="p-2.5 rounded-xl bg-[var(--bg-primary)]/60 border border-[var(--border-primary)] flex items-start gap-2.5">
+                                    <span class="px-2 py-1 rounded bg-[var(--accent-color)] text-white text-[9px] font-bold shrink-0 flex items-center gap-1">
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg>
+                                        <%= isRtl ? 'أعلى الصفحة' : 'Header' %>
+                                    </span>
+                                    <p class="text-[10px] text-[var(--text-muted)] leading-relaxed"><%= t.legendTopHeaderDesc %></p>
+                                </div>
+                                <div class="p-2.5 rounded-xl bg-[var(--bg-primary)]/60 border border-[var(--border-primary)] flex items-start gap-2.5">
+                                    <span class="px-2 py-1 rounded bg-black/40 border border-white/20 text-white text-[9px] font-bold shrink-0 flex items-center gap-1">
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 11-2.64-6.36L21 8M21 3v5h-5"/></svg>
+                                        <%= t.btnRestartDongle %>
+                                    </span>
+                                    <p class="text-[10px] text-[var(--text-muted)] leading-relaxed"><%= t.legendRestartDesc %></p>
+                                </div>
+                                <div class="p-2.5 rounded-xl bg-[var(--bg-primary)]/60 border border-[var(--border-primary)] flex items-start gap-2.5">
+                                    <span class="px-2 py-1 rounded bg-black/40 border border-white/20 text-white text-[9px] font-bold shrink-0 flex items-center gap-1">
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+                                        <%= t.btnRebootModem %>
+                                    </span>
+                                    <p class="text-[10px] text-[var(--text-muted)] leading-relaxed"><%= t.legendRebootDesc %></p>
+                                </div>
+                                <div class="p-2.5 rounded-xl bg-[var(--bg-primary)]/60 border border-[var(--border-primary)] flex items-start gap-2.5">
+                                    <span class="px-2 py-1 rounded bg-black/40 border border-white/20 text-white text-[9px] font-bold shrink-0 flex items-center gap-1">
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22v-5"/><path d="M9 8V2h6v6"/><path d="M6 13V8h12v5a6 6 0 0 1-12 0z"/></svg>
+                                        <%= t.btnVirtualReplug %>
+                                    </span>
+                                    <p class="text-[10px] text-[var(--text-muted)] leading-relaxed"><%= t.legendReplugDesc %></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. Dongle State Colors Guide -->
+                        <div>
+                            <span class="text-[10px] font-black uppercase tracking-wider text-[var(--text-secondary)] block mb-2"><%= isRtl ? 'ألوان حالات الشريحة:' : 'Dongle State Colors:' %></span>
+                            <div class="flex flex-wrap items-center gap-2 text-[10px]">
+                                <span class="px-2.5 py-1 rounded-lg bg-purple-600 text-white font-black border border-purple-400 flex items-center gap-1.5 shadow-sm">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                                    <%= isRtl ? 'جاهز (Free)' : 'Free / Ready' %>
+                                </span>
+                                <span class="px-2.5 py-1 rounded-lg bg-[#047857] text-white font-black border border-emerald-400 flex items-center gap-1.5 shadow-sm">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                                    <%= isRtl ? 'مكالمة نشطة' : 'Active Call' %>
+                                </span>
+                                <span class="px-2.5 py-1 rounded-lg bg-pink-600 text-white font-black border border-pink-400 flex items-center gap-1.5 shadow-sm">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                                    <%= isRtl ? 'رسالة SMS' : 'SMS' %>
+                                </span>
+                                <span class="px-2.5 py-1 rounded-lg bg-blue-600 text-white font-black border border-blue-400 flex items-center gap-1.5 shadow-sm">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                                    <%= isRtl ? 'اتصال / رنين' : 'Dialing / Ringing' %>
+                                </span>
+                                <span class="px-2.5 py-1 rounded-lg bg-amber-600 text-white font-black border border-amber-400 flex items-center gap-1.5 shadow-sm">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                                    <%= isRtl ? 'جاري التهيئة' : 'Initializing' %>
+                                </span>
+                                <span class="px-2.5 py-1 rounded-lg bg-[#881337] text-white font-black border border-rose-700 flex items-center gap-1.5 shadow-sm">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                                    <%= isRtl ? 'غير متصل' : 'Disconnected' %>
+                                </span>
+                        </div>
+                    </div>
+                </div>
+                <div id="dongles-grid" class="grid grid-cols-1 md:grid-cols-2 items-start gap-3 p-3 sm:p-4">
+                    <div class="col-span-full py-8 text-center text-xs text-[var(--text-muted)]"><%= isRtl ? 'جاري تحميل أجهزة GSM...' : 'Loading GSM dongles...' %></div>
+                </div>
+            </section>
+
+
+            <!-- Lower Console Grid -->
+            <div class="lower-console-grid grid grid-cols-1 xl:grid-cols-3 gap-6 items-stretch mt-4">
+                <!-- Selected Device Detail -->
+                <div class="gsm-console-panel panel-surface rounded-2xl p-5 flex flex-col gap-4 h-full overflow-hidden">
+                    <div class="flex items-center justify-between gap-3 border-b border-[var(--border-primary)] pb-3 shrink-0">
+                        <div>
+                            <h4 class="text-sm font-extrabold text-[var(--text-primary)] uppercase tracking-wider flex items-center gap-2">
+                                <svg class="text-[var(--accent-color)]" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                                    <path d="M9 3v18M13 8h4M13 12h4M13 16h2"></path>
+                                </svg>
+                                <%= isRtl ? 'تفاصيل الجهاز' : 'Device Details' %>
+                            </h4>
+                            <p class="text-[10px] text-[var(--text-muted)] mt-0.5"><%= isRtl ? 'الهوية ومعلومات المودم المحدد' : 'Identity and modem information' %></p>
+                        </div>
+                        <span id="info-id" class="px-3 py-1 rounded-lg bg-red-500/10 text-[var(--accent-color)] border border-red-500/20 font-mono text-sm sm:text-base font-black">-</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div class="gsm-detail-field">
+                            <span class="gsm-detail-label"><%= t.thNumber %></span>
+                            <div class="flex items-center gap-1 min-w-0">
+                                <span id="info-number" class="gsm-detail-value font-mono flex-1">-</span>
+                                <button onclick="copyToClipboard(document.getElementById('info-number').textContent, this)" class="text-[var(--text-muted)] hover:text-[var(--text-primary)] p-1 rounded transition cursor-pointer shrink-0" title="<%= isRtl ? 'نسخ' : 'Copy' %>">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                                </button>
+                                <button onclick="editSimNumber(document.getElementById('info-id').textContent, document.getElementById('info-imsi').textContent, document.getElementById('info-number').textContent === 'Unknown' || document.getElementById('info-number').textContent === '-' ? '' : document.getElementById('info-number').textContent)" class="text-[var(--text-muted)] hover:text-[var(--text-primary)] p-1 rounded transition cursor-pointer shrink-0" title="<%= isRtl ? 'تعديل' : 'Edit' %>">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="gsm-detail-field"><span class="gsm-detail-label"><%= t.thProvider %></span><span id="info-provider" class="gsm-detail-value text-[var(--accent-color)]">-</span></div>
+                        <div class="gsm-detail-field"><span class="gsm-detail-label"><%= t.thIMEI %></span><span id="info-imei" class="gsm-detail-value font-mono">-</span></div>
+                        <div class="gsm-detail-field"><span class="gsm-detail-label"><%= t.thIMSI %></span><span id="info-imsi" class="gsm-detail-value font-mono">-</span></div>
+                        <div class="gsm-detail-field"><span class="gsm-detail-label"><%= t.model %></span><span id="info-model" class="gsm-detail-value">-</span></div>
+                        <div class="gsm-detail-field"><span class="gsm-detail-label"><%= t.firmware %></span><span id="info-firmware" class="gsm-detail-value font-mono">-</span></div>
+                        <div class="gsm-detail-field"><span class="gsm-detail-label"><%= t.group %></span><span id="info-group" class="gsm-detail-value">-</span></div>
+                        <div class="gsm-detail-field"><span class="gsm-detail-label"><%= t.mode %> / <%= t.submode %></span><span class="gsm-detail-value"><span id="info-mode">-</span> / <span id="info-submode">-</span></span></div>
+                    </div>
+
+                    <div class="mt-auto pt-4 border-t border-[var(--border-primary)]/50 flex flex-col gap-3 min-h-0">
+                        <h5 class="text-[10px] font-black uppercase text-[var(--text-secondary)] tracking-wider"><%= isRtl ? 'الحالة والتشخيص المباشر' : 'Live Status & Diagnostics' %></h5>
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <div class="dongle-metric flex flex-col items-center justify-center text-center">
+                                <span class="dongle-metric-label"><%= isRtl ? 'مستوى الإشارة' : 'Signal Level' %></span>
+                                <div class="flex items-end gap-1 h-8 mb-1.5" id="diag-signal-bars"></div>
+                                <span id="diag-signal-text" class="text-[10px] font-bold text-[var(--text-primary)] font-mono">-</span>
+                            </div>
+                            <div class="dongle-metric flex flex-col items-center justify-center text-center">
+                                <span class="dongle-metric-label"><%= isRtl ? 'حالة الخدمة' : 'Service Status' %></span>
+                                <div id="diag-service-badge" class="mb-1.5"></div>
+                                <span id="diag-carrier-text" class="text-[10px] font-bold text-[var(--accent-color)]">-</span>
+                            </div>
+                        </div>
+                        <div class="dongle-metric">
+                            <div class="grid grid-cols-3 gap-2 text-center text-[10px]">
+                                <div><span class="dongle-metric-label"><%= isRtl ? 'الصوت' : 'Voice' %></span><span id="chk-voice" class="text-zinc-500 font-bold font-mono">-</span></div>
+                                <div class="border-x border-[var(--border-primary)]/40"><span class="dongle-metric-label"><%= isRtl ? 'الرسائل' : 'SMS' %></span><span id="chk-sms" class="text-zinc-500 font-bold font-mono">-</span></div>
+                                <div><span class="dongle-metric-label">USSD</span><span id="chk-ussd" class="text-zinc-500 font-bold font-mono">-</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SMS Inbox Panel -->
+                <div class="gsm-console-panel sms-inbox-panel panel-surface rounded-2xl p-5 flex flex-col gap-4">
+                    <div class="flex items-center justify-between border-b border-[var(--border-primary)] pb-3 gap-3 shrink-0">
+                        <div class="min-w-0">
+                            <h3 class="text-sm font-extrabold text-[var(--text-primary)] flex items-center gap-2">
+                                <svg class="text-[var(--accent-color)]" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2z"/><path d="m22 6-10 7L2 6"/></svg>
+                                <%= isRtl ? 'صندوق الرسائل' : 'SMS Inbox' %>
+                            </h3>
+                            <p id="sms-inbox-device" class="text-[10px] text-[var(--text-muted)] font-mono mt-0.5 truncate"><%= isRtl ? 'اختر جهازاً' : 'Select a dongle' %></p>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <span id="sms-inbox-count" class="px-2 py-1 rounded-lg bg-[var(--bg-card)] border border-[var(--border-primary)] text-[10px] font-mono font-bold text-[var(--text-secondary)]">0</span>
+                            <button onclick="clearSmsInbox()" class="text-[10px] bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] border border-[var(--border-primary)] rounded-lg px-2.5 py-1.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition cursor-pointer">
+                                <%= isRtl ? 'مسح' : 'Clear' %>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="sms-inbox-scroll overflow-y-auto flex-1 flex flex-col gap-2.5 pe-1" id="sms-inbox-container">
+                        <div class="text-center py-8 text-[var(--text-muted)] italic" id="sms-empty-placeholder"><%= isRtl ? 'لا يوجد رسائل واردة حالياً' : 'No incoming SMS messages' %></div>
+                    </div>
+                </div>
+
+                <!-- USSD Console Panel & Terminal Response -->
+                <div class="gsm-console-panel flex flex-col gap-6 h-full">
+
+
+                <!-- USSD Exec Panel -->
+                <div class="panel-surface rounded-2xl p-6 flex flex-col gap-4">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <svg class="text-[var(--accent-color)]" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="4 17 10 11 4 5"></polyline>
+                            <line x1="12" y1="19" x2="20" y2="19"></line>
+                        </svg>
+                        <%= t.ussdTitle %>
+                    </h3>
+                    
+                    <form id="ussd-execution-form" class="flex flex-col gap-4">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-xs font-semibold text-[var(--text-secondary)]"><%= isRtl ? 'اختر شريحة الاتصال' : 'Target Dongle' %></label>
+                            <select id="ussd-target-dongle" class="bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-lg px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-color)] cursor-pointer" required>
+                                <option value="" disabled <%= initialSelectedDongleId ? '' : 'selected' %> hidden><%= t.selectPlaceholder %></option>
+                                <% if (devices && devices.length > 0) { %>
+                                    <% devices.forEach(d => { %>
+                                        <option value="<%= d.ID %>" <%= d.ID === initialSelectedDongleId ? 'selected' : '' %>><%= d.ID %> (<%= d.Number || 'Unknown' %>)</option>
+                                    <% }) %>
+                                <% } %>
+                            </select>
+                        </div>
+                        
+                        <div class="flex flex-col gap-2">
+                            <label class="text-xs font-semibold text-[var(--text-secondary)]"><%= isRtl ? 'رمز الـ USSD' : 'USSD Code' %></label>
+                            <div class="flex items-center bg-[var(--bg-card)] border border-[var(--border-primary)] rounded-lg px-3 focus-within:border-[var(--accent-color)] transition-colors">
+                                <span class="text-[var(--accent-color)] font-bold font-mono text-sm leading-none select-none me-1">&gt;</span>
+                                <input type="text" id="ussd-code-input" class="w-full bg-transparent border-0 outline-none py-2 text-sm text-[var(--text-primary)] font-mono placeholder-zinc-500" placeholder="e.g. *100# or *50#" required autocomplete="off">
+                            </div>
+                        </div>
+                        
+                        <button type="submit" id="ussd-submit-btn" class="btn-primary py-2.5 text-xs uppercase tracking-wider flex items-center justify-center gap-2">
+                            <span id="btn-label"><%= t.sendBtn %></span>
+                            <div id="btn-spinner" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin hidden"></div>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- USSD Terminal Display -->
+                <div class="panel-surface rounded-2xl flex flex-col flex-1 min-h-[220px]">
+                    <div class="px-4 py-3 border-b border-[var(--border-primary)] flex items-center justify-between shrink-0 bg-black/40 rounded-t-2xl">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-rose-500/80"></span>
+                            <span class="w-3 h-3 rounded-full bg-amber-500/80"></span>
+                            <span class="w-3 h-3 rounded-full bg-emerald-500/80"></span>
+                        </div>
+                        <span class="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider font-mono"><%= t.terminalTitle %></span>
+                        <div class="w-9 h-3"></div> <!-- Spacer -->
+                    </div>
+                    
+                    <div class="terminal-screen p-4 flex-1 overflow-y-auto text-xs text-emerald-400 font-mono flex flex-col gap-2 rounded-b-2xl" id="terminal-screen">
+                        <div class="text-green-400 font-mono text-sm select-none" id="terminal-placeholder">
+                            <%= t.terminalPlaceholder %>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+
+        <!-- USB Serial Devices Grid -->
+        <section class="panel-surface rounded-2xl p-5 sm:p-6 flex flex-col gap-4 shrink-0">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                    <h3 class="text-sm font-extrabold text-[var(--text-primary)] flex items-center gap-2">
+                        <svg class="w-4 h-4 text-[var(--accent-color)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg>
+                        <%= t.usbDevices %>
+                    </h3>
+                    <p class="text-[11px] text-[var(--text-muted)] mt-1"><%= t.usbDesc %></p>
+                </div>
+                <span class="text-[9px] font-bold uppercase tracking-wider text-[var(--text-muted)]"><%= isRtl ? 'منافذ النظام' : 'System ports' %></span>
+            </div>
+            <div id="usb-devices-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                <div class="text-[var(--text-muted)] text-xs italic col-span-full py-4 text-center">...</div>
+            </div>
+        </section>
+
+        <!-- Collapsible logs console (Bottom) -->
+        <div class="panel-surface rounded-2xl flex flex-col shrink-0">
+            <div class="p-4 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-black/40 border-b border-[var(--border-primary)] rounded-t-2xl <%= isRtl ? 'sm:flex-row-reverse' : '' %>">
+                <h3 class="text-sm font-bold text-[var(--text-primary)] uppercase tracking-wider flex items-center gap-2">
+                    <div class="relative flex items-center justify-center">
+                        <span class="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-[var(--accent-color)] opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-[var(--accent-color)]"></span>
+                    </div>
+                    <%= t.logTitle %>
+                </h3>
+                
+                <div class="w-full sm:w-auto flex flex-wrap items-center gap-3 sm:gap-4 text-xs font-semibold select-none <%= isRtl ? 'flex-row-reverse' : '' %>">
+                    <div class="flex items-center gap-2">
+                        <span><%= t.logToggle %></span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="logs-toggle-switch" class="sr-only peer">
+                            <div class="w-8 h-4 bg-zinc-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[var(--accent-color)]"></div>
+                        </label>
+                    </div>
+                    
+                    <label class="flex items-center gap-1.5 cursor-pointer">
+                        <input type="checkbox" id="logs-autoscroll-chk" checked class="accent-[var(--accent-color)] rounded font-bold">
+                        <span><%= t.autoscroll %></span>
+                    </label>
+                    
+                    <button id="clear-logs-btn" class="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition cursor-pointer font-bold uppercase tracking-wider"><%= t.clearBtn %></button>
+                </div>
+            </div>
+            
+            <div class="log-screen p-5 text-[10px] text-[var(--text-secondary)] flex flex-col gap-1.5 rounded-b-2xl hidden" id="log-screen-console">
+                <div class="text-[var(--text-muted)]">[System] Stream listener initialized. Awaiting hardware events...</div>
+            </div>
+        </div>
+
+    </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-5 z-[999999] flex flex-col gap-2.5 max-w-sm pointer-events-none <%= isRtl ? 'left-5' : 'right-5' %>"></div>
+
+    <!-- SMS Detail Modal -->
+    <div id="sms-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-200">
+        <div id="sms-modal-card" class="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-2xl w-full max-w-lg p-6 shadow-2xl scale-95 opacity-0 transition-all duration-200 flex flex-col gap-4 mx-4">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between border-b border-[var(--border-primary)] pb-3">
+                <h3 class="text-lg font-bold text-[var(--text-primary)] flex items-center gap-2">
+                    <svg class="text-[var(--accent-color)]" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    <span id="sms-modal-title"><%= isRtl ? 'تفاصيل الرسالة' : 'SMS Message Details' %></span>
+                </h3>
+                <button onclick="closeSmsModal()" class="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition cursor-pointer p-1 rounded-lg hover:bg-[var(--bg-hover)]">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <!-- Modal Body -->
+            <div class="flex flex-col gap-3.5">
+                <!-- Meta Row -->
+                <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <div class="flex items-center gap-2">
+                        <span id="sms-modal-dongle" class="bg-[var(--accent-color)] text-white font-mono font-bold px-2 py-0.5 rounded text-[10px] uppercase"></span>
+                        <span id="sms-modal-sender" class="text-[var(--text-primary)] font-bold font-mono text-sm"></span>
+                        <button id="sms-modal-copy-sender" class="text-[var(--text-secondary)] hover:text-[var(--text-primary)] p-0.5 rounded transition cursor-pointer" title="Copy Number">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        </button>
+                    </div>
+                    <span id="sms-modal-time" class="text-[var(--text-muted)] font-mono"></span>
+                </div>
+                <!-- Content Area -->
+                <div class="bg-[var(--bg-card)] border border-[var(--border-primary)] p-4 rounded-xl max-h-[250px] overflow-y-auto">
+                    <p id="sms-modal-content" class="text-sm text-[var(--text-secondary)] leading-relaxed select-text whitespace-pre-wrap font-sans"></p>
+                </div>
+            </div>
+            <!-- Modal Footer -->
+            <div class="flex justify-end pt-2">
+                <button onclick="closeSmsModal()" class="bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-primary)] font-semibold rounded-lg px-5 py-2 text-sm transition cursor-pointer border border-[var(--border-primary)]">
+                    <%= isRtl ? 'إغلاق' : 'Close' %>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- WebSockets Real-time streaming -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        let loadedDevices = <%- JSON.stringify(devices || []) %>;
+        window.loadedDevices = loadedDevices;
+        const isRtl = <%= isRtl %>;
+        window.isRtl = isRtl;
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+        window.escapeHtml = escapeHtml;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const words = {
+                stateFree: "<%= t.stateFree %>",
+                stateDisconnected: "<%= t.stateDisconnected %>",
+                stateGsmNotResponding: "<%= t.stateGsmNotResponding %>",
+                stateNotInitializing: "<%= t.stateNotInitializing %>",
+                reloadedSuccess: "<%= t.reloadedSuccess %>",
+                sendUssdError: "<%= t.sendUssdError %>",
+                sending: "<%= t.sending %>",
+                sendBtn: "<%= t.sendBtn %>",
+                running: "<%= t.running %>",
+                refreshBtn: "<%= t.refreshBtn %>",
+                noDongles: "<%= t.noDongles %>",
+                selectPlaceholder: "<%= t.selectPlaceholder %>",
+                usbNone: "<%= t.usbNone %>",
+                usbNoneHint: "<%= t.usbNoneHint %>",
+                usbMapped: "<%= isRtl ? 'مسجل في dongle' : 'Mapped' %>",
+                usbUnmapped: "<%= isRtl ? 'غير مسجل' : 'Unmapped' %>",
+                btnRestartDongle: "<%= t.btnRestartDongle %>",
+                btnRebootModem: "<%= t.btnRebootModem %>",
+                btnVirtualReplug: "<%= t.btnVirtualReplug %>",
+                btnResetUsb: "<%= t.btnResetUsb %>"
+            };
+
+            // Socket.io initialization with safety check to prevent halts if blocked/undefined
+            let socket = null;
+            if (typeof io !== 'undefined') {
+                socket = io();
+            } else {
+                console.warn("Socket.io (io) is not defined. Real-time updates will be disabled.");
+            }
+            
+            // Elements
+            const logsToggle = document.getElementById('logs-toggle-switch');
+            const logScreen = document.getElementById('log-screen-console');
+            const logsAutoscroll = document.getElementById('logs-autoscroll-chk');
+            const clearLogsBtn = document.getElementById('clear-logs-btn');
+            
+            const ussdForm = document.getElementById('ussd-execution-form');
+            const ussdTarget = document.getElementById('ussd-target-dongle');
+            const ussdInput = document.getElementById('ussd-code-input');
+            const ussdSubmitBtn = document.getElementById('ussd-submit-btn');
+            const btnLabel = document.getElementById('btn-label');
+            const btnSpinner = document.getElementById('btn-spinner');
+            const terminalScreen = document.getElementById('terminal-screen');
+            const terminalPlaceholder = document.getElementById('terminal-placeholder');
+            
+            const globalRefreshBtn = document.getElementById('global-refresh-btn');
+            const donglesGrid = document.getElementById('dongles-grid');
+            const deviceTotalEl = document.getElementById('gsm-device-total');
+            const deviceReadyEl = document.getElementById('gsm-device-ready');
+            
+            // Detail display elements
+            const elId = document.getElementById('info-id');
+            const elNum = document.getElementById('info-number');
+            const elProv = document.getElementById('info-provider');
+            const globalResetUsbBtn = document.getElementById('global-reset-usb-btn');
+            const elImei = document.getElementById('info-imei');
+            const elImsi = document.getElementById('info-imsi');
+            const elGroup = document.getElementById('info-group');
+            const elModel = document.getElementById('info-model');
+            const elFirm = document.getElementById('info-firmware');
+            const elMode = document.getElementById('info-mode');
+            const elSub = document.getElementById('info-submode');
+
+            let selectedDongleId = null;
+            let allSmsMessages = [];
+            let lastUssdText = "";
+            let lastUssdTime = 0;
+            let devicesRefreshInFlight = false;
+
+            function getDongleStateView(dev) {
+                const rawState = String((dev && dev.State) || 'Not Connected');
+                const normalized = rawState.toLowerCase();
+                let color = 'red';
+                let label = rawState;
+                let animate = false;
+
+                if (normalized.includes('not init')) {
+                    color = 'yellow';
+                    label = words.stateNotInitializing;
+                } else if (normalized.includes('not responding')) {
+                    label = words.stateGsmNotResponding;
+                } else if (normalized.includes('not connec') || normalized === 'not_connected' || normalized.includes('disconnected')) {
+                    label = isRtl ? 'غير متصل' : 'Not Connected';
+                } else if (normalized === 'free' || normalized === 'idle') {
+                    color = 'purple';
+                    label = isRtl ? 'جاهز' : 'Free';
+                } else if (normalized.includes('sms')) {
+                    color = 'pink';
+                    label = isRtl ? 'رسالة SMS' : 'SMS';
+                    animate = true;
+                } else if (normalized.includes('outgoing') || normalized.includes('incoming') || normalized.includes('active') || normalized.includes('busy')) {
+                    color = 'green';
+                    label = normalized.includes('outgoing')
+                        ? (isRtl ? 'مكالمة صادرة' : 'Outgoing Call')
+                        : normalized.includes('incoming')
+                            ? (isRtl ? 'مكالمة واردة' : 'Incoming Call')
+                            : (isRtl ? 'مكالمة نشطة' : 'Active Call');
+                    animate = true;
+                } else if (normalized.includes('not reg') || normalized.includes('searching') || normalized.includes('no signal') || normalized.includes('gsm')) {
+                    color = 'yellow';
+                    label = isRtl ? 'غير مسجل' : 'GSM Not Registered';
+                } else if (normalized.includes('dial') || normalized.includes('ring') || normalized.includes('calling')) {
+                    color = 'blue';
+                    label = normalized.includes('dial')
+                        ? (isRtl ? 'جاري الاتصال' : 'Dialing')
+                        : (isRtl ? 'جاري الرنين' : 'Ringing');
+                    animate = true;
+                }
+
+                const badge = {
+                    red: { bg: 'bg-red-500/15', text: 'text-red-400', border: 'border-red-500/30', dot: 'bg-red-500' },
+                    purple: { bg: 'bg-purple-500/15', text: 'text-purple-400', border: 'border-purple-500/30', dot: 'bg-purple-400' },
+                    green: { bg: 'bg-emerald-500/15', text: 'text-emerald-400', border: 'border-emerald-500/30', dot: 'bg-emerald-400' },
+                    pink: { bg: 'bg-pink-500/20', text: 'text-pink-300', border: 'border-pink-500/40', dot: 'bg-pink-400' },
+                    yellow: { bg: 'bg-yellow-500/15', text: 'text-yellow-400', border: 'border-yellow-500/30', dot: 'bg-yellow-400' },
+                    blue: { bg: 'bg-blue-500/15', text: 'text-blue-400', border: 'border-blue-500/30', dot: 'bg-blue-400' }
+                }[color];
+
+                return {
+                    rawState,
+                    color,
+                    label,
+                    animate,
+                    badge,
+                    isReady: color === 'purple' || color === 'green' || color === 'blue'
+                };
+            }
+
+            function getDongleSignalView(dev) {
+                const rawRssi = Number.parseInt(dev && dev.RSSI, 10);
+                const rssi = Number.isFinite(rawRssi) ? Math.max(0, Math.min(31, rawRssi)) : 0;
+                const percent = Math.round((rssi / 31) * 100);
+                let activeColor = 'var(--status-success-text)';
+                let level = isRtl ? 'ممتاز' : 'Excellent';
+
+                if (rssi === 0) {
+                    activeColor = 'var(--status-error-text)';
+                    level = isRtl ? 'بدون إشارة' : 'No Signal';
+                } else if (rssi < 9) {
+                    activeColor = 'var(--status-error-text)';
+                    level = isRtl ? 'ضعيف جداً' : 'Very Weak';
+                } else if (rssi < 15) {
+                    activeColor = 'var(--status-error-text)';
+                    level = isRtl ? 'ضعيف' : 'Weak';
+                } else if (rssi < 20) {
+                    activeColor = 'var(--status-warning-text)';
+                    level = isRtl ? 'متوسط' : 'Moderate';
+                } else if (rssi < 25) {
+                    level = isRtl ? 'جيد' : 'Good';
+                }
+
+                const thresholds = [1, 5, 9, 13, 18, 23, 28];
+                const heights = [6, 10, 14, 18, 22, 26, 30];
+                const barsHtml = thresholds.map((threshold, index) => {
+                    const fill = rssi >= threshold ? activeColor : 'rgba(127,127,127,0.16)';
+                    return `<span style="width:5px;height:${heights[index]}px;border-radius:2px;background:${fill};display:block"></span>`;
+                }).join('');
+
+                return { rssi, percent, activeColor, level, barsHtml };
+            }
+
+            function renderDongleRouting(dev) {
+                const imei = String(dev.IMEI || '').trim();
+                const trunks = Array.isArray(dev.customTrunks) ? dev.customTrunks : [];
+                const validImei = /^\d{8,20}$/.test(imei);
+                const emptyMessage = validImei
+                    ? (isRtl ? 'لا يوجد مسار اتصال مخصص يحتوي على IMEI هذا الجهاز.' : 'No custom trunk dial string contains this IMEI.')
+                    : (isRtl ? 'رقم IMEI غير متاح، لذلك لا يمكن مطابقة المسارات.' : 'IMEI unavailable, so routing cannot be matched.');
+
+                if (trunks.length === 0) {
+                    return `
+                        <div class="dongle-routing-panel">
+                            <div class="flex items-center gap-2 mb-1.5">
+                                <svg class="text-[var(--text-muted)] shrink-0" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                <span class="text-[9px] font-black uppercase tracking-wider text-[var(--text-secondary)]">${isRtl ? 'الربط الصادر عبر IMEI' : 'IMEI-Linked Outbound Routing'}</span>
+                            </div>
+                            <p class="text-[9px] text-[var(--text-muted)] leading-relaxed">${escapeHtml(emptyMessage)}</p>
+                        </div>`;
+                }
+
+                const routeCount = trunks.reduce((total, trunk) => total + (Array.isArray(trunk.routes) ? trunk.routes.length : 0), 0);
+                return `
+                    <div class="dongle-routing-panel">
+                        <div class="flex items-center justify-between gap-2 mb-1.5">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <svg class="text-sky-400 shrink-0" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                <span class="text-[9px] font-black uppercase tracking-wider text-[var(--text-secondary)]">${isRtl ? 'الربط الصادر عبر IMEI' : 'IMEI-Linked Outbound Routing'}</span>
+                            </div>
+                            <span class="text-[8px] font-mono font-bold text-sky-400 shrink-0">${trunks.length} ${isRtl ? 'مسار' : 'trunk'} · ${routeCount} ${isRtl ? 'وجهة' : 'routes'}</span>
+                        </div>
+                        <div class="space-y-1.5">
+                            ${trunks.map(trunk => {
+                                const routes = Array.isArray(trunk.routes) ? trunk.routes : [];
+                                return `
+                                    <div class="dongle-routing-trunk">
+                                        <div class="flex items-center justify-between gap-2 mb-1">
+                                            <div class="min-w-0">
+                                                <span class="text-[10px] font-extrabold text-[var(--text-primary)] truncate block">${escapeHtml(trunk.name || `Trunk #${trunk.trunkId}`)}</span>
+                                                <span class="text-[8px] text-[var(--text-muted)] font-mono">Trunk #${escapeHtml(trunk.trunkId)}</span>
+                                            </div>
+                                            <span class="px-1.5 py-0.5 rounded-full border text-[8px] font-bold shrink-0 ${trunk.disabled ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}">
+                                                ${trunk.disabled ? (isRtl ? 'معطل' : 'Disabled') : (isRtl ? 'مفعل' : 'Enabled')}
+                                            </span>
+                                        </div>
+                                        <div class="dongle-dial-string font-mono mb-1.5" title="${escapeHtml(trunk.dialString || '')}">${escapeHtml(trunk.dialString || '-')}</div>
+                                        <div class="flex flex-wrap items-center gap-1">
+                                            <span class="text-[8px] font-bold uppercase tracking-wider text-[var(--text-muted)]">${isRtl ? 'المسارات الصادرة' : 'Outbound Routes'}</span>
+                                            ${routes.length > 0
+                                                ? routes.map(route => `<span class="dongle-route-chip"><span class="truncate">${escapeHtml(route.name || `Route #${route.routeId}`)}</span><span class="opacity-60 ms-1 shrink-0">#${escapeHtml(route.routeId)}</span></span>`).join('')
+                                                : `<span class="text-[8px] italic text-[var(--text-muted)]">${isRtl ? 'غير مرتبط بأي مسار صادر' : 'Not assigned to an outbound route'}</span>`}
+                                        </div>
+                                    </div>`;
+                            }).join('')}
+                        </div>
+                    </div>`;
+            }
+
+            function renderDongleCards() {
+                if (!donglesGrid) return;
+
+                const states = loadedDevices.map(getDongleStateView);
+                if (deviceTotalEl) deviceTotalEl.textContent = String(loadedDevices.length);
+                if (deviceReadyEl) deviceReadyEl.textContent = String(states.filter(state => state.isReady).length);
+                donglesGrid.innerHTML = '';
+
+                if (loadedDevices.length === 0) {
+                    donglesGrid.innerHTML = `
+                        <div class="col-span-full py-10 text-center">
+                            <div class="w-10 h-10 mx-auto mb-3 rounded-xl bg-[var(--bg-card)] border border-[var(--border-primary)] flex items-center justify-center text-[var(--text-muted)]">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 17h16M7 13h10M10 9h4"/></svg>
+                            </div>
+                            <p class="text-xs font-semibold text-[var(--text-secondary)]">${escapeHtml(words.noDongles)}</p>
+                        </div>`;
+                    return;
+                }
+
+                loadedDevices.forEach((dev, index) => {
+                    const id = String(dev.ID || '');
+                    const phoneNumber = String(dev.Number || 'Unknown');
+                    const imsi = String(dev.IMSI || '-');
+                    const imei = String(dev.IMEI || '-');
+                    const provider = String(dev['Provider Name'] || 'NONE');
+                    const model = String(dev.Model || '-');
+                    const firmware = String(dev.Firmware || '-');
+                    const mode = [dev.Mode, dev.Submode].filter(Boolean).join(' / ') || '-';
+                    const state = states[index];
+                    const signal = getDongleSignalView(dev);
+                    const card = document.createElement('article');
+
+                    card.className = `dongle-device-card dongle-state-${state.color} rounded-2xl cursor-pointer flex flex-col`;
+                    card.id = 'row-' + id;
+                    card.dataset.dongleId = id;
+                    card.dataset.number = phoneNumber === 'Unknown' ? '' : phoneNumber;
+                    card.dataset.imsi = imsi;
+                    card.dataset.imei = imei;
+                    if (id === selectedDongleId) card.classList.add('selected-row');
+
+                    card.innerHTML = `
+                        <div class="p-3 sm:p-4 flex-1">
+                            <div class="flex items-start justify-between gap-2.5 mb-3">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <div class="w-9 h-9 rounded-xl dongle-icon-box flex items-center justify-center shrink-0">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M9 18h6M9 6h.01M12 6h.01M15 6h.01"/></svg>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <h4 class="text-base sm:text-lg font-black text-[var(--text-primary)] font-mono truncate tracking-tight">${escapeHtml(id)}</h4>
+                                        <p class="text-[10px] text-[var(--text-muted)] truncate">${escapeHtml(provider)}</p>
+                                    </div>
+                                </div>
+                                <span class="px-2 py-1 rounded-lg bg-[var(--bg-primary)]/50 border border-[var(--border-primary)] text-[9px] font-bold text-[var(--text-muted)] shrink-0">${isRtl ? 'المجموعة' : 'Group'} ${escapeHtml(dev.Group || '0')}</span>
+                            </div>
+
+                            <div class="dongle-priority-grid grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <div class="dongle-priority-metric">
+                                    <span class="dongle-metric-label">IMEI · ${isRtl ? 'هوية الجهاز' : 'Device Identity'}</span>
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <span class="dongle-priority-value font-mono flex-1">${escapeHtml(imei)}</span>
+                                        ${imei !== '-' && imei !== 'Unknown' ? `<button type="button" data-dongle-action="copy-imei" class="w-6 h-6 rounded-md bg-[var(--bg-primary)]/40 border border-[var(--border-primary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center justify-center cursor-pointer shrink-0" title="${isRtl ? 'نسخ IMEI' : 'Copy IMEI'}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>` : ''}
+                                    </div>
+                                </div>
+                                <div class="dongle-priority-metric">
+                                    <span class="dongle-metric-label">${isRtl ? 'الحالة الحالية' : 'Current State'}</span>
+                                    <span class="dongle-status-pill w-full inline-flex items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-xs font-black border uppercase tracking-wider">
+                                        <span class="dongle-status-dot h-2 w-2 rounded-full ${state.badge.dot}${state.animate ? ' animate-pulse' : ''} shrink-0"></span>
+                                        ${escapeHtml(state.label)}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="dongle-metric">
+                                    <span class="dongle-metric-label">${isRtl ? 'رقم الشريحة' : 'DID / SIM'}</span>
+                                    <div class="flex items-center gap-1 min-w-0">
+                                        <span id="display-num-${escapeHtml(id)}" class="dongle-metric-value font-mono flex-1 truncate">${escapeHtml(phoneNumber)}</span>
+                                        ${phoneNumber !== 'Unknown' ? `<button type="button" data-dongle-action="copy-number" class="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer shrink-0" title="${isRtl ? 'نسخ الرقم' : 'Copy number'}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>` : ''}
+                                        <button type="button" data-dongle-action="edit-number" class="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer shrink-0" title="${isRtl ? 'تعديل الرقم' : 'Edit number'}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4z"/></svg></button>
+                                    </div>
+                                </div>
+                                <div class="dongle-metric">
+                                    <span class="dongle-metric-label">${isRtl ? 'الإشارة' : 'Signal'}</span>
+                                    <div class="flex items-end justify-between gap-2">
+                                        <span class="dongle-metric-value font-mono" style="color:${signal.activeColor}">${signal.percent}%</span>
+                                        <div class="flex items-end gap-0.5 h-[24px]">${signal.barsHtml}</div>
+                                    </div>
+                                </div>
+                                <div class="dongle-metric col-span-2">
+                                    <span class="dongle-metric-label">IMSI · ${isRtl ? 'هوية الشريحة' : 'SIM Identity'}</span>
+                                    <span class="dongle-metric-value font-mono truncate" title="${escapeHtml(imsi)}">${escapeHtml(imsi)}</span>
+                                </div>
+                                <div class="dongle-hardware-summary col-span-2 flex items-center justify-between gap-2 min-w-0">
+                                    <span class="font-black uppercase tracking-wider shrink-0">${isRtl ? 'الجهاز' : 'Hardware'}</span>
+                                    <span class="font-mono truncate text-end" title="${escapeHtml(`${model} · ${mode} · ${firmware}`)}">${escapeHtml(model)} · ${escapeHtml(mode)} · ${escapeHtml(firmware)}</span>
+                                </div>
+                            </div>
+
+                            ${renderDongleRouting(dev)}
+                        </div>
+                        <div class="dongle-card-footer px-3 sm:px-4 py-2.5 flex items-center justify-between gap-2">
+                            <span class="text-[10px] font-extrabold text-[var(--text-muted)] flex items-center gap-1.5 shrink-0">
+                                <span style="color:${signal.activeColor}">●</span> ${escapeHtml(signal.level)} · ${signal.rssi}/31
+                            </span>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <button type="button" id="reloadBtn-${escapeHtml(id)}" data-dongle-action="reload" class="dongle-action-button dongle-action-primary cursor-pointer w-8 h-8 p-0 rounded-lg flex items-center justify-center" title="${escapeHtml(words.btnRestartDongle)}">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 11-2.64-6.36L21 8M21 3v5h-5"/></svg>
+                                </button>
+
+                                <button type="button" id="rebootBtn-${escapeHtml(id)}" data-dongle-action="reboot-modem" class="dongle-action-button dongle-action-secondary cursor-pointer w-8 h-8 p-0 rounded-lg flex items-center justify-center" title="${escapeHtml(words.btnRebootModem)}">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+                                </button>
+
+                                <button type="button" id="virtualReplugBtn-${escapeHtml(id)}" data-dongle-action="virtual-replug" class="dongle-action-button dongle-action-secondary cursor-pointer w-8 h-8 p-0 rounded-lg flex items-center justify-center" title="${escapeHtml(words.btnVirtualReplug)}">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22v-5"/><path d="M9 8V2h6v6"/><path d="M6 13V8h12v5a6 6 0 0 1-12 0z"/></svg>
+                                </button>
+
+                            </div>
+                        </div>`;
+
+                    donglesGrid.appendChild(card);
+                });
+            }
+
+            if (donglesGrid) {
+                donglesGrid.addEventListener('click', event => {
+                    const card = event.target.closest('.dongle-device-card');
+                    if (!card || !donglesGrid.contains(card)) return;
+
+                    const id = card.dataset.dongleId;
+                    const actionButton = event.target.closest('[data-dongle-action]');
+                    if (!actionButton) {
+                        selectDevice(id);
+                        return;
+                    }
+
+                    const action = actionButton.dataset.dongleAction;
+                    if (action === 'copy-imei') copyToClipboard(card.dataset.imei, actionButton);
+                    if (action === 'copy-number') copyToClipboard(card.dataset.number, actionButton);
+                    if (action === 'edit-number') editSimNumber(id, card.dataset.imsi, card.dataset.number);
+                    if (action === 'reload') reloadDongle(id);
+                    if (action === 'reboot-modem') rebootModem(id);
+                    if (action === 'virtual-replug') virtualReplug(id);
+                    if (action === 'reset-usb') resetUsbPort(id);
+                });
+            }
+
+            function appendUssdResponse(logTime, text, isLive) {
+                const now = Date.now();
+                const normalizedText = String(text || '').trim();
+                
+                // Deduplicate identical responses printed within 3 seconds
+                if (normalizedText === lastUssdText && (now - lastUssdTime) < 3000) {
+                    return;
+                }
+                
+                lastUssdText = normalizedText;
+                lastUssdTime = now;
+                
+                const respLine = document.createElement('div');
+                respLine.className = 'text-emerald-400 font-bold bg-emerald-950/10 p-2 rounded border border-emerald-900/20 mt-1 whitespace-pre-wrap leading-relaxed select-text';
+                
+                const displayLabel = isLive ? ' (Live Event)' : '';
+                const displayText = normalizedText || '(Empty Response / Terminated by Network)';
+                respLine.innerHTML = `<span class="text-zinc-500 font-normal">[${logTime}]${displayLabel}</span> ${displayText}`;
+                
+                terminalScreen.appendChild(respLine);
+                terminalScreen.scrollTop = terminalScreen.scrollHeight;
+            }
+
+            // Select Row behavior to display details
+            window.selectDevice = function(id) {
+                try {
+                    const normalizedId = String(id || '');
+                    const dev = loadedDevices.find(device => String(device.ID || '') === normalizedId);
+                    if (!dev) return;
+
+                    document.querySelectorAll('.dongle-device-card').forEach(card => {
+                        card.classList.remove('selected-row');
+                    });
+                    const selectedRow = document.getElementById('row-' + normalizedId);
+                    if (selectedRow) selectedRow.classList.add('selected-row');
+                    
+                    // Fill metadata cards
+                    elId.textContent = dev.ID || '-';
+                    elNum.textContent = dev.Number || 'Unknown';
+                    elProv.textContent = dev['Provider Name'] || 'NONE';
+                    elImei.textContent = dev.IMEI || '-';
+                    elImsi.textContent = dev.IMSI || '-';
+                    elGroup.textContent = dev.Group || '0';
+                    elModel.textContent = dev.Model || '-';
+                    elFirm.textContent = dev.Firmware || '-';
+                    elMode.textContent = dev.Mode || '-';
+                    elSub.textContent = dev.Submode || '-';
+
+                    selectedDongleId = normalizedId;
+                    updateSmsInboxTitle();
+                    filterAndRenderSms();
+
+                    // Update Live Status & Diagnostics Block
+                    updateLiveDiagnostics(dev);
+
+                    // Sync select dropdown
+                    if (ussdTarget) {
+                        ussdTarget.value = id;
+                    }
+                } catch (err) {
+                    console.error("Error inside selectDevice:", err);
+                }
+            };
+
+            function updateLiveDiagnostics(dev) {
+                try {
+                    const signal = getDongleSignalView(dev);
+                    const state = getDongleStateView(dev);
+                    const barsContainer = document.getElementById('diag-signal-bars');
+                    const signalText = document.getElementById('diag-signal-text');
+                    const badgeContainer = document.getElementById('diag-service-badge');
+                    const carrierEl = document.getElementById('diag-carrier-text');
+
+                    if (barsContainer) barsContainer.innerHTML = signal.barsHtml;
+                    if (signalText) signalText.textContent = `${signal.rssi}/31 · ${signal.percent}% · ${signal.level}`;
+                    if (carrierEl) carrierEl.textContent = dev['Provider Name'] || (isRtl ? 'غير معروف' : 'Unknown');
+                    if (badgeContainer) {
+                        badgeContainer.innerHTML = `
+                            <span class="inline-flex items-center gap-1.5 ${state.badge.bg} ${state.badge.text} rounded-full px-2.5 py-1 text-[10px] font-semibold border ${state.badge.border}">
+                                <span class="h-1.5 w-1.5 rounded-full ${state.badge.dot}${state.animate ? ' animate-pulse' : ''} shrink-0"></span>
+                                ${escapeHtml(state.label)}
+                            </span>`;
+                    }
+
+                    const checklist = [
+                        document.getElementById('chk-voice'),
+                        document.getElementById('chk-sms'),
+                        document.getElementById('chk-ussd')
+                    ];
+                    let checklistClass = 'text-zinc-500 font-bold font-mono';
+                    let checklistLabel = '● OFF';
+                    if (state.isReady) {
+                        checklistClass = 'text-emerald-500 font-bold font-mono';
+                        checklistLabel = '● OK';
+                    } else if (state.color === 'yellow') {
+                        checklistClass = 'text-red-500 font-bold font-mono';
+                        checklistLabel = '● FAIL';
+                    } else if (state.color !== 'red') {
+                        checklistClass = 'text-amber-500 font-bold font-mono';
+                        checklistLabel = '● WAIT';
+                    }
+                    checklist.forEach(element => {
+                        if (!element) return;
+                        element.className = checklistClass;
+                        element.textContent = checklistLabel;
+                    });
+                } catch (error) {
+                    console.error('Error updating live diagnostics:', error);
+                }
+            }
+
+            renderDongleCards();
+            if (loadedDevices.length > 0) {
+                selectDevice(loadedDevices[0].ID);
+            }
+
+            // Sync detail card and table highlight when select dropdown is changed
+            if (ussdTarget) {
+                ussdTarget.addEventListener('change', (e) => {
+                    selectDevice(e.target.value);
+                });
+            }
+
+            // --- SMS INBOX MANAGEMENT ---
+            function getSmsContainer() {
+                return document.getElementById('sms-inbox-container');
+            }
+
+            function updateSmsInboxTitle() {
+                const deviceEl = document.getElementById('sms-inbox-device');
+                if (!deviceEl) return;
+                deviceEl.textContent = selectedDongleId
+                    ? `${isRtl ? 'الجهاز المحدد' : 'Selected'}: ${selectedDongleId}`
+                    : (isRtl ? 'اختر جهازاً' : 'Select a dongle');
+            }
+
+            function updateSmsInboxCount(count) {
+                const countEl = document.getElementById('sms-inbox-count');
+                if (countEl) countEl.textContent = String(count);
+            }
+
+            // Toast Notification system
+            const toastContainer = document.getElementById('toast-container');
+            
+            function showSmsToast(sms) {
+                if (!toastContainer) return;
+                
+                const toast = document.createElement('div');
+                // Premium glassmorphism dynamic style
+                toast.className = 'bg-[var(--bg-secondary)]/90 border border-[var(--border-primary)] shadow-2xl p-4 rounded-xl flex flex-col gap-1.5 transform translate-y-5 opacity-0 transition-all duration-300 pointer-events-auto cursor-pointer max-w-xs';
+                
+                toast.innerHTML = `
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-[var(--accent-color)] font-bold uppercase tracking-wider font-mono">${isRtl ? 'رسالة جديدة' : 'New SMS'}</span>
+                        <span class="text-[var(--text-muted)] font-mono text-[10px]">${sms.dongleId}</span>
+                    </div>
+                    <div class="text-xs font-bold text-[var(--text-primary)]">${sms.sender}</div>
+                    <p class="text-xs text-[var(--text-secondary)] truncate">${sms.content}</p>
+                `;
+                
+                toast.onclick = function() {
+                    if (selectedDongleId && selectedDongleId.toLowerCase() !== sms.dongleId.toLowerCase()) {
+                        selectDevice(sms.dongleId);
+                    }
+                    showSmsModal(sms.dongleId, sms.sender, sms.content, sms.timestamp);
+                    toast.remove();
+                };
+                
+                toastContainer.appendChild(toast);
+                
+                // Animate entrance
+                setTimeout(() => {
+                    toast.classList.remove('translate-y-5', 'opacity-0');
+                }, 10);
+                
+                // Auto dismiss after 6 seconds
+                setTimeout(() => {
+                    toast.classList.add('translate-y-5', 'opacity-0');
+                    setTimeout(() => { toast.remove(); }, 300);
+                }, 6000);
+            }
+
+            function showToast(title, message, type) {
+                if (!toastContainer) return;
+                const toast = document.createElement('div');
+                const borderColor = type === 'error' ? 'border-red-900' : type === 'warning' ? 'border-amber-500/50' : type === 'success' ? 'border-emerald-900' : 'border-[var(--border-primary)]';
+                const titleColor = type === 'error' ? 'text-red-400' : type === 'warning' ? 'text-amber-400' : type === 'success' ? 'text-emerald-400' : 'text-[var(--text-primary)]';
+                toast.className = 'bg-[var(--bg-secondary)]/90 border ' + borderColor + ' shadow-2xl p-4 rounded-xl flex flex-col gap-1.5 transform translate-y-5 opacity-0 transition-all duration-300 pointer-events-auto max-w-xs';
+                toast.innerHTML = '\
+                    <div class="flex items-center justify-between text-xs">\
+                        <span class="' + titleColor + ' font-bold uppercase tracking-wider">' + title + '</span>\
+                    </div>\
+                    <p class="text-xs text-[var(--text-secondary)] whitespace-pre-wrap">' + message + '</p>\
+                ';
+                toast.onclick = function() { toast.remove(); };
+                toastContainer.appendChild(toast);
+                setTimeout(function() { toast.classList.remove('translate-y-5', 'opacity-0'); }, 10);
+                setTimeout(function() {
+                    toast.classList.add('translate-y-5', 'opacity-0');
+                    setTimeout(function() { toast.remove(); }, 300);
+                }, 8000);
+            }
+
+            // Modal DOM elements & controllers
+            const smsModal = document.getElementById('sms-modal');
+            const smsModalCard = document.getElementById('sms-modal-card');
+            const smsModalDongle = document.getElementById('sms-modal-dongle');
+            const smsModalSender = document.getElementById('sms-modal-sender');
+            const smsModalCopySender = document.getElementById('sms-modal-copy-sender');
+            const smsModalTime = document.getElementById('sms-modal-time');
+            const smsModalContent = document.getElementById('sms-modal-content');
+            
+            window.showSmsModal = function(dongleId, sender, content, timestamp) {
+                smsModalDongle.textContent = dongleId;
+                smsModalSender.textContent = sender;
+                smsModalTime.textContent = new Date(timestamp).toLocaleString();
+                smsModalContent.textContent = content;
+                
+                smsModalCopySender.onclick = function() {
+                    copyToClipboard(sender, smsModalCopySender);
+                };
+                
+                smsModal.classList.remove('opacity-0', 'pointer-events-none');
+                smsModalCard.classList.remove('scale-95', 'opacity-0');
+                smsModalCard.classList.add('scale-100', 'opacity-100');
+            };
+            
+            window.closeSmsModal = function() {
+                smsModal.classList.add('opacity-0', 'pointer-events-none');
+                smsModalCard.classList.remove('scale-100', 'opacity-100');
+                smsModalCard.classList.add('scale-95', 'opacity-0');
+            };
+            
+            // Close on outer click
+            smsModal.addEventListener('click', (e) => {
+                if (e.target === smsModal) closeSmsModal();
+            });
+            
+            // Close on ESC
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !smsModal.classList.contains('opacity-0')) {
+                    closeSmsModal();
+                }
+            });
+
+            function renderSmsCard(sms) {
+                const dateStr = new Date(sms.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const card = document.createElement('div');
+                card.className = 'sms-message-card p-3.5 bg-[var(--bg-card)] border border-[var(--border-primary)] hover:border-[var(--border-accent)] rounded-xl transition flex flex-col gap-2 cursor-pointer select-none';
+                card.id = 'sms-' + sms.id;
+                card.innerHTML = `
+                    <div class="flex items-center justify-between gap-2 text-xs">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="bg-[var(--accent-color)] text-white font-mono font-bold px-1.5 py-0.5 rounded text-[9px] uppercase shrink-0">${escapeHtml(sms.dongleId)}</span>
+                            <span class="text-[var(--text-primary)] font-bold font-mono truncate">${escapeHtml(sms.sender)}</span>
+                            <button type="button" class="sms-copy-sender text-[var(--text-muted)] hover:text-[var(--text-primary)] p-1 rounded transition cursor-pointer shrink-0" title="${isRtl ? 'نسخ الرقم' : 'Copy number'}">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                            </button>
+                        </div>
+                        <span class="text-[var(--text-muted)] font-mono text-[9px] shrink-0">${escapeHtml(dateStr)}</span>
+                    </div>
+                    <p class="text-xs text-[var(--text-secondary)] leading-relaxed select-text font-sans line-clamp-2">${escapeHtml(sms.content)}</p>`;
+
+                const copyButton = card.querySelector('.sms-copy-sender');
+                copyButton.addEventListener('click', event => {
+                    event.stopPropagation();
+                    copyToClipboard(sms.sender, copyButton);
+                });
+                card.addEventListener('click', () => {
+                    showSmsModal(sms.dongleId, sms.sender, sms.content, sms.timestamp);
+                });
+                return card;
+            }
+
+            function filterAndRenderSms() {
+                const container = getSmsContainer();
+                if (!container) return;
+
+                if (!selectedDongleId) {
+                    showEmptySmsInbox();
+                    return;
+                }
+
+                const filtered = allSmsMessages.filter(sms => (sms.dongleId || '').toLowerCase() === selectedDongleId.toLowerCase());
+                updateSmsInboxCount(filtered.length);
+                container.innerHTML = '';
+                if (filtered.length === 0) {
+                    showEmptySmsInbox();
+                    return;
+                }
+                filtered.forEach(sms => container.appendChild(renderSmsCard(sms)));
+            }
+
+            window.loadSmsInbox = async function() {
+                try {
+                    const res = await fetch('/api/gsm-dongles/sms');
+                    const data = await res.json();
+                    if (data.success && data.sms) {
+                        allSmsMessages = data.sms;
+                        filterAndRenderSms();
+                    } else {
+                        allSmsMessages = [];
+                        showEmptySmsInbox();
+                    }
+                } catch (e) {
+                    console.error("Failed to load SMS inbox:", e);
+                }
+            };
+
+            window.clearSmsInbox = async function() {
+                if (!confirm(isRtl ? 'هل أنت متأكد من مسح صندوق الرسائل؟' : 'Are you sure you want to clear the SMS inbox?')) return;
+                try {
+                    await fetch('/api/gsm-dongles/clear-sms', { method: 'POST' });
+                } catch (e) {
+                    console.error("Failed to clear SMS inbox:", e);
+                }
+            };
+
+            function showEmptySmsInbox() {
+                const container = getSmsContainer();
+                if (!container) return;
+                updateSmsInboxCount(0);
+                container.innerHTML = `
+                    <div class="text-center py-8 text-[var(--text-muted)] italic" id="sms-empty-placeholder">
+                        ${isRtl ? 'لا يوجد رسائل واردة حالياً' : 'No incoming SMS messages'}
+                    </div>`;
+            }
+
+            // Real-time SMS receivers
+            if (socket) {
+                socket.on('newSms', (sms) => {
+                    allSmsMessages.unshift(sms);
+                    
+                    // Show a real-time toast notification alert
+                    showSmsToast(sms);
+                    
+                    if (selectedDongleId && (sms.dongleId || '').toLowerCase() === selectedDongleId.toLowerCase()) {
+                        const placeholder = document.getElementById('sms-empty-placeholder');
+                        if (placeholder && placeholder.parentNode) {
+                            placeholder.parentNode.removeChild(placeholder);
+                        }
+                        const container = getSmsContainer();
+                        if (container) {
+                            container.insertBefore(renderSmsCard(sms), container.firstChild);
+                        }
+                        updateSmsInboxCount(allSmsMessages.filter(message => (message.dongleId || '').toLowerCase() === selectedDongleId.toLowerCase()).length);
+                    }
+                });
+
+                socket.on('smsCleared', () => {
+                    allSmsMessages = [];
+                    showEmptySmsInbox();
+                });
+            }
+
+            // Initial load
+            loadSmsInbox();
+
+            // --- USB TTY DEVICE LISTING ---
+            const usbGrid = document.getElementById('usb-devices-grid');
+
+            let lastUsbSignature = null;
+            let usbRefreshInFlight = false;
+            let usbHasLoaded = false;
+            const usbHtmlEntities = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            };
+
+            function escapeUsbText(value) {
+                return String(value ?? '').replace(/[&<>"']/g, character => usbHtmlEntities[character]);
+            }
+
+            function getUsbSignature(devices) {
+                return JSON.stringify(devices.map(device => ({
+                    name: device.name || '',
+                    dongleId: device.dongleId || '',
+                    portType: device.portType || ''
+                })));
+            }
+
+            function renderUsbDevices(devices) {
+                if (devices.length === 0) {
+                    usbGrid.innerHTML = `
+                        <div class="col-span-full flex flex-col items-center justify-center py-6 gap-2">
+                            <svg class="text-zinc-600" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                            <span class="text-sm font-bold text-zinc-500">${words.usbNone}</span>
+                            <span class="text-[10px] text-zinc-600 max-w-xs text-center">${words.usbNoneHint}</span>
+                        </div>`;
+                    return;
+                }
+
+                usbGrid.innerHTML = devices.map(device => {
+                    const mapped = Boolean(device.dongleId);
+                    const matchBorder = mapped
+                        ? 'border-emerald-500/40 bg-emerald-950/15'
+                        : 'border-[var(--border-primary)] bg-[var(--bg-card)]';
+                    const matchIcon = mapped
+                        ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
+                        : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#71717a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+                    const label = mapped
+                        ? `${device.dongleId} (${device.portType || ''})`
+                        : words.usbUnmapped;
+
+                    return `
+                        <div class="flex flex-col items-center gap-2 p-3 rounded-xl border ${matchBorder} transition hover:border-[var(--accent-color)]/40 cursor-default">
+                            <div class="flex items-center gap-1.5">
+                                ${matchIcon}
+                                <span class="font-mono text-sm font-bold text-[var(--text-primary)]">${escapeUsbText(device.name)}</span>
+                            </div>
+                            <span class="text-[9px] font-bold uppercase tracking-wider ${mapped ? 'text-emerald-400' : 'text-zinc-500'}">${escapeUsbText(label)}</span>
+                        </div>`;
+                }).join('');
+            }
+
+            window.refreshUsbDevices = async function() {
+                if (!usbGrid || usbRefreshInFlight) return;
+                usbRefreshInFlight = true;
+
+                if (!usbHasLoaded) {
+                    usbGrid.innerHTML = '<div class="text-[var(--text-muted)] text-xs italic col-span-full py-4 text-center">Loading...</div>';
+                }
+
+                try {
+                    const response = await fetch('/api/gsm-dongles/ttyusb-devices', { cache: 'no-store' });
+                    const data = await response.json();
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.error || 'Failed to fetch USB devices');
+                    }
+
+                    const devices = Array.isArray(data.devices) ? data.devices : [];
+                    const signature = getUsbSignature(devices);
+                    if (signature !== lastUsbSignature) {
+                        lastUsbSignature = signature;
+                        renderUsbDevices(devices);
+                    }
+                    usbHasLoaded = true;
+                } catch (error) {
+                    console.error('Failed to refresh USB devices:', error);
+                    if (!usbHasLoaded) {
+                        usbGrid.innerHTML = '<div class="text-red-400 text-xs text-center col-span-full py-4">' + (isRtl ? 'فشل في جلب البيانات' : 'Failed to fetch') + '</div>';
+                        usbHasLoaded = true;
+                    }
+                } finally {
+                    usbRefreshInFlight = false;
+                }
+            };
+            if (socket) {
+                socket.on('dongleLog', (line) => {
+                    if (!logsToggle.checked) return;
+                    
+                    const lineEl = document.createElement('div');
+                    lineEl.className = 'py-0.5 border-b border-zinc-950/20';
+                    
+                    if (line.includes('ERROR') || line.includes('WARNING') || line.includes('Failed')) {
+                        lineEl.className += ' text-rose-500';
+                    } else if (line.includes('NOTICE') || line.includes('Got USSD')) {
+                        lineEl.className += ' text-emerald-400 font-bold';
+                    } else {
+                        lineEl.className += ' text-zinc-500';
+                    }
+                    
+                    lineEl.textContent = line;
+                    logScreen.appendChild(lineEl);
+                    
+                    if (logsAutoscroll.checked) {
+                        logScreen.scrollTop = logScreen.scrollHeight;
+                    }
+                });
+            }
+            // Initial load, then one-second checks without clearing unchanged content
+            refreshUsbDevices();
+            setInterval(refreshUsbDevices, 1000);
+
+            clearLogsBtn.addEventListener('click', function() {
+                logScreen.innerHTML = '<div class="text-zinc-600">[System] Log screen cleared. Awaiting hardware events...</div>';
+            });
+
+            // Toggle logs console container visibility
+            logsToggle.addEventListener('change', () => {
+                logScreen.classList.toggle('hidden', !logsToggle.checked);
+            });
+
+            // Copy to clipboard utility with green checkmark feedback (supports non-secure HTTP local IP fallback)
+            window.copyToClipboard = function(text, btn) {
+                const clean = String(text || '').trim();
+                if (!clean || clean === '-' || clean === 'Unknown') return;
+                
+                function fallbackCopy(val) {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = val;
+                    textArea.style.top = "0";
+                    textArea.style.left = "0";
+                    textArea.style.position = "fixed";
+                    textArea.style.opacity = "0";
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        showFeedback();
+                    } catch (err) {
+                        console.error('Fallback copy failed: ', err);
+                    }
+                    document.body.removeChild(textArea);
+                }
+
+                function showFeedback() {
+                    if (btn) {
+                        const originalHTML = btn.innerHTML;
+                        btn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+                        btn.style.pointerEvents = 'none';
+                        setTimeout(() => {
+                            btn.innerHTML = originalHTML;
+                            btn.style.pointerEvents = 'auto';
+                        }, 1500);
+                    }
+                }
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(clean).then(showFeedback).catch(() => {
+                        fallbackCopy(clean);
+                    });
+                } else {
+                    fallbackCopy(clean);
+                }
+            };
+
+            // Edit SIM phone number mapping action
+            window.editSimNumber = function(dongleId, imsi, currentVal) {
+                if ((!currentVal || currentVal === 'Unknown' || currentVal === '-') && dongleId) {
+                    const el = document.getElementById('display-num-' + dongleId);
+                    if (el && el.textContent && !el.textContent.includes('Unknown') && !el.textContent.includes('-')) {
+                        currentVal = el.textContent.trim();
+                    }
+                }
+                const promptMsg = isRtl 
+                    ? `أدخل رقم الهاتف الجديد للشريحة (IMSI: ${imsi}):` 
+                    : `Enter phone number for SIM card (IMSI: ${imsi}):`;
+                
+                const newNum = prompt(promptMsg, currentVal || '');
+                if (newNum === null) return;
+                const trimmed = newNum.trim().replace(/\s+/g, '');
+                if (!trimmed) return;
+
+                // Removed 11-digit restriction to accept any entered SIM phone number string verbatim
+                
+                const displaySpan = document.getElementById('display-num-' + dongleId);
+                if (displaySpan) displaySpan.innerHTML = '<span class="text-zinc-500 italic">Saving...</span>';
+                
+                showToast(dongleId, isRtl ? 'جاري حفظ الرقم...' : 'Saving number and sending AT commands...', 'info');
+                
+                fetch('/api/gsm-dongles/save-number', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ imsi, number: trimmed, dongleId })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.results) {
+                        let details = data.results.map(function(r) {
+                            const status = r.error ? '❌' : '✅';
+                            return status + ' ' + r.step + (r.error ? ': ' + r.error : '');
+                        }).join('\n');
+                        const isAtSuccess = data.atSuccess !== false && !data.results.some(r => r.error);
+                        const toastTitle = dongleId + ' - ' + (isAtSuccess
+                            ? (isRtl ? 'تم الحفظ في الشريحة واللوحة' : 'Saved to SIM Card & Dashboard')
+                            : (isRtl ? 'تم الحفظ في اللوحة (تحذير أستريسك)' : 'Saved to Dashboard (Asterisk Warning)'));
+                        showToast(toastTitle, details, isAtSuccess ? 'success' : 'warning');
+                    } else if (data.success) {
+                        showToast(dongleId, isRtl ? 'تم الحفظ في اللوحة' : 'Saved to Dashboard', 'success');
+                    } else {
+                        showToast(dongleId, (isRtl ? 'فشل الحفظ: ' : 'Failed: ') + (data.error || 'Unknown error'), 'error');
+                    }
+                    refreshDevicesList();
+                })
+                .catch(err => {
+                    console.error("Error saving SIM number:", err);
+                    showToast(dongleId, isRtl ? 'خطأ في الاتصال' : 'Connection error', 'error');
+                    refreshDevicesList();
+                });
+            };
+
+            // Reload single dongle action
+            // 1. Reload / Restart single dongle action
+            window.reloadDongle = function(id) {
+                if (!confirm((isRtl ? 'هل أنت متأكد من إعادة تشغيل الشريحة ' : 'Are you sure you want to restart ') + id + '?')) return;
+                const btn = document.getElementById('reloadBtn-' + id);
+                if (btn) btn.disabled = true;
+                showToast(isRtl ? 'إعادة تشغيل' : 'Restarting', (isRtl ? 'جاري إعادة تشغيل الشريحة ' : 'Restarting dongle ') + id + '...', 'info');
+
+                fetch('/api/gsm-dongles/reload/' + id, { method: 'POST' })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast(isRtl ? 'نجاح' : 'Success', words.reloadedSuccess + ' (' + id + ')', 'success');
+                            refreshDevicesList();
+                        } else {
+                            showToast(isRtl ? 'خطأ' : 'Error', data.error || 'Unknown server error', 'error');
+                        }
+                    })
+                    .catch(err => showToast(isRtl ? 'خطأ شبكة' : 'Network Error', err.message, 'error'))
+                    .finally(() => { if (btn) btn.disabled = false; });
+            };
+
+            // 2. Reboot modem firmware via AT command (AT+CFUN=1,1)
+            window.rebootModem = function(id) {
+                if (!confirm((isRtl ? 'هل أنت متأكد من إعادة تشغيل مودم الجهاز ' : 'Are you sure you want to reboot modem ') + id + '?')) return;
+                const btn = document.getElementById('rebootBtn-' + id);
+                if (btn) btn.disabled = true;
+                showToast(isRtl ? 'إعادة تشغيل المودم' : 'Modem Reboot', (isRtl ? 'جاري إرسال أمر إعادة تشغيل المودم ' : 'Sending modem reboot command to ') + id + '...', 'warning');
+
+                fetch('/api/gsm-dongles/reboot-modem/' + id, { method: 'POST' })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast(isRtl ? 'نجاح' : 'Success', (isRtl ? 'تم إرسال أمر إعادة تشغيل المودم لـ ' : 'Modem reboot command sent to ') + id, 'success');
+                            setTimeout(refreshDevicesList, 3000);
+                        } else {
+                            showToast(isRtl ? 'خطأ' : 'Error', data.error || 'Modem reboot failed', 'error');
+                        }
+                    })
+                    .catch(err => showToast(isRtl ? 'خطأ شبكة' : 'Network Error', err.message, 'error'))
+                    .finally(() => { if (btn) btn.disabled = false; });
+            };
+
+            // 3. Virtual USB Unplug & Re-plug (Kernel sysfs unbind/bind)
+            window.virtualReplug = function(id) {
+                if (!confirm((isRtl ? 'هل أنت متأكد من محاكاة إعادة توصيل USB لـ ' : 'Are you sure you want to simulate virtual USB re-plug for ') + id + '?')) return;
+                const btn = document.getElementById('virtualReplugBtn-' + id);
+                if (btn) btn.disabled = true;
+                showToast(isRtl ? 'إعادة توصيل USB' : 'Virtual USB Re-plug', (isRtl ? 'جاري فصل وإعادة توصيل USB لـ ' : 'Simulating virtual USB re-plug for ') + id + '...', 'warning');
+
+                fetch('/api/gsm-dongles/virtual-replug/' + id, { method: 'POST' })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast(isRtl ? 'نجاح' : 'Success', (isRtl ? 'تمت محاكاة إعادة توصيل USB بنجاح لـ ' : 'Virtual USB re-plug executed for ') + id, 'success');
+                            setTimeout(refreshDevicesList, 4000);
+                        } else {
+                            showToast(isRtl ? 'خطأ' : 'Error', data.error || 'Virtual re-plug failed', 'error');
+                        }
+                    })
+                    .catch(err => showToast(isRtl ? 'خطأ شبكة' : 'Network Error', err.message, 'error'))
+                    .finally(() => { if (btn) btn.disabled = false; });
+            };
+
+            window.toggleLegendBlock = function() {
+                const block = document.getElementById('legend-content-block');
+                const text = document.getElementById('legend-toggle-text');
+                const icon = document.getElementById('legend-toggle-icon');
+                if (!block) return;
+
+                const isHidden = block.classList.contains('hidden');
+                if (isHidden) {
+                    block.classList.remove('hidden');
+                    if (text) text.textContent = isRtl ? 'إخفاء الدليل' : 'Hide Guide';
+                    if (icon) icon.classList.add('rotate-180');
+                } else {
+                    block.classList.add('hidden');
+                    if (text) text.textContent = isRtl ? 'عرض الدليل' : 'Show Guide';
+                    if (icon) icon.classList.remove('rotate-180');
+                }
+            };
+
+            // Send USSD request action
+            ussdForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const target = ussdTarget.value;
+                const code = ussdInput.value;
+                
+                if (!target || !code) return;
+                
+                btnLabel.textContent = words.sending;
+                btnSpinner.classList.remove('hidden');
+                ussdSubmitBtn.disabled = true;
+                
+                const placeholderEl = document.getElementById('terminal-placeholder');
+                if (placeholderEl && placeholderEl.parentNode) {
+                    placeholderEl.parentNode.removeChild(placeholderEl);
+                }
+                
+                const cmdLine = document.createElement('div');
+                cmdLine.className = 'text-zinc-500 mt-2 border-t border-zinc-900 pt-2';
+                cmdLine.textContent = `[${new Date().toLocaleTimeString()}] > exec-ussd -d ${target} -c ${code}`;
+                terminalScreen.appendChild(cmdLine);
+                terminalScreen.scrollTop = terminalScreen.scrollHeight;
+
+                fetch('/api/gsm-dongles/ussd', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ dongle: target, code: code })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        appendUssdResponse(data.logTime || new Date().toLocaleTimeString(), data.response, false);
+                    } else {
+                        const respLine = document.createElement('div');
+                        respLine.className = 'text-rose-400 font-bold bg-rose-950/10 p-2 rounded border border-rose-900/20 mt-1';
+                        respLine.textContent = `[System Error] ${data.error || words.sendUssdError}`;
+                        terminalScreen.appendChild(respLine);
+                        terminalScreen.scrollTop = terminalScreen.scrollHeight;
+                    }
+                })
+                .catch(err => {
+                    const errorLine = document.createElement('div');
+                    errorLine.className = 'text-rose-500 font-bold mt-1';
+                    errorLine.textContent = `[Network Error] ${err.message}`;
+                    terminalScreen.appendChild(errorLine);
+                    terminalScreen.scrollTop = terminalScreen.scrollHeight;
+                })
+                .finally(() => {
+                    btnLabel.textContent = words.sendBtn;
+                    btnSpinner.classList.add('hidden');
+                    ussdSubmitBtn.disabled = false;
+                });
+            });
+
+            // WebSocket live USSD responses capture
+            if (socket) {
+                socket.on('ussdResponse', (data) => {
+                    if (ussdTarget.value.toLowerCase() === data.dongleId.toLowerCase()) {
+                        appendUssdResponse(data.logTime, data.text, true);
+                    }
+                });
+
+                socket.on('dongleNumberUpdated', (data) => {
+                    const btn = document.getElementById('resetBtn-' + data.dongleId);
+                    if (btn) {
+                        const span = btn.querySelector('span');
+                        if (span) span.innerText = words.resetUsbBtn;
+                        btn.disabled = false;
+                    }
+                    refreshDevicesList();
+                });
+
+                socket.on('dongleProvisionResult', (data) => {
+                    if (data.results) {
+                        let details = data.results.map(function(r) {
+                            const status = r.error ? '❌' : '✅';
+                            return status + ' ' + r.step + (r.error ? ': ' + r.error : '');
+                        }).join('\n');
+                        showToast(data.dongleId + ' AT Results', details, data.results.some(function(r) { return r.error; }) ? 'error' : 'success');
+                    }
+                    refreshDevicesList();
+                });
+
+                socket.on('usbDevicesUpdated', () => {
+                    refreshUsbDevices();
+                });
+            }
+
+            // Refresh Device List AJAX helper
+            function refreshDevicesList() {
+                if (devicesRefreshInFlight) return;
+                devicesRefreshInFlight = true;
+
+                fetch('/api/gsm-dongles')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (!data.success || !Array.isArray(data.devices)) return;
+
+                        loadedDevices = data.devices;
+                        window.loadedDevices = loadedDevices;
+                        const currentSelected = selectedDongleId || (ussdTarget ? ussdTarget.value : '');
+                        const nextSelected = loadedDevices.some(device => String(device.ID || '') === String(currentSelected || ''))
+                            ? String(currentSelected)
+                            : (loadedDevices[0] ? String(loadedDevices[0].ID || '') : '');
+
+                        if (ussdTarget) {
+                            ussdTarget.innerHTML = '';
+                            const placeholder = document.createElement('option');
+                            placeholder.value = '';
+                            placeholder.disabled = true;
+                            placeholder.hidden = true;
+                            placeholder.textContent = words.selectPlaceholder;
+                            placeholder.selected = !nextSelected;
+                            ussdTarget.appendChild(placeholder);
+
+                            loadedDevices.forEach(device => {
+                                const option = document.createElement('option');
+                                option.value = String(device.ID || '');
+                                option.textContent = `${device.ID || ''} (${device.Number || 'Unknown'})`;
+                                option.selected = option.value === nextSelected;
+                                ussdTarget.appendChild(option);
+                            });
+                        }
+
+                        renderDongleCards();
+                        if (nextSelected) {
+                            selectDevice(nextSelected);
+                        } else {
+                            selectedDongleId = null;
+                            updateSmsInboxTitle();
+                            showEmptySmsInbox();
+                        }
+                    })
+                    .catch(error => console.error('Error refreshing devices:', error))
+                    .finally(() => {
+                        devicesRefreshInFlight = false;
+                    });
+            }
+
+            window.resetServerUsbPorts = function(btn) {
+                if (!confirm(isRtl ? 'هل أنت متأكد من إعادة تعيين كافة منافذ USB في السيرفر؟' : 'Are you sure you want to reset all USB ports on the server?')) return;
+                if (btn) btn.disabled = true;
+                showToast(isRtl ? 'إعادة تعيين USB' : 'Resetting USB', isRtl ? 'جاري إعادة تعيين كافة منافذ USB في السيرفر...' : 'Resetting all USB ports on the server...', 'warning');
+
+                fetch('/api/gsm-dongles/reset-usb-port', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ dongleId: 'all' })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast(isRtl ? 'نجاح' : 'Success', isRtl ? 'تمت إعادة تعيين كافة منافذ USB بنجاح.' : 'All USB ports reset successfully.', 'success');
+                        refreshDevicesList();
+                    } else {
+                        showToast(isRtl ? 'خطأ' : 'Error', data.error || 'USB reset failed', 'error');
+                    }
+                })
+                .catch(err => showToast(isRtl ? 'خطأ شبكة' : 'Network Error', err.message, 'error'))
+                .finally(() => { if (btn) btn.disabled = false; });
+            };
+
+            if (globalResetUsbBtn) {
+                globalResetUsbBtn.addEventListener('click', () => {
+                    resetServerUsbPorts(globalResetUsbBtn);
+                });
+            }
+            setInterval(refreshDevicesList, 1000);
+        });
+    </script>
+</body>
+</html>

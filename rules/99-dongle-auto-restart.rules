@@ -1,0 +1,4 @@
+# 99-dongle-auto-restart.rules — Permissions for all ttyUSB* devices
+# Ensures Asterisk can open dongle serial ports on USB hotplug
+# Auto-restart is handled by the Node.js server (server-side auto-heal)
+ACTION=="add", SUBSYSTEM=="tty", KERNEL=="ttyUSB*", MODE="0666", GROUP="dialout"

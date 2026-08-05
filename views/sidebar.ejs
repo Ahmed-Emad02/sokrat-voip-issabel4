@@ -1,0 +1,2943 @@
+<%
+const sidebarWords = {
+    en: { 
+        vmGreetingLabel: "Voicemail Greeting",
+        vmGreetingModalTitle: "Upload Voicemail Greeting",
+        vmGreetingUniversal: "Universal (All Extensions)",
+        vmGreetingExtension: "Specific Extension",
+        vmGreetingSelectExt: "Select Extension",
+        vmGreetingUploadBtn: "Upload Greeting",
+        vmGreetingCurrent: "Current Greeting",
+        vmGreetingNone: "None",
+        vmGreetingResetBtn: "Reset to Default",
+        vmGreetingFile: "Audio File",
+        vmGreetingNote: "Will be auto-converted to GSM. The uploaded greeting will be the only audio played — no default prompts.",
+        vmGreetingUploading: "Uploading...",
+        vmGreetingUploaded: "Uploaded successfully",
+        vmGreetingFail: "Upload failed",
+        vmGreetingResetConfirm: "Reset to default Asterisk voicemail prompts?",
+        vmGreetingChangeMode: "Changing mode will save a new greeting. Continue?",
+        vmSelectAll: "Select All",
+        dashLink: "Dashboard", cdrLink: "Call History", vmLink: "Voicemails", empLink: "Employee Metrics", extLink: "Employees", opLink: "Live Panel", dongleLink: "GSM Dongles", softphoneLink: "Phone", configLink: "Configuration", dialerLink: "Auto-Dialer", contactsLink: "Address Book", usersLink: "Users", storageLink: "Backups", liveClock: "System Clock", themeLabel: "Theme", langLabel: "Language", settingsTitle: "Settings", rowsLabel: "Rows per page", addRec: "Add a Recording", smtpSettings: "Setup Password Reset Email", netInfo: "Show Network Info", logoutLabel: "Sign Out",
+        settingsSubtitle: "Preferences and system controls", preferencesLabel: "Preferences", systemLabel: "System", appearanceLabel: "Appearance", darkModeLabel: "Dark mode", lightModeLabel: "Light mode",
+        recTitle: "Add a Recording", recName: "Recording Name", recPlaceholder: "e.g. welcome_greeting", recFile: "Audio File", recNote: "Accepted: MP3, M4A, WAV, OGG, FLAC, AAC, MPEG (max 50MB)", recUploadStatus: "Uploading...", recCancel: "Cancel", recUpload: "Upload", recComplete: "Complete!", recFailed: "Failed", recSelectFileErr: "Please select a file", recNameErr: "Please enter a recording name",
+        timeSettings: "Time Settings", timeModalTitle: "Time & Timezone", currentTime: "Current Time", timezone: "Timezone", searchTimezone: "Search timezone...", ntpSync: "NTP Synchronization", setManually: "Set Manually", dateLabel: "Date", timeLabel: "Time", saveSettings: "Save Settings", saving: "Saving...", savedSuccess: "Time settings saved successfully", saveFailed: "Failed to save time settings", timezoneChanged: "Timezone changed", ntpToggled: "NTP toggled", timeSetManually: "Time set manually", loadingTimezone: "Loading..."
+    },
+    ar: { 
+        vmGreetingLabel: "الترحيب الصوتي",
+        vmGreetingModalTitle: "رفع الترحيب الصوتي",
+        vmGreetingUniversal: "عام (جميع الامتدادات)",
+        vmGreetingExtension: "امتداد محدد",
+        vmGreetingSelectExt: "اختر الامتداد",
+        vmGreetingUploadBtn: "رفع الترحيب",
+        vmGreetingCurrent: "الترحيب الحالي",
+        vmGreetingNone: "لا يوجد",
+        vmGreetingResetBtn: "إعادة للافتراضي",
+        vmGreetingFile: "ملف الصوت",
+        vmGreetingNote: "سيتم تحويله تلقائياً إلى GSM. الترحيب المرفوع سيكون الصوت الوحيد المشغل.",
+        vmGreetingUploading: "جاري الرفع...",
+        vmGreetingUploaded: "تم الرفع بنجاح",
+        vmGreetingFail: "فشل الرفع",
+        vmGreetingResetConfirm: "إعادة تعيين ترحيب البريد الصوتي للافتراضي؟",
+        vmGreetingChangeMode: "تغيير الوضع سيحفظ ترحيباً جديداً. هل تريد المتابعة؟",
+        vmSelectAll: "اختر الكل",
+        dashLink: "لوحة التحكم", cdrLink: "سجل المكالمات", vmLink: "البريد الصوتي", empLink: "مقاييس الموظفين", extLink: "الموظفين", opLink: "لوحه المراقبه", dongleLink: "شرائح GSM", softphoneLink: "الهاتف", configLink: "الإعدادات", dialerLink: "المتصل الآلي", contactsLink: "دفتر العناوين", usersLink: "المستخدمين", storageLink: "النسخ الاحتياطي", liveClock: "ساعة النظام", themeLabel: "المظهر", langLabel: "اللغة", settingsTitle: "الإعدادات", rowsLabel: "عدد الصفوف", addRec: "إضافة تسجيل صوتي", smtpSettings: "إعداد البريد لإعادة تعيين كلمة المرور", netInfo: "معلومات الشبكة", logoutLabel: "تسجيل الخروج",
+        settingsSubtitle: "التفضيلات وعناصر تحكم النظام", preferencesLabel: "التفضيلات", systemLabel: "النظام", appearanceLabel: "المظهر", darkModeLabel: "الوضع الداكن", lightModeLabel: "الوضع الفاتح",
+        recTitle: "إضافة تسجيل صوتي", recName: "اسم التسجيل", recPlaceholder: "مثال: welcome_greeting", recFile: "ملف الصوت", recNote: "المرفقات المقبولة: MP3, M4A, WAV, OGG, FLAC, AAC, MPEG (الحد الأقصى 50 ميجابايت)", recUploadStatus: "جاري الرفع...", recCancel: "إلغاء", recUpload: "رفع", recComplete: "اكتمل الرفع!", recFailed: "فشل الرفع", recSelectFileErr: "يرجى اختيار ملف", recNameErr: "يرجى إدخال اسم التسجيل",
+        timeSettings: "إعدادات الوقت", timeModalTitle: "الوقت والمنطقة الزمنية", currentTime: "الوقت الحالي", timezone: "المنطقة الزمنية", searchTimezone: "ابحث عن المنطقة الزمنية...", ntpSync: "مزامنة NTP", setManually: "ضبط يدوي", dateLabel: "التاريخ", timeLabel: "الوقت", saveSettings: "حفظ الإعدادات", saving: "جاري الحفظ...", savedSuccess: "تم حفظ إعدادات الوقت بنجاح", saveFailed: "فشل حفظ إعدادات الوقت", timezoneChanged: "تم تغيير المنطقة الزمنية", ntpToggled: "تم تبديل NTP", timeSetManually: "تم ضبط الوقت يدوياً", loadingTimezone: "جارٍ التحميل..."
+    },
+};
+const sbT = sidebarWords[currentLang] || sidebarWords['en'];
+const isRtl = currentLang === 'ar';
+const allowed = typeof allowedTabs !== 'undefined' ? allowedTabs : [];
+const isSuper = (typeof isSuperAdmin !== 'undefined' && isSuperAdmin) || (typeof currentUser !== 'undefined' && (currentUser === 'admin' || currentUser === 'root'));
+function can(tab) { return isSuper || allowed.includes(tab); }
+%>
+
+<!-- Prevent theme/JIT flickering loading screen overlay -->
+<style>
+    @keyframes smoothBarMove {
+        0% { transform: translateX(-100%); }
+        50% { transform: translateX(35%); }
+        100% { transform: translateX(100%); }
+    }
+    .smooth-loading-fill {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent 0%, #dc2626 30%, #ef4444 50%, #dc2626 70%, transparent 100%);
+        border-radius: 9999px;
+        animation: smoothBarMove 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        box-shadow: 0 0 12px rgba(220, 38, 38, 0.8);
+    }
+</style>
+<div id="theme-loading-overlay" class="fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-[#050507] transition-all duration-300 pointer-events-none overflow-hidden">
+    <div class="flex flex-col items-center justify-center gap-6">
+        <img id="loadingLogo" src="/logo_light_text.png" alt="Sokrat VOIP" class="w-44 h-44 object-contain transition-all duration-300">
+        <div class="w-52 h-1 bg-zinc-800/80 rounded-full overflow-hidden relative">
+            <div class="smooth-loading-fill"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function() {
+        const theme = localStorage.getItem('theme') || 'dark';
+        const collapsed = localStorage.getItem('sidebar_collapsed') === 'true';
+        if (collapsed) {
+            document.documentElement.classList.add('sidebar-collapsed');
+        } else {
+            document.documentElement.classList.remove('sidebar-collapsed');
+        }
+        const overlay = document.getElementById('theme-loading-overlay');
+        const logo = document.getElementById('loadingLogo');
+        if (theme === 'light') {
+            document.documentElement.classList.add('light-theme');
+            if (overlay) overlay.style.backgroundColor = '#f9fafb';
+            if (logo) logo.src = '/logo.png';
+        } else {
+            document.documentElement.classList.remove('light-theme');
+            if (overlay) overlay.style.backgroundColor = '#050507';
+            if (logo) logo.src = '/logo_light_text.png';
+        }
+    })();
+
+    function dismissLoadingOverlay() {
+        const overlay = document.getElementById('theme-loading-overlay');
+        if (!overlay) return;
+        overlay.style.opacity = '0';
+        overlay.style.pointerEvents = 'none';
+        overlay.style.transform = 'translateY(-100%)';
+        setTimeout(() => { if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 300);
+    }
+
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        setTimeout(dismissLoadingOverlay, 50);
+    } else {
+        document.addEventListener('DOMContentLoaded', dismissLoadingOverlay);
+    }
+    window.addEventListener('load', dismissLoadingOverlay);
+    setTimeout(dismissLoadingOverlay, 200);
+</script>
+<!-- Google Fonts Import for Plus Jakarta Sans & Cairo -->
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<!-- Flatpickr Datepicker -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/animejs@3.2.2/lib/anime.min.js"></script>
+<!-- Global Theme Override Styles -->
+<style>
+    :root {
+        --bg-primary: #050507; /* OLED black background */
+        --bg-secondary: #0a0a0d; /* Dark-tech surface */
+        --bg-card: #101014; /* Card background */
+        --bg-hover: #1c1c24; /* Zinc hover state */
+        --border-primary: rgba(255, 255, 255, 0.08); /* Soft glass border */
+        --border-accent: rgba(255, 255, 255, 0.16); /* Brighter glass border */
+        --text-primary: #f4f4f5; /* High contrast Zinc 50 */
+        --text-secondary: #a1a1aa; /* Muted silver text */
+        --text-muted: #85858f; /* Accessible muted text on OLED surfaces */
+        --accent-color: #ef4444; /* Electric Crimson Red */
+        --accent-hover: #dc2626; /* Crimson Red Hover */
+        --bg-selected: rgba(239, 68, 68, 0.12);
+        --status-online: #10b981; /* Emerald Green for online */
+        --status-offline: #85858f; /* Accessible muted grey for offline */
+        --status-active: #ef4444; /* Crimson Red for active */
+        --status-success-text: #34d399;
+        --status-warning-text: #fbbf24;
+        --status-error-text: #f87171;
+        --selection-bg: #991b1b;
+    }
+    .light-theme {
+        --bg-primary: #f9fafb !important; /* Tailwind bg-gray-50 */
+        --bg-secondary: #ffffff !important; /* Tailwind bg-white */
+        --bg-card: #ffffff !important; /* Tailwind bg-white */
+        --bg-hover: #f3f4f6 !important; /* Tailwind bg-gray-100 */
+        --border-primary: #e5e7eb !important; /* Tailwind border-gray-200 */
+        --border-accent: #d1d5db !important; /* Tailwind border-gray-300 */
+        --text-primary: #111827 !important; /* Tailwind text-gray-900 */
+        --text-secondary: #4b5563 !important; /* Tailwind text-gray-600 */
+        --text-muted: #6b7280 !important; /* Tailwind gray-500 */
+        --accent-color: #b91c1c !important; /* Accessible deep red */
+        --accent-hover: #991b1b !important; /* Strong red hover */
+        --bg-selected: rgba(185, 28, 28, 0.1) !important;
+        --status-online: #047857 !important; /* Accessible emerald text */
+        --status-offline: #6b7280 !important; /* Tailwind gray-500 */
+        --status-active: #b91c1c !important;
+        --status-success-text: #047857 !important;
+        --status-warning-text: #92400e !important;
+        --status-error-text: #b91c1c !important;
+        --selection-bg: #991b1b !important;
+    }
+    body {
+        background-color: var(--bg-primary) !important;
+        color: var(--text-primary) !important;
+        accent-color: var(--accent-color) !important;
+        font-family: 'Plus Jakarta Sans', 'Cairo', sans-serif !important;
+        font-size: 16px !important;
+    }
+    
+    body::before {
+        background: 
+            radial-gradient(circle at 10% 20%, rgba(204, 9, 12, 0.04) 0%, transparent 40%),
+            radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.01) 0%, transparent 45%) !important;
+    }
+    .light-theme body::before {
+        background: 
+            radial-gradient(circle at 10% 20%, rgba(123, 0, 2, 0.04) 0%, transparent 40%),
+            radial-gradient(circle at 90% 80%, rgba(0, 0, 0, 0.02) 0%, transparent 45%) !important;
+    }
+    
+    /* Fonts and sizes styling */
+    body {
+        font-family: 'Plus Jakarta Sans', 'Cairo', sans-serif !important;
+    }
+    
+    /* Arabic text overrides */
+    [lang="ar"], [dir="rtl"], [dir="rtl"] * {
+        font-family: 'Cairo', sans-serif !important;
+    }
+    
+    /* English headings and labels - clean geometric display */
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Plus Jakarta Sans', 'Cairo', sans-serif !important;
+        font-weight: 800 !important;
+    }
+    
+    /* Telemetry, numbers, tables, codes, logs, terminal - JetBrains Mono */
+    .font-mono, td, th, input, select, textarea, pre, code, .font-numeric, #digitalClock {
+        font-family: 'JetBrains Mono', 'Plus Jakarta Sans', monospace !important;
+    }
+    input, select, textarea {
+        accent-color: var(--accent-color) !important;
+    }
+
+    /* Scaling up font sizes across elements for enhanced visibility */
+    h2 { font-size: 1.85rem !important; }
+    h3 { font-size: 1.35rem !important; }
+    h4 { font-size: 1.15rem !important; }
+    
+    table th {
+        font-size: 13px !important;
+        letter-spacing: 0.05em !important;
+    }
+    table td {
+        font-size: 15px !important;
+    }
+    
+    input, select, button, textarea {
+        font-size: 15px !important;
+    }
+    
+    label {
+        font-size: 13px !important;
+    }
+
+    /* Header tabs sizing and weight upgrades */
+    .nav-item {
+        padding: 0.75rem 0.9rem !important;
+        font-size: 15px !important;
+        font-weight: 800 !important; /* Bold/Extra bold text */
+        letter-spacing: 0.03em !important;
+    }
+    
+    .nav-item svg {
+        width: 1.05rem !important;
+        height: 1.05rem !important;
+        margin-inline-end: 0.65rem !important;
+    }
+    
+    /* Make the active border line under tabs thicker and prominent */
+    .nav-item .absolute {
+        height: 3px !important;
+        border-radius: 9999px !important;
+        bottom: 0px !important;
+    }
+    
+    .light-theme .text-white {
+        color: #111827 !important;
+    }
+    .light-theme select, .light-theme input {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        border-color: #d4d4dd !important;
+    }
+    .light-theme select:focus, .light-theme input:focus {
+        border-color: var(--accent-color) !important;
+    }
+    .light-theme .text-slate-100 {
+        color: #000000 !important;
+    }
+    .light-theme .text-zinc-300 {
+        color: #1a202c !important;
+    }
+    .light-theme .text-zinc-400 {
+        color: #4a5568 !important;
+    }
+    .light-theme .text-zinc-500 {
+        color: #4a5568 !important;
+    }
+    .light-theme .text-slate-400 {
+        color: #4a5568 !important;
+    }
+    .light-theme .nav-item {
+        color: #4a5568 !important;
+    }
+    .light-theme .nav-item:hover {
+        color: var(--accent-color) !important;
+    }
+    .light-theme .ext-card.active {
+        background-color: #eef1f4 !important;
+    }
+    .light-theme .ext-card:hover {
+        background-color: #f0f2f5 !important;
+    }
+    .light-theme #switchboardGrid .panel-surface {
+        background-color: #ffffff !important;
+        border-color: #d4d4dd !important;
+    }
+    .light-theme #switchboardGrid .bg-gradient-to-br {
+        background-image: linear-gradient(to bottom right, #ffffff, rgba(123, 0, 2, 0.05)) !important;
+    }
+    
+    /* White mode high-contrast text overrides */
+    .light-theme .text-[var(--text-secondary)] { color: #1a202c !important; }
+    .light-theme .text-[var(--text-muted)] { color: #4a5568 !important; }
+    .light-theme tr { color: #000000 !important; }
+    .light-theme td { color: #000000 !important; }
+    .light-theme th { color: #1a202c !important; }
+    .light-theme label { color: #1a202c !important; }
+
+    /* Only genuinely dark primary/accent controls retain white text in light mode. */
+    .light-theme .btn-primary,
+    .light-theme .btn-primary *,
+    .light-theme .config-btn-primary,
+    .light-theme .config-btn-primary *,
+    .light-theme .bg-\[var\(--accent-color\)\],
+    .light-theme .bg-\[var\(--accent-color\)\] *,
+    .light-theme .bg-\[var\(--accent-hover\)\],
+    .light-theme .bg-\[var\(--accent-hover\)\] *,
+    .light-theme .bg-red-600,
+    .light-theme .bg-red-600 *,
+    .light-theme .bg-red-700,
+    .light-theme .bg-red-700 *,
+    .light-theme .bg-rose-600,
+    .light-theme .bg-rose-600 *,
+    .light-theme .bg-rose-700,
+    .light-theme .bg-rose-700 * {
+        color: #ffffff !important;
+    }
+
+    /* Fix dark borders in light theme globally */
+    .light-theme .border-\[\#27272a\],
+    .light-theme .border-b-\[\#27272a\],
+    .light-theme .border-t-\[\#27272a\],
+    .light-theme .border-r-\[\#27272a\],
+    .light-theme .border-l-\[\#27272a\],
+    .light-theme .border-\[\#27272a\/\.5\],
+    .light-theme .border-\[\#27272a\/\.60\],
+    .light-theme .border-\[\#27272a\/\.30\],
+    .light-theme .border-b-\[\#27272a\/\.60\],
+    .light-theme .border-t-\[\#27272a\/\.60\],
+    .light-theme [class*="border-[#27272a]"] {
+        border-color: #cbd5e1 !important;
+    }
+
+    /* Universal rounded-lg border radius */
+    .panel-surface, .config-card {
+        background: rgba(10, 10, 13, 0.88) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06), 0 12px 40px -12px rgba(0, 0, 0, 0.6) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        border-radius: 0.75rem !important; /* 12px rounded-xl */
+        transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease !important;
+    }
+    .panel-surface:hover, .config-card:hover {
+        border-color: rgba(255, 255, 255, 0.16) !important;
+        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 16px 48px -12px rgba(239, 68, 68, 0.12) !important;
+    }
+    .card-stat {
+        background: linear-gradient(135deg, rgba(16, 16, 20, 0.9) 0%, rgba(10, 10, 13, 0.95) 100%) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 8px 32px -8px rgba(0, 0, 0, 0.5) !important;
+        border-radius: 0.75rem !important;
+        transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    .card-stat:hover {
+        transform: translateY(-3px) !important;
+        border-color: rgba(239, 68, 68, 0.3) !important;
+        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.15), 0 16px 40px -10px rgba(239, 68, 68, 0.18) !important;
+    }
+    .btn-primary, .config-btn-primary {
+        background: linear-gradient(180deg, #991b1b 0%, #7f1d1d 50%, #450a0a 100%) !important;
+        border: 1px solid rgba(239, 68, 68, 0.4) !important;
+        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.25), 0 4px 14px rgba(153, 27, 27, 0.45) !important;
+        color: #ffffff !important;
+        font-weight: 800 !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
+        border-radius: 0.5rem !important;
+        transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1), background 180ms ease, box-shadow 180ms ease, border-color 180ms ease !important;
+        position: relative !important;
+        overflow: hidden !important;
+    }
+    .btn-primary:hover, .config-btn-primary:hover {
+        background: linear-gradient(180deg, #b91c1c 0%, #991b1b 50%, #7f1d1d 100%) !important;
+        border-color: rgba(255, 255, 255, 0.35) !important;
+        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.45), 0 8px 24px rgba(220, 38, 38, 0.55) !important;
+        transform: translateY(-2px) scale(1.01) !important;
+    }
+    .btn-primary:active, .config-btn-primary:active {
+        background: linear-gradient(180deg, #450a0a 0%, #360707 100%) !important;
+        transform: translateY(1px) scale(0.98) !important;
+        box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6) !important;
+    }
+    .nav-item.bg-\[var\(--accent-color\)\],
+    .light-theme .nav-item.bg-\[var\(--accent-color\)\] {
+        background: linear-gradient(90deg, #b91c1c 0%, #7f1d1d 100%) !important;
+        border: 1px solid #991b1b !important;
+        border-left: 4px solid #ef4444 !important;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 5px 16px rgba(127, 29, 29, 0.3) !important;
+        color: #ffffff !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35) !important;
+    }
+    .nav-item.bg-\[var\(--accent-color\)\] *,
+    .light-theme .nav-item.bg-\[var\(--accent-color\)\] * {
+        color: #ffffff !important;
+        stroke: currentColor;
+    }
+    .config-btn-secondary, .btn-ghost {
+        background: rgba(255, 255, 255, 0.04) !important;
+        border: 1px solid rgba(255, 255, 255, 0.09) !important;
+        color: #f4f4f5 !important;
+        font-weight: 700 !important;
+        border-radius: 0.5rem !important;
+        transition: all 180ms ease !important;
+    }
+    .config-btn-secondary:hover, .btn-ghost:hover {
+        background: rgba(255, 255, 255, 0.09) !important;
+        border-color: rgba(255, 255, 255, 0.18) !important;
+        color: #ffffff !important;
+    }
+
+    /* Shared surfaces must follow the active theme, not hard-coded dark colors. */
+    .light-theme .panel-surface,
+    .light-theme .config-card {
+        background: #ffffff !important;
+        border-color: #dfe3e8 !important;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08) !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+    .light-theme .panel-surface:hover,
+    .light-theme .config-card:hover {
+        border-color: #cbd5e1 !important;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12) !important;
+    }
+    .light-theme .card-stat {
+        background: #ffffff !important;
+        border-color: #dfe3e8 !important;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08) !important;
+    }
+    .light-theme .card-stat:hover {
+        border-color: rgba(185, 28, 28, 0.35) !important;
+        box-shadow: 0 2px 8px rgba(127, 29, 29, 0.12) !important;
+    }
+    .light-theme .config-btn-secondary,
+    .light-theme .btn-ghost {
+        background: #ffffff !important;
+        border-color: #d1d5db !important;
+        color: #374151 !important;
+    }
+    .light-theme .config-btn-secondary *,
+    .light-theme .btn-ghost * {
+        color: inherit !important;
+    }
+    .light-theme .config-btn-secondary:hover,
+    .light-theme .btn-ghost:hover {
+        background: #f3f4f6 !important;
+        border-color: #9ca3af !important;
+        color: #111827 !important;
+    }
+
+    /* Semantic utility colors with WCAG-AA contrast on light surfaces. */
+    .light-theme .text-green-400,
+    .light-theme .text-green-500,
+    .light-theme .text-emerald-400,
+    .light-theme .text-emerald-500 { color: #047857 !important; }
+    .light-theme .text-amber-400,
+    .light-theme .text-amber-500,
+    .light-theme .text-yellow-400,
+    .light-theme .text-yellow-500 { color: #92400e !important; }
+    .light-theme .text-red-400,
+    .light-theme .text-red-500,
+    .light-theme .text-rose-400,
+    .light-theme .text-rose-500 { color: #b91c1c !important; }
+    .light-theme .text-blue-400,
+    .light-theme .text-blue-500 { color: #1d4ed8 !important; }
+    .light-theme .text-purple-400,
+    .light-theme .text-purple-500 { color: #6d28d9 !important; }
+    .light-theme .text-cyan-400,
+    .light-theme .text-cyan-500,
+    .light-theme .text-teal-400,
+    .light-theme .text-teal-500 { color: #0e7490 !important; }
+    .light-theme .text-orange-400,
+    .light-theme .text-orange-500 { color: #9a3412 !important; }
+
+    input::placeholder,
+    textarea::placeholder {
+        color: var(--text-muted) !important;
+        opacity: 1 !important;
+    }
+
+    /* Shared dropdown contract for native selects and application comboboxes. */
+    .config-dropdown-trigger {
+        min-height: 2.125rem;
+        background: var(--bg-card) !important;
+        border-color: var(--border-primary) !important;
+        color: var(--text-primary) !important;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        font-size: 0.75rem;
+        font-weight: 600;
+        line-height: 1rem;
+        text-align: start;
+    }
+    .config-dropdown-trigger:hover,
+    .config-dropdown-trigger[aria-expanded="true"] {
+        border-color: var(--border-accent) !important;
+    }
+    .config-dropdown-trigger:disabled {
+        cursor: not-allowed !important;
+        opacity: 0.4 !important;
+    }
+    .config-dropdown-label {
+        min-width: 0;
+        overflow: hidden;
+        text-align: start;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .config-dropdown-menu {
+        position: fixed !important;
+        z-index: 999999 !important;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        max-height: calc(100vh - 1rem);
+        overflow: hidden;
+        padding: 0.25rem;
+        color: var(--text-primary) !important;
+        background: var(--bg-secondary) !important;
+        border: 1px solid var(--border-accent) !important;
+        border-radius: 0.75rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.55);
+    }
+    .config-dropdown-menu.hidden {
+        display: none !important;
+    }
+    .config-dropdown-search {
+        width: 100%;
+        padding: 0.375rem 0.625rem;
+        color: var(--text-primary) !important;
+        background: var(--bg-card) !important;
+        border: 1px solid var(--border-primary) !important;
+        border-radius: 0.5rem;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        font-size: 0.75rem;
+        line-height: 1rem;
+        outline: none;
+    }
+    .config-dropdown-search:focus {
+        border-color: var(--accent-color) !important;
+    }
+    .config-dropdown-options {
+        min-height: 0;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: 0.125rem;
+    }
+    .config-dropdown-option {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        color: var(--text-secondary) !important;
+        border-radius: 0.5rem;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        font-size: 0.75rem;
+        line-height: 1rem;
+        overflow-wrap: anywhere;
+        text-align: start;
+        white-space: normal;
+    }
+    .config-dropdown-option:hover {
+        color: var(--text-primary) !important;
+        background: var(--bg-hover) !important;
+    }
+    .config-dropdown-option.is-selected {
+        color: #ffffff !important;
+        background: var(--selection-bg) !important;
+    }
+    .config-dropdown-options::-webkit-scrollbar {
+        width: 6px;
+    }
+    .config-dropdown-options::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+    }
+    .config-dropdown-options::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.25);
+        border-radius: 4px;
+    }
+    .config-dropdown-options::-webkit-scrollbar-thumb:hover {
+        background: var(--accent-color);
+    }
+
+    /* Terminal panes intentionally stay dark in both themes. */
+    .light-theme .terminal-screen,
+    .light-theme .log-screen {
+        color: #e5e7eb !important;
+    }
+    .light-theme .terminal-screen .text-zinc-400,
+    .light-theme .terminal-screen .text-zinc-500,
+    .light-theme .log-screen .text-zinc-400,
+    .light-theme .log-screen .text-zinc-500 {
+        color: #a1a1aa !important;
+    }
+    .light-theme .terminal-screen .text-emerald-400,
+    .light-theme .terminal-screen .text-green-400,
+    .light-theme .log-screen .text-emerald-400,
+    .light-theme .log-screen .text-green-400 {
+        color: #34d399 !important;
+    }
+    .light-theme .terminal-screen .text-red-400,
+    .light-theme .terminal-screen .text-rose-400,
+    .light-theme .log-screen .text-red-400,
+    .light-theme .log-screen .text-rose-400 {
+        color: #f87171 !important;
+    }
+    .ext-card, button, input, select, textarea {
+        border-radius: 0.5rem !important;
+    }
+    /* Global Select Dropdown & Option Theme Styling */
+    select {
+        color-scheme: dark !important;
+        background-color: #0c0c0e !important;
+        color: #f4f4f5 !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        border-radius: 0.5rem !important;
+        font-family: 'JetBrains Mono', 'Plus Jakarta Sans', monospace !important;
+        font-size: 13px !important;
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+        outline: none !important;
+    }
+    select:focus {
+        border-color: #ef4444 !important;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25) !important;
+    }
+    select option {
+        background-color: #0d0d12 !important;
+        color: #f4f4f5 !important;
+        padding: 10px 14px !important;
+        font-family: 'JetBrains Mono', 'Plus Jakarta Sans', monospace !important;
+        font-size: 13px !important;
+    }
+    select option:hover,
+    select option:focus,
+    select option:active,
+    select option:checked {
+        background-color: #991b1b !important;
+        color: #ffffff !important;
+        background: linear-gradient(0deg, #991b1b 0%, #991b1b 100%) !important;
+    }
+    .light-theme select {
+        color-scheme: light !important;
+        background-color: #ffffff !important;
+        color: #111827 !important;
+        border-color: #cbd5e1 !important;
+    }
+    .light-theme select option {
+        background-color: #ffffff !important;
+        color: #111827 !important;
+    }
+    .light-theme select option:hover,
+    .light-theme select option:focus,
+    .light-theme select option:active,
+    .light-theme select option:checked {
+        background-color: #dc2626 !important;
+        color: #ffffff !important;
+        background: linear-gradient(0deg, #dc2626 0%, #dc2626 100%) !important;
+    }
+    /* Calendar Picker Indicator Styling - Visible and themed */
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+        filter: brightness(0) invert(1) brightness(0.85) !important; /* Silver/white in dark mode */
+        cursor: pointer;
+        opacity: 0.6;
+        transition: opacity 150ms ease, filter 150ms ease;
+    }
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+        opacity: 1 !important;
+        filter: brightness(0) invert(16%) sepia(90%) saturate(6000%) hue-rotate(355deg) brightness(100%) contrast(100%) !important; /* Themed Red on hover */
+    }
+    .light-theme input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+        filter: brightness(0) invert(0.3) !important; /* Dark grey in light mode */
+        opacity: 0.5;
+    }
+    .light-theme input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+        opacity: 1 !important;
+        filter: brightness(0) invert(16%) sepia(90%) saturate(6000%) hue-rotate(355deg) brightness(100%) contrast(100%) !important; /* Themed Red on hover */
+    }
+
+    /* Remove heavy gray backgrounds from lists in light mode */
+    .light-theme .bg-black\/30,
+    .light-theme .bg-black\/25,
+    .light-theme .bg-black\/20,
+    .light-theme .bg-black\/15,
+    .light-theme .bg-black\/10,
+    .light-theme .bg-black\/40 {
+        background-color: transparent !important;
+    }
+
+    /* Table headers global formatting for light mode */
+    .light-theme thead tr {
+        background-color: #f9fafb !important; /* bg-gray-50 */
+        border-bottom: 1px solid #e5e7eb !important; /* border-gray-200 */
+    }
+    .light-theme th {
+        color: #4b5563 !important; /* text-gray-600 */
+        font-size: 0.75rem !important; /* text-xs */
+        font-weight: 600 !important; /* font-semibold */
+        padding: 0.75rem 1rem !important; /* py-3 px-4 */
+        text-transform: uppercase !important; /* uppercase */
+        letter-spacing: 0.05em !important; /* tracking-wider */
+    }
+    .light-theme tbody tr {
+        border-bottom: 1px solid #f3f4f6 !important; /* border-gray-100 */
+    }
+    .light-theme tbody tr:hover {
+        background-color: #f9fafb !important; /* hover:bg-gray-50 */
+    }
+
+    /* Light mode override for soft status badges */
+    .light-theme .bg-green-900\/20 {
+        background-color: #d1fae5 !important; /* bg-green-100 */
+        color: #065f46 !important; /* text-green-800 */
+        border-color: #a7f3d0 !important; /* border-green-200 */
+    }
+    .light-theme .bg-red-900\/20 {
+        background-color: #fee2e2 !important; /* bg-red-100 */
+        color: #991b1b !important; /* text-red-800 */
+        border-color: #fca5a5 !important; /* border-red-200 */
+    }
+    .light-theme .bg-zinc-800\/50 {
+        background-color: #f3f4f6 !important; /* bg-gray-100 */
+        color: #1f2937 !important; /* text-gray-800 */
+        border-color: #e5e7eb !important; /* border-gray-200 */
+    }
+    .light-theme .bg-amber-900\/20 {
+        background-color: #fef3c7 !important; /* bg-amber-100 */
+        color: #92400e !important; /* text-amber-800 */
+        border-color: #fde68a !important; /* border-amber-200 */
+    }
+
+    /* Secondary actions styling overrides in light mode */
+    .light-theme button[onclick*="reloadDongle"],
+    .light-theme button[onclick*="resetUsbPort"],
+    .light-theme button[id*="resetBtn-"],
+    .light-theme button[onclick*="global-refresh-btn"],
+    .light-theme button#global-refresh-btn {
+        border-color: #d1d5db !important; /* border-gray-300 */
+        background-color: transparent !important; /* bg-transparent */
+        color: #374151 !important; /* text-gray-700 */
+    }
+    .light-theme button[onclick*="reloadDongle"]:hover,
+    .light-theme button[onclick*="resetUsbPort"]:hover,
+    .light-theme button[id*="resetBtn-"]:hover,
+    .light-theme button[onclick*="global-refresh-btn"]:hover,
+    .light-theme button#global-refresh-btn:hover {
+        background-color: #f9fafb !important; /* hover:bg-gray-50 */
+        color: #111827 !important;
+    }
+
+    html {
+        color-scheme: dark;
+    }
+    html.light-theme {
+        color-scheme: light;
+    }
+    /* Set flex direction of body dynamically using templates classes */
+    body {
+        display: flex !important;
+        min-height: 100vh !important;
+        overflow-x: hidden !important;
+        min-width: 0;
+    }
+    
+    @media (min-width: 768px) {
+        body {
+            height: 100vh !important;
+            overflow: hidden !important;
+        }
+        body > .flex-1 {
+            height: 100vh !important;
+            overflow-y: auto !important;
+        }
+    }
+
+    /* Sidebar Custom Styles */
+    .app-sidebar {
+        box-shadow: 1px 0 0 rgba(255, 255, 255, 0.02), 4px 0 25px rgba(0, 0, 0, 0.15) !important;
+        transition: width 200ms ease-in-out, padding 200ms ease-in-out !important;
+    }
+    [dir="rtl"] .app-sidebar {
+        box-shadow: -1px 0 0 rgba(255, 255, 255, 0.02), -4px 0 25px rgba(0, 0, 0, 0.15) !important;
+    }
+    /* Toast Notification Positioning: Bottom Right (LTR/English) & Bottom Left (RTL/Arabic) */
+    #toastContainer, #toast-container {
+        position: fixed !important;
+        top: auto !important;
+        bottom: 1.25rem !important;
+        z-index: 999999 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+        pointer-events: none !important;
+    }
+    [dir="ltr"] #toastContainer, [dir="ltr"] #toast-container,
+    html:not([dir="rtl"]) #toastContainer, html:not([dir="rtl"]) #toast-container {
+        right: 1.25rem !important;
+        left: auto !important;
+    }
+    [dir="rtl"] #toastContainer, [dir="rtl"] #toast-container,
+    html[dir="rtl"] #toastContainer, html[dir="rtl"] #toast-container {
+        left: 1.25rem !important;
+        right: auto !important;
+    }
+    @media (min-width: 768px) {
+        html.sidebar-collapsed #appSidebar,
+        #appSidebar.sidebar-collapsed {
+            width: 76px !important;
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
+        html.sidebar-collapsed #appSidebar .sidebar-header-box,
+        #appSidebar.sidebar-collapsed .sidebar-header-box {
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 0.5rem !important;
+            padding-top: 0.5rem !important;
+            padding-bottom: 0.5rem !important;
+        }
+        html.sidebar-collapsed #appSidebar #toggleSidebarCollapseBtn,
+        #appSidebar.sidebar-collapsed #toggleSidebarCollapseBtn {
+            position: relative !important;
+            top: auto !important;
+            right: auto !important;
+            left: auto !important;
+            margin: 0 auto !important;
+        }
+        html.sidebar-collapsed #appSidebar #brandLogo,
+        #appSidebar.sidebar-collapsed #brandLogo {
+            width: 1.75rem !important;
+            height: 1.75rem !important;
+            margin: 0 auto !important;
+        }
+        html.sidebar-collapsed #appSidebar .sidebar-text,
+        html.sidebar-collapsed #appSidebar .sidebar-brand-title,
+        html.sidebar-collapsed #appSidebar .sidebar-info-row,
+        html.sidebar-collapsed #appSidebar .settings-launcher-label,
+        html.sidebar-collapsed #appSidebar .settings-launcher-chevron,
+        #appSidebar.sidebar-collapsed .sidebar-text,
+        #appSidebar.sidebar-collapsed .sidebar-brand-title,
+        #appSidebar.sidebar-collapsed .sidebar-info-row,
+        #appSidebar.sidebar-collapsed .settings-launcher-label,
+        #appSidebar.sidebar-collapsed .settings-launcher-chevron {
+            display: none !important;
+        }
+        html.sidebar-collapsed #appSidebar .nav-item,
+        #appSidebar.sidebar-collapsed .nav-item {
+            justify-content: center !important;
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
+        html.sidebar-collapsed #appSidebar .nav-item svg,
+        #appSidebar.sidebar-collapsed .nav-item svg {
+            margin-right: 0 !important;
+            margin-left: 0 !important;
+        }
+        html.sidebar-collapsed #appSidebar .settings-launcher,
+        #appSidebar.sidebar-collapsed .settings-launcher {
+            justify-content: center !important;
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
+        html.sidebar-collapsed #appSidebar .settings-launcher svg,
+        #appSidebar.sidebar-collapsed .settings-launcher svg {
+            margin-right: 0 !important;
+            margin-left: 0 !important;
+        }
+    }
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .nav-item {
+        min-height: 44px;
+        white-space: nowrap;
+    }
+    #settingsMenu.visible {
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: scale(1) !important;
+        pointer-events: auto !important;
+    }
+
+    /* Compact settings launcher and flyout */
+    .settings-launcher {
+        align-items: center;
+        background: transparent !important;
+        border: 1px solid var(--border-primary) !important;
+        border-radius: 0.65rem !important;
+        color: var(--text-secondary) !important;
+        display: flex;
+        gap: 0.65rem;
+        height: 2.5rem;
+        padding: 0 0.7rem;
+        transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+        width: 100%;
+    }
+    .settings-launcher:hover,
+    .settings-launcher[aria-expanded="true"] {
+        background: var(--bg-hover) !important;
+        border-color: var(--border-accent) !important;
+        color: var(--text-primary) !important;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    }
+    .settings-launcher-icon {
+        align-items: center;
+        background: var(--bg-selected);
+        border: 1px solid rgba(239, 68, 68, 0.18);
+        border-radius: 0.45rem;
+        color: var(--accent-color);
+        display: inline-flex;
+        height: 1.65rem;
+        justify-content: center;
+        width: 1.65rem;
+    }
+    .settings-launcher > svg:first-child {
+        color: var(--accent-color) !important;
+        flex: 0 0 auto;
+        height: 1rem !important;
+        width: 1rem !important;
+    }
+    .settings-launcher-label {
+        flex: 1;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-align: start;
+    }
+    .settings-launcher-chevron {
+        color: var(--text-muted);
+        transition: transform 160ms ease;
+    }
+    .settings-launcher[aria-expanded="true"] .settings-launcher-chevron {
+        transform: rotate(180deg);
+    }
+    .settings-menu {
+        background: var(--bg-secondary) !important;
+        border: 1px solid var(--border-accent) !important;
+        border-radius: 0.9rem !important;
+        color: var(--text-primary);
+        max-height: calc(100vh - 1rem);
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        transform-origin: bottom left;
+        width: min(18rem, calc(100vw - 1rem));
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.38), 0 2px 8px rgba(0, 0, 0, 0.18) !important;
+    }
+    [dir="rtl"] .settings-menu {
+        transform-origin: bottom right;
+    }
+    .settings-menu-header {
+        align-items: center;
+        border-bottom: 1px solid var(--border-primary);
+        display: flex;
+        gap: 0.7rem;
+        padding: 0.8rem;
+    }
+    .settings-menu-mark {
+        align-items: center;
+        background: var(--bg-selected);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        border-radius: 0.65rem;
+        color: var(--accent-color);
+        display: inline-flex;
+        height: 2rem;
+        justify-content: center;
+        width: 2rem;
+    }
+    .settings-menu-title {
+        color: var(--text-primary);
+        font-size: 0.82rem;
+        font-weight: 900;
+        letter-spacing: 0.01em;
+        line-height: 1.2;
+    }
+    .settings-menu-subtitle {
+        color: var(--text-muted);
+        font-size: 0.62rem;
+        font-weight: 600;
+        line-height: 1.35;
+        margin-top: 0.1rem;
+    }
+    .settings-menu-body {
+        display: flex;
+        flex-direction: column;
+        gap: 0.55rem;
+        padding: 0.65rem;
+    }
+    .settings-section-label {
+        color: var(--text-muted);
+        font-size: 0.58rem;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+        padding-inline: 0.35rem;
+        text-transform: uppercase;
+    }
+    .settings-group {
+        background: var(--bg-primary);
+        border: 1px solid var(--border-primary);
+        border-radius: 0.75rem;
+        overflow: hidden;
+    }
+    .settings-control-row,
+    .settings-control-block {
+        padding: 0.6rem 0.65rem;
+    }
+    .settings-control-row {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+    }
+    .settings-control-row + .settings-control-row,
+    .settings-control-row + .settings-control-block,
+    .settings-control-block + .settings-control-row,
+    .settings-control-block + .settings-control-block {
+        border-top: 1px solid var(--border-primary);
+    }
+    .settings-control-copy,
+    .settings-range-head {
+        align-items: center;
+        display: flex;
+        gap: 0.55rem;
+        min-width: 0;
+    }
+    .settings-control-copy {
+        flex: 1;
+    }
+    .settings-control-icon,
+    .settings-action-icon {
+        align-items: center;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-primary);
+        border-radius: 0.5rem;
+        color: var(--text-secondary);
+        display: inline-flex;
+        flex: 0 0 auto;
+        height: 1.75rem;
+        justify-content: center;
+        width: 1.75rem;
+    }
+    .settings-control-text {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+    .settings-control-title,
+    .settings-action {
+        font-size: 0.68rem !important;
+        font-weight: 800;
+    }
+    .settings-control-title {
+        color: var(--text-primary);
+        line-height: 1.2;
+    }
+    .settings-control-subtitle {
+        color: var(--text-muted);
+        font-size: 0.58rem;
+        font-weight: 600;
+        line-height: 1.3;
+        margin-top: 0.1rem;
+    }
+    .settings-theme-switch {
+        background: rgba(153, 27, 27, 0.35) !important;
+        border: 1px solid rgba(239, 68, 68, 0.3) !important;
+        border-radius: 999px !important;
+        flex: 0 0 auto;
+        height: 1.35rem;
+        padding: 0 !important;
+        position: relative;
+        width: 2.5rem;
+    }
+    .settings-switch-thumb {
+        background: var(--text-primary);
+        border-radius: 999px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+        height: 1rem;
+        left: 0.12rem;
+        position: absolute;
+        top: 0.12rem;
+        transition: transform 180ms ease;
+        width: 1rem;
+    }
+    .settings-segmented {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-primary);
+        border-radius: 0.6rem;
+        display: grid;
+        gap: 0.2rem;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin-top: 0.5rem;
+        padding: 0.2rem;
+    }
+    .settings-segment-btn {
+        background: transparent !important;
+        border: 0 !important;
+        border-radius: 0.42rem !important;
+        color: var(--text-muted) !important;
+        font-size: 0.66rem !important;
+        font-weight: 900 !important;
+        height: 1.8rem;
+        letter-spacing: 0.05em;
+        padding: 0 !important;
+    }
+    .settings-segment-btn:hover {
+        background: var(--bg-hover) !important;
+        color: var(--text-primary) !important;
+    }
+    .settings-segment-btn.is-active,
+    .settings-segment-btn.is-active:hover {
+        background: var(--selection-bg) !important;
+        color: #ffffff !important;
+        box-shadow: 0 2px 7px rgba(127, 29, 29, 0.25);
+    }
+    .settings-range-head {
+        justify-content: space-between;
+    }
+    .settings-range-value {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-primary);
+        border-radius: 0.4rem;
+        color: var(--text-primary);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.64rem;
+        font-weight: 900;
+        min-width: 2rem;
+        padding: 0.15rem 0.35rem;
+        text-align: center;
+    }
+    .settings-range {
+        appearance: none;
+        background: var(--border-accent) !important;
+        border: 0 !important;
+        border-radius: 999px !important;
+        cursor: pointer;
+        display: block;
+        height: 0.25rem;
+        margin-top: 0.65rem;
+        padding: 0 !important;
+        width: 100%;
+    }
+    .settings-range::-webkit-slider-thumb {
+        appearance: none;
+        background: var(--accent-color);
+        border: 2px solid var(--bg-secondary);
+        border-radius: 999px;
+        box-shadow: 0 1px 5px rgba(127, 29, 29, 0.4);
+        height: 1rem;
+        width: 1rem;
+    }
+    .settings-range::-moz-range-thumb {
+        background: var(--accent-color);
+        border: 2px solid var(--bg-secondary);
+        border-radius: 999px;
+        box-shadow: 0 1px 5px rgba(127, 29, 29, 0.4);
+        height: 0.8rem;
+        width: 0.8rem;
+    }
+    .settings-action {
+        align-items: center;
+        background: transparent !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        color: var(--text-secondary) !important;
+        display: flex;
+        gap: 0.55rem;
+        min-height: 2.55rem;
+        padding: 0.42rem 0.6rem !important;
+        text-align: start;
+        transition: background-color 150ms ease, color 150ms ease;
+        width: 100%;
+    }
+    .settings-action + .settings-action {
+        border-top: 1px solid var(--border-primary) !important;
+    }
+    .settings-action:hover {
+        background: var(--bg-hover) !important;
+        color: var(--text-primary) !important;
+    }
+    .settings-action:hover .settings-action-icon {
+        border-color: var(--border-accent);
+        color: var(--accent-color);
+    }
+    .settings-action-label {
+        flex: 1;
+        min-width: 0;
+    }
+    .settings-action-chevron {
+        color: var(--text-muted);
+        flex: 0 0 auto;
+    }
+    [dir="rtl"] .settings-action-chevron {
+        transform: rotate(180deg);
+    }
+    .settings-signout {
+        align-items: center;
+        background: rgba(153, 27, 27, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.18);
+        border-radius: 0.65rem !important;
+        color: var(--status-error-text) !important;
+        display: flex;
+        font-size: 0.68rem !important;
+        font-weight: 850;
+        gap: 0.55rem;
+        min-height: 2.35rem;
+        padding: 0.45rem 0.65rem;
+        transition: background-color 150ms ease, border-color 150ms ease;
+    }
+    .settings-signout:hover {
+        background: rgba(153, 27, 27, 0.18);
+        border-color: rgba(239, 68, 68, 0.35);
+    }
+    .light-theme .settings-group {
+        background: #f9fafb;
+    }
+    .light-theme .settings-menu {
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.16), 0 2px 8px rgba(15, 23, 42, 0.08) !important;
+    }
+    .light-theme .settings-signout {
+        background: #fff1f2;
+    }
+    .mobile-topbar {
+        height: 64px;
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04), 0 4px 10px rgba(0, 0, 0, 0.1) !important;
+    }
+    @media (max-width: 900px) {
+        body > .flex-1 {
+            padding: 1rem !important;
+            min-height: auto !important;
+        }
+        .flex.gap-6.flex-1.min-h-0 {
+            flex-direction: column !important;
+            min-height: auto !important;
+        }
+        .w-80.shrink-0,
+        .w-60.shrink-0 {
+            width: 100% !important;
+        }
+        .panel-surface {
+            border-radius: 0.875rem !important;
+        }
+    }
+    @media (max-width: 640px) {
+        #brandLogo {
+            width: 2.5rem !important;
+            height: 2.5rem !important;
+        }
+        .nav-item {
+            padding-left: 0.75rem !important;
+            padding-right: 0.75rem !important;
+        }
+        #toastContainer, #toast-container {
+            top: auto !important;
+            bottom: 1rem !important;
+            min-width: 0 !important;
+            max-width: calc(100vw - 2rem) !important;
+        }
+        table {
+            font-size: 0.8125rem;
+        }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            scroll-behavior: auto !important;
+            transition-duration: 0.01ms !important;
+        }
+        .animate-ping,
+        .animate-pulse,
+        .animate-spin {
+            animation: none !important;
+        }
+    }
+    /* Flatpickr Calendar styling to match our OLED dark / Light theme */
+    .flatpickr-calendar {
+        background: var(--bg-secondary) !important;
+        border: 1px solid var(--border-primary) !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+        border-radius: 0.75rem !important;
+        font-family: inherit !important;
+    }
+    .flatpickr-calendar.light-theme,
+    .light-theme .flatpickr-calendar {
+        background: #ffffff !important;
+        border: 1px solid #e5e7eb !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+    }
+    .flatpickr-day.selected, 
+    .flatpickr-day.startRange, 
+    .flatpickr-day.endRange, 
+    .flatpickr-day.selected.inRange, 
+    .flatpickr-day.startRange.inRange, 
+    .flatpickr-day.endRange.inRange, 
+    .flatpickr-day.selected:focus, 
+    .flatpickr-day.startRange:focus, 
+    .flatpickr-day.endRange:focus, 
+    .flatpickr-day.selected:hover, 
+    .flatpickr-day.startRange:hover, 
+    .flatpickr-day.endRange:hover, 
+    .flatpickr-day.prevMonthDay.selected, 
+    .flatpickr-day.nextMonthDay.selected {
+        background: var(--accent-color) !important;
+        border-color: var(--accent-color) !important;
+        color: #ffffff !important;
+    }
+    .flatpickr-day:hover,
+    .flatpickr-day.prevMonthDay:hover,
+    .flatpickr-day.nextMonthDay:hover,
+    .flatpickr-day.today:hover,
+    .flatpickr-day.prevMonthDay.today:hover,
+    .flatpickr-day.nextMonthDay.today:hover {
+        background: var(--bg-hover) !important;
+        border-color: transparent !important;
+        color: var(--text-primary) !important;
+    }
+    .flatpickr-day.today {
+        border-color: var(--accent-color) !important;
+        color: var(--text-primary) !important;
+    }
+    .flatpickr-months .flatpickr-month {
+        color: var(--text-primary) !important;
+    }
+    .flatpickr-months .flatpickr-prev-month, 
+    .flatpickr-months .flatpickr-next-month {
+        color: var(--text-secondary) !important;
+        fill: var(--text-secondary) !important;
+    }
+    .flatpickr-months .flatpickr-prev-month:hover, 
+    .flatpickr-months .flatpickr-next-month:hover {
+        color: var(--accent-color) !important;
+        fill: var(--accent-color) !important;
+    }
+    span.flatpickr-weekday {
+        color: var(--text-muted) !important;
+    }
+    .flatpickr-day {
+        color: var(--text-primary) !important;
+    }
+    .flatpickr-day.flatpickr-disabled, 
+    .flatpickr-day.flatpickr-disabled:hover {
+        color: var(--text-muted) !important;
+        opacity: 0.3 !important;
+    }
+    .flatpickr-time {
+        border-top: 1px solid var(--border-primary) !important;
+    }
+    .flatpickr-time input {
+        color: var(--text-primary) !important;
+        background: transparent !important;
+    }
+    .flatpickr-time input:hover, 
+    .flatpickr-time .flatpickr-am-pm:hover, 
+    .flatpickr-time input:focus, 
+    .flatpickr-time .flatpickr-am-pm:focus {
+        background: var(--bg-hover) !important;
+    }
+    .flatpickr-time .flatpickr-time-separator, 
+    .flatpickr-time .flatpickr-am-pm {
+        color: var(--text-primary) !important;
+    }
+    
+    /* Add custom calendar icon to datetime inputs */
+    .flatpickr-input,
+    input[type="datetime-local"] {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a949e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 12px center !important;
+        padding-right: 36px !important;
+    }
+    [dir="rtl"] .flatpickr-input,
+    [dir="rtl"] input[type="datetime-local"] {
+        background-position: left 12px center !important;
+        padding-left: 36px !important;
+        padding-right: 12px !important;
+    }
+
+    /* Global modern scrollbars */
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: rgba(220, 38, 38, 0.35);
+        border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(220, 38, 38, 0.6);
+    }
+    ::-webkit-scrollbar-button {
+        display: none;
+    }
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(220, 38, 38, 0.35) transparent;
+    }
+
+    /* Light Theme Scrollbars */
+    .light-theme ::-webkit-scrollbar-thumb {
+        background: rgba(148, 163, 184, 0.4);
+    }
+    .light-theme ::-webkit-scrollbar-thumb:hover {
+        background: rgba(148, 163, 184, 0.75);
+    }
+    .light-theme * {
+        scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+    }
+</style>
+
+<!-- Theme Handler Script -->
+<script>
+    // Prevent theme flickering
+    (function() {
+        const theme = localStorage.getItem('theme') || 'dark';
+        if (theme === 'light') {
+            document.documentElement.classList.add('light-theme');
+            document.addEventListener('DOMContentLoaded', () => {
+                document.body.classList.add('light-theme');
+                updateThemeUI(true);
+            });
+        } else {
+            document.addEventListener('DOMContentLoaded', () => {
+                updateThemeUI(false);
+            });
+        }
+    })();
+
+    function updateThemeUI(isLight) {
+        const thumb = document.getElementById('themeThumb');
+        const track = document.getElementById('themeToggleBtn');
+        const logo = document.getElementById('brandLogo');
+        const modeLabel = document.getElementById('themeModeLabel');
+        if (thumb) {
+            thumb.classList.toggle('translate-x-5', isLight);
+            thumb.classList.toggle('translate-x-0', !isLight);
+        }
+        if (track) {
+            track.style.backgroundColor = isLight ? '#e4e4e7' : 'rgba(204, 9, 12, 0.3)';
+            track.setAttribute('aria-checked', String(!isLight));
+        }
+        if (modeLabel) {
+            modeLabel.textContent = isLight ? modeLabel.dataset.lightLabel : modeLabel.dataset.darkLabel;
+        }
+        if (logo) {
+            logo.src = isLight ? '/logo.png' : '/logo_light_text.png';
+        }
+    }
+
+    function toggleTheme(e) {
+        const isLight = document.body.classList.toggle('light-theme');
+        document.documentElement.classList.toggle('light-theme', isLight);
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        updateThemeUI(isLight);
+        
+        // Anime.js ripple & spring animation on theme toggle
+        if (typeof anime !== 'undefined' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            const thumb = document.getElementById('themeThumb');
+            if (thumb) {
+                anime({
+                    targets: thumb,
+                    scale: [0.75, 1.15, 1],
+                    rotate: isLight ? [0, 180] : [180, 0],
+                    duration: 350,
+                    easing: 'easeOutElastic(1, .7)'
+                });
+            }
+
+            const ripple = document.createElement('div');
+            ripple.className = 'fixed rounded-full pointer-events-none z-[999998]';
+            const btn = document.getElementById('themeToggleBtn') || document.body;
+            const rect = btn.getBoundingClientRect();
+            const radius = Math.hypot(Math.max(rect.left, window.innerWidth - rect.left), Math.max(rect.top, window.innerHeight - rect.top));
+            
+            ripple.style.left = (rect.left + rect.width / 2 - radius) + 'px';
+            ripple.style.top = (rect.top + rect.height / 2 - radius) + 'px';
+            ripple.style.width = (radius * 2) + 'px';
+            ripple.style.height = (radius * 2) + 'px';
+            ripple.style.backgroundColor = isLight ? 'rgba(249, 250, 251, 0.85)' : 'rgba(5, 5, 7, 0.85)';
+            ripple.style.backdropFilter = 'blur(12px)';
+            ripple.style.transform = 'scale(0)';
+            document.body.appendChild(ripple);
+
+            anime({
+                targets: ripple,
+                scale: [0, 1],
+                opacity: [0.8, 0],
+                duration: 450,
+                easing: 'easeOutQuint',
+                complete: function() {
+                    if (ripple && ripple.parentNode) ripple.parentNode.removeChild(ripple);
+                }
+            });
+        }
+
+        if (window.pieChart) {
+            location.reload();
+        }
+        if (window.location.pathname === '/ext-stats') {
+            if (window.currentExtension) {
+                window.loadStats(window.currentExtension);
+            } else {
+                window.loadOverview();
+            }
+        }
+    }
+
+    // Settings dropdown
+    function initSidebarControls() {
+        updateThemeUI(localStorage.getItem('theme') === 'light');
+
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsMenu = document.getElementById('settingsMenu');
+        if (settingsBtn && settingsMenu) {
+            function positionMenu() {
+                settingsMenu.style.width = ''; // reset to auto first
+                const rect = settingsBtn.getBoundingClientRect();
+                const gap = 8;
+                const menuWidth = settingsMenu.offsetWidth || 280;
+                const menuHeight = settingsMenu.offsetHeight || 360;
+
+                let left = rect.left;
+                if (left + menuWidth > window.innerWidth - gap) {
+                    left = window.innerWidth - menuWidth - gap;
+                }
+                if (left < gap) left = gap;
+                settingsMenu.style.left = left + 'px';
+
+                let top = rect.top - menuHeight - gap;
+                if (top < gap) {
+                    top = rect.bottom + gap;
+                    if (top + menuHeight > window.innerHeight - gap) {
+                        top = Math.max(gap, window.innerHeight - menuHeight - gap);
+                    }
+                }
+                settingsMenu.style.top = top + 'px';
+                settingsMenu.style.maxHeight = (window.innerHeight - 2 * gap) + 'px';
+            }
+            function setSettingsMenuOpen(isOpen) {
+                if (isOpen) {
+                    settingsMenu.classList.add('visible');
+                    settingsMenu.classList.remove('invisible', 'opacity-0', 'scale-95');
+                    settingsMenu.classList.add('opacity-100', 'scale-100');
+                    positionMenu();
+                } else {
+                    settingsMenu.classList.remove('visible', 'opacity-100', 'scale-100');
+                    settingsMenu.classList.add('invisible', 'opacity-0', 'scale-95');
+                }
+                settingsMenu.style.pointerEvents = isOpen ? 'auto' : 'none';
+                settingsBtn.setAttribute('aria-expanded', String(isOpen));
+            }
+            settingsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                setSettingsMenuOpen(!settingsMenu.classList.contains('visible'));
+            });
+            document.addEventListener('click', () => setSettingsMenuOpen(false));
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && settingsMenu.classList.contains('visible')) {
+                    setSettingsMenuOpen(false);
+                    settingsBtn.focus();
+                }
+            });
+            settingsMenu.addEventListener('click', (e) => e.stopPropagation());
+            settingsMenu.querySelectorAll('.settings-action').forEach(action => {
+                action.addEventListener('click', () => setSettingsMenuOpen(false));
+            });
+            window.addEventListener('scroll', () => {
+                if (settingsMenu.classList.contains('visible')) positionMenu();
+            });
+            window.addEventListener('resize', () => {
+                if (settingsMenu.classList.contains('visible')) positionMenu();
+            });
+        }
+
+        // Sidebar Collapse / Expand Toggle
+        function updateCollapseButtonIcon(isCollapsed) {
+            const icon = document.getElementById('collapseIcon');
+            const btn = document.getElementById('toggleSidebarCollapseBtn');
+            if (!icon || !btn) return;
+            const isRtl = document.documentElement.dir === 'rtl';
+            btn.setAttribute('title', isCollapsed ? (isRtl ? 'توسيع القائمة' : 'Maximize Sidebar') : (isRtl ? 'تصغير القائمة' : 'Minimize Sidebar'));
+            if (isCollapsed) {
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                icon.style.transform = 'none';
+            }
+        }
+
+        window.toggleSidebarCollapse = function() {
+            const sidebar = document.getElementById('appSidebar');
+            if (!sidebar) return;
+            const isCollapsed = sidebar.classList.toggle('sidebar-collapsed');
+            document.documentElement.classList.toggle('sidebar-collapsed', isCollapsed);
+            localStorage.setItem('sidebar_collapsed', String(isCollapsed));
+            updateCollapseButtonIcon(isCollapsed);
+            window.dispatchEvent(new Event('resize'));
+        };
+
+        if (localStorage.getItem('sidebar_collapsed') === 'true') {
+            const sidebar = document.getElementById('appSidebar');
+            if (sidebar) sidebar.classList.add('sidebar-collapsed');
+            document.documentElement.classList.add('sidebar-collapsed');
+            updateCollapseButtonIcon(true);
+        }
+
+        // Mobile Sidebar Drawer Toggle
+        const sidebar = document.getElementById('appSidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const openBtn = document.getElementById('mobileMenuBtn');
+        const closeBtn = document.getElementById('closeSidebarBtn');
+        const isRtl = document.documentElement.dir === 'rtl';
+
+        function openSidebar() {
+            if (sidebar && overlay) {
+                sidebar.classList.remove(isRtl ? 'translate-x-full' : '-translate-x-full');
+                sidebar.classList.add('translate-x-0');
+                overlay.classList.remove('hidden');
+            }
+        }
+
+        function closeSidebar() {
+            if (sidebar && overlay) {
+                sidebar.classList.remove('translate-x-0');
+                sidebar.classList.add(isRtl ? 'translate-x-full' : '-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        if (openBtn) openBtn.addEventListener('click', openSidebar);
+        if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+        if (overlay) overlay.addEventListener('click', closeSidebar);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSidebarControls);
+    } else {
+        initSidebarControls();
+    }
+</script>
+
+<script>
+function updateClock() {
+    var el = document.getElementById('digitalClock');
+    if (!el) return;
+    var d = new Date();
+    el.textContent = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0') + ':' + d.getSeconds().toString().padStart(2,'0');
+}
+document.addEventListener('DOMContentLoaded', function() { updateClock(); setInterval(updateClock, 1000); });
+</script>
+
+<!-- Sidebar Backdrop Overlay (Mobile only) -->
+<div id="sidebarOverlay" class="fixed inset-0 bg-black/65 backdrop-blur-sm z-40 hidden md:hidden"></div>
+
+<!-- Mobile topbar -->
+<div class="mobile-topbar md:hidden w-full bg-[var(--bg-secondary)] border-b border-[var(--border-primary)] flex items-center justify-between px-6 py-4 sticky top-0 z-40 <%= isRtl ? 'flex-row-reverse' : '' %>">
+    <button id="mobileMenuBtn" class="p-2 -m-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition cursor-pointer" title="Open menu">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+    </button>
+    <div class="flex items-center gap-2.5">
+        <img src="/logo_light_text.png" alt="Sokrat VOIP" class="w-8 h-8 object-contain rounded-lg mobile-logo-theme">
+        <span class="text-sm font-black text-[var(--text-primary)] tracking-wider">Sokrat <span class="text-[var(--accent-color)]">VOIP</span></span>
+    </div>
+    <div class="w-6"></div>
+</div>
+<script>
+    (function() {
+        const theme = localStorage.getItem('theme') || 'dark';
+        const logos = document.querySelectorAll('.mobile-logo-theme');
+        logos.forEach(logo => {
+            logo.src = theme === 'light' ? '/logo.png' : '/logo_light_text.png';
+        });
+    })();
+</script>
+
+<!-- Vertical Sidebar -->
+<aside id="appSidebar" class="app-sidebar fixed md:sticky top-0 bottom-0 z-50 w-[260px] md:w-[224px] h-screen bg-[var(--bg-secondary)] flex flex-col justify-between p-5 md:p-4 shrink-0 transition-transform duration-300 transform md:translate-x-0 <%= isRtl ? 'right-0 translate-x-full border-l border-[var(--border-primary)] md:border-l md:border-r-0' : 'left-0 -translate-x-full border-r border-[var(--border-primary)] md:border-r md:border-l-0' %>">
+    <div class="flex flex-col gap-4 overflow-y-auto no-scrollbar flex-1">
+        <!-- Brand Header inside Sidebar -->
+        <div class="sidebar-header-box relative flex flex-col items-center justify-center py-2.5 border-b border-[var(--border-primary)] pb-4">
+            <!-- Minimize / Maximize Sidebar Button for Desktop -->
+            <button id="toggleSidebarCollapseBtn" type="button" onclick="toggleSidebarCollapse()" class="hidden md:flex absolute top-2 <%= isRtl ? 'left-2' : 'right-2' %> p-1.5 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-primary)] text-[var(--text-muted)] hover:text-white hover:border-[var(--accent-color)] transition-all cursor-pointer z-10" title="<%= isRtl ? 'تصغير/توسيع القائمة' : 'Toggle Sidebar' %>">
+                <svg id="collapseIcon" class="w-3.5 h-3.5 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="<%= isRtl ? 'M13 5l-7 7 7 7M19 5l-7 7 7 7' : 'M11 19l-7-7 7-7m8 14l-7-7 7-7' %>" />
+                </svg>
+            </button>
+
+            <div class="flex flex-col items-center gap-2.5">
+                <img id="brandLogo" src="/logo_light_text.png" alt="Sokrat VOIP" class="w-28 h-28 object-contain rounded-xl shadow-lg transition-all duration-300">
+                <script>
+                    (function() {
+                        const theme = localStorage.getItem('theme') || 'dark';
+                        document.getElementById('brandLogo').src = theme === 'light' ? '/logo.png' : '/logo_light_text.png';
+                    })();
+                </script>
+                <h1 class="sidebar-brand-title text-sm font-black text-[var(--text-primary)] tracking-widest font-vibrant-display uppercase">
+                    Sokrat <span class="text-[var(--accent-color)]">VOIP</span>
+                </h1>
+            </div>
+            <!-- Close Button for Mobile -->
+            <button id="closeSidebarBtn" class="md:hidden absolute top-4 <%= isRtl ? 'left-4' : 'right-4' %> p-2 text-[var(--text-secondary)] hover:text-white transition cursor-pointer" title="Close menu">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Sidebar Menu Navigation -->
+        <nav class="flex flex-col gap-1">
+            <a href="/?lang=<%= currentLang %>" title="<%= sbT.dashLink %>"
+               class="nav-item flex items-center px-4 py-3 rounded-lg transition-all duration-150 text-sm font-semibold relative
+               <%= currentPage === '/' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-red-600 hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
+                <svg class="w-4 h-4 me-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <span class="sidebar-text"><%= sbT.dashLink %></span>
+            </a>
+
+            <% if (can('cdr')) { %>
+            <a href="/cdr?lang=<%= currentLang %>" title="<%= sbT.cdrLink %>"
+               class="nav-item flex items-center px-4 py-3 rounded-lg transition-all duration-150 text-sm font-semibold relative
+               <%= currentPage === '/cdr' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-red-600 hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
+                <svg class="w-4 h-4 me-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                <span class="sidebar-text"><%= sbT.cdrLink %></span>
+            </a>
+            <% } %>
+
+            <% if (can('voicemails')) { %>
+            <a href="/voicemails?lang=<%= currentLang %>" title="<%= sbT.vmLink %>"
+               class="nav-item flex items-center px-4 py-3 rounded-lg transition-all duration-150 text-sm font-semibold relative
+               <%= currentPage === '/voicemails' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-red-600 hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
+                <svg class="w-4 h-4 me-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2a3 3 0 0 0-3 3v4a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+                    <path d="M19 10v1a7 7 0 0 1-14 0v-1"/>
+                    <line x1="12" y1="18" x2="12" y2="22"/>
+                </svg>
+                <span class="sidebar-text"><%= sbT.vmLink %></span>
+            </a>
+            <% } %>
+
+            <% if (can('ext-stats')) { %>
+            <a href="/ext-stats?lang=<%= currentLang %>" title="<%= sbT.extLink %>"
+               class="nav-item flex items-center px-4 py-3 rounded-lg transition-all duration-150 text-sm font-semibold relative
+               <%= currentPage === '/ext-stats' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-red-600 hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
+                <svg class="w-4 h-4 me-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
+                <span class="sidebar-text"><%= sbT.extLink %></span>
+            </a>
+            <% } %>
+
+            <% if (can('operator')) { %>
+            <a href="/operator?lang=<%= currentLang %>" title="<%= sbT.opLink %>"
+               class="nav-item flex items-center px-4 py-3 rounded-lg transition-all duration-150 text-sm font-semibold relative
+               <%= currentPage === '/operator' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-red-600 hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
+                <svg class="w-4 h-4 me-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                    <line x1="8" y1="21" x2="16" y2="21"/>
+                    <line x1="12" y1="17" x2="12" y2="21"/>
+                </svg>
+                <span class="sidebar-text"><%= sbT.opLink %></span>
+            </a>
+            <% } %>
+            
+            <% if (can('gsm-dongles')) { %>
+            <a href="/gsm-dongles?lang=<%= currentLang %>" title="<%= sbT.dongleLink %>"
+               class="nav-item flex items-center px-4 py-3 rounded-lg transition-all duration-150 text-sm font-semibold relative
+               <%= currentPage === '/gsm-dongles' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-red-600 hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
+                <svg class="w-4 h-4 me-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="10" y="2" width="4" height="5" rx="0.5" />
+                    <rect x="7" y="7" width="10" height="14" rx="2" />
+                    <circle cx="12" cy="18" r="1.5" />
+                    <line x1="11" y1="4" x2="11.01" y2="4" stroke-width="2.5" />
+                    <line x1="13" y1="4" x2="13.01" y2="4" stroke-width="2.5" />
+                </svg>
+                <span class="sidebar-text"><%= sbT.dongleLink %></span>
+            </a>
+            <% } %>
+            <% if (can('config') || allowed.some(function(p) { return p.startsWith('config-'); })) { %>
+            <a href="/config?lang=<%= currentLang %>" title="<%= sbT.configLink %>"
+               class="nav-item flex items-center px-4 py-3 rounded-lg transition-all duration-150 text-sm font-semibold relative
+               <%= currentPage === '/config' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-red-600 hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
+                <svg class="w-4 h-4 me-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <span class="sidebar-text"><%= sbT.configLink %></span>
+            </a>
+            <% } %>
+            <a href="/contacts?lang=<%= currentLang %>" title="<%= sbT.contactsLink %>"
+               class="nav-item flex items-center px-4 py-3 rounded-lg transition-all duration-150 text-sm font-semibold relative
+               <%= currentPage === '/contacts' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-red-600 hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
+                <svg class="w-4 h-4 me-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                    <path d="M8 16c0-2 4-3 4-3s4 1 4 3"/>
+                </svg>
+                <span class="sidebar-text"><%= sbT.contactsLink %></span>
+            </a>
+
+            <% if (isSuper) { %>
+            <a href="/users?lang=<%= currentLang %>" title="<%= sbT.usersLink %>"
+               class="nav-item flex items-center px-4 py-3 rounded-lg transition-all duration-150 text-sm font-semibold relative
+               <%= currentPage === '/users' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-red-600 hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
+                <svg class="w-4 h-4 me-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span class="sidebar-text"><%= sbT.usersLink %></span>
+            </a>
+            <% } %>
+            <a href="/storage?lang=<%= currentLang %>" title="<%= sbT.storageLink %>"
+               class="nav-item flex items-center px-4 py-3 rounded-lg transition-all duration-150 text-sm font-semibold relative
+               <%= currentPage === '/storage' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-red-600 hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
+                <svg class="w-4 h-4 me-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                <span class="sidebar-text"><%= sbT.storageLink %></span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Sidebar Footer Action Panel -->
+    <div class="flex flex-col gap-4 border-t border-[var(--border-primary)] pt-4 mt-auto">
+        <!-- System Clock & User info -->
+        <div class="sidebar-info-row flex flex-col gap-1 px-1">
+            <div class="flex items-center justify-between text-xs font-semibold text-[var(--text-secondary)]">
+                <span class="text-[9px] font-black uppercase text-[var(--text-muted)] tracking-wider"><%= sbT.liveClock %></span>
+                <span id="digitalClock" class="font-mono text-sm tracking-tight text-[var(--accent-color)]">00:00:00</span>
+            </div>
+            <div class="flex items-center justify-between text-[11px] font-semibold text-[var(--text-muted)] mt-1">
+                <span>USER:</span>
+                <span class="text-[var(--text-primary)]"><%= typeof currentUser !== 'undefined' ? currentUser : '' %></span>
+            </div>
+        </div>
+
+        <!-- Action Switches -->
+        <div class="flex items-center px-1">
+            <!-- Settings Button with Dropdown -->
+            <div class="relative w-full" id="settingsDropdown">
+                <button id="settingsBtn" type="button" class="settings-launcher cursor-pointer" title="<%= sbT.settingsTitle %>" aria-haspopup="dialog" aria-expanded="false" aria-controls="settingsMenu">
+                    <svg class="w-4 h-4 text-[var(--text-secondary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    <span class="settings-launcher-label"><%= sbT.settingsTitle %></span>
+                    <svg class="settings-launcher-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"></path></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- Settings Dropdown Menu (Open above) -->
+<div id="settingsMenu" class="settings-menu fixed opacity-0 invisible scale-95 transition-all duration-150 z-50" style="pointer-events:none" role="dialog" aria-label="<%= sbT.settingsTitle %>">
+    <div class="settings-menu-header">
+        <span class="settings-menu-mark">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.05.05-2.83 2.83-.05-.05A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 1.55V21h-4v-.05A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.88.34l-.05.05-2.83-2.83.05-.05A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.55-1H3v-4h.05A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.88l-.05-.05 2.83-2.83.05.05A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.55V3h4v.05A1.7 1.7 0 0 0 15 4.6a1.7 1.7 0 0 0 1.88-.34l.05-.05 2.83 2.83-.05.05A1.7 1.7 0 0 0 19.4 9a1.7 1.7 0 0 0 1.55 1H21v4h-.05A1.7 1.7 0 0 0 19.4 15Z"></path>
+            </svg>
+        </span>
+        <div>
+            <h2 class="settings-menu-title"><%= sbT.settingsTitle %></h2>
+            <p class="settings-menu-subtitle"><%= sbT.settingsSubtitle %></p>
+        </div>
+    </div>
+
+    <div class="settings-menu-body">
+        <p class="settings-section-label"><%= sbT.preferencesLabel %></p>
+        <section class="settings-group" aria-label="<%= sbT.preferencesLabel %>">
+            <div class="settings-control-row">
+                <div class="settings-control-copy">
+                    <span class="settings-control-icon">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"></path></svg>
+                    </span>
+                    <span class="settings-control-text">
+                        <span class="settings-control-title"><%= sbT.appearanceLabel %></span>
+                        <span id="themeModeLabel" class="settings-control-subtitle" data-light-label="<%= sbT.lightModeLabel %>" data-dark-label="<%= sbT.darkModeLabel %>"><%= sbT.darkModeLabel %></span>
+                    </span>
+                </div>
+                <button id="themeToggleBtn" type="button" onclick="toggleTheme(event)" class="settings-theme-switch cursor-pointer" role="switch" aria-checked="true" aria-label="<%= sbT.themeLabel %>">
+                    <span id="themeThumb" class="settings-switch-thumb translate-x-0"></span>
+                </button>
+            </div>
+
+            <div class="settings-control-block">
+                <div class="settings-control-copy">
+                    <span class="settings-control-icon">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M2 12h20M12 2a15.3 15.3 0 0 1 0 20M12 2a15.3 15.3 0 0 0 0 20"></path></svg>
+                    </span>
+                    <span class="settings-control-title"><%= sbT.langLabel %></span>
+                </div>
+                <div class="settings-segmented" role="group" aria-label="<%= sbT.langLabel %>">
+                    <button type="button" onclick="location.href=window.location.pathname + '?lang=en'" class="settings-segment-btn cursor-pointer <%= currentLang === 'en' ? 'is-active' : '' %>" aria-pressed="<%= currentLang === 'en' %>">EN</button>
+                    <button type="button" onclick="location.href=window.location.pathname + '?lang=ar'" class="settings-segment-btn cursor-pointer <%= currentLang === 'ar' ? 'is-active' : '' %>" aria-pressed="<%= currentLang === 'ar' %>">AR</button>
+                </div>
+            </div>
+
+            <div class="settings-control-block">
+                <div class="settings-range-head">
+                    <div class="settings-control-copy">
+                        <span class="settings-control-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"></path><circle cx="3" cy="6" r="1"></circle><circle cx="3" cy="12" r="1"></circle><circle cx="3" cy="18" r="1"></circle></svg>
+                        </span>
+                        <span class="settings-control-title"><%= sbT.rowsLabel %></span>
+                    </div>
+                    <span id="rowsPerPageValue" class="settings-range-value">25</span>
+                </div>
+                <input type="range" id="rowsPerPageSlider" min="1" max="200" value="25" class="settings-range" aria-label="<%= sbT.rowsLabel %>">
+                <script>
+                    (function() {
+                        const slider = document.getElementById('rowsPerPageSlider');
+                        const valSpan = document.getElementById('rowsPerPageValue');
+                        if (slider) {
+                            const saved = localStorage.getItem('cdrPerPage') || '25';
+                            slider.value = saved;
+                            if (valSpan) valSpan.textContent = saved;
+                            slider.addEventListener('input', function() {
+                                if (valSpan) valSpan.textContent = this.value;
+                            });
+                            slider.addEventListener('change', function() {
+                                const val = this.value;
+                                localStorage.setItem('cdrPerPage', val);
+                                if (valSpan) valSpan.textContent = val;
+                                if (window.location.pathname === '/cdr') {
+                                    const url = new URL(window.location);
+                                    url.searchParams.set('perPage', val);
+                                    url.searchParams.set('page', '1');
+                                    window.location.replace(url.toString());
+                                }
+                            });
+                        }
+                    })();
+                </script>
+            </div>
+        </section>
+
+        <p class="settings-section-label"><%= sbT.systemLabel %></p>
+        <section class="settings-group" aria-label="<%= sbT.systemLabel %>">
+            <% if (isSuper) { %>
+            <button type="button" onclick="openSmtpModal()" class="settings-action cursor-pointer">
+                <span class="settings-action-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m3 7 9 6 9-6"></path></svg></span>
+                <span class="settings-action-label"><%= sbT.smtpSettings %></span>
+                <svg class="settings-action-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+            </button>
+            <% } %>
+            <button type="button" onclick="openNetworkModal()" class="settings-action cursor-pointer">
+                <span class="settings-action-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M8 9h8M8 15h8"></path><circle cx="8" cy="9" r=".5" fill="currentColor"></circle><circle cx="8" cy="15" r=".5" fill="currentColor"></circle></svg></span>
+                <span class="settings-action-label"><%= sbT.netInfo %></span>
+                <svg class="settings-action-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+            </button>
+            <% if (isSuper) { %>
+            <button type="button" onclick="openTimeModal()" class="settings-action cursor-pointer">
+                <span class="settings-action-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></span>
+                <span class="settings-action-label"><%= sbT.timeSettings %></span>
+                <svg class="settings-action-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+            </button>
+            <button type="button" onclick="triggerDashboardUpdate()" id="updateDashboardBtn" class="settings-action cursor-pointer text-emerald-400 hover:text-emerald-300">
+                <span class="settings-action-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg></span>
+                <span class="settings-action-label"><%= currentLang === 'ar' ? 'تحديث النظام (Update Dashboard)' : 'Update Dashboard' %></span>
+                <svg class="settings-action-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+            </button>
+            <% } %>
+        </section>
+
+        <a href="/logout" class="settings-signout">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="m16 17 5-5-5-5M21 12H9"></path></svg>
+            <span><%= sbT.logoutLabel %></span>
+        </a>
+    </div>
+</div>
+
+
+<!-- Recording Upload Modal -->
+<div id="recordingModal" class="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 invisible transition-all duration-200" style="pointer-events:none">
+    <div class="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-2xl shadow-2xl shadow-black/50 w-full max-w-md mx-4 overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-[var(--border-primary)]">
+            <h3 class="text-sm font-black uppercase tracking-wider text-[var(--text-primary)]"><%= sbT.recTitle %></h3>
+            <button onclick="closeRecordingModal()" class="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition p-1">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <form id="recordingForm" onsubmit="return submitRecording(event)" class="p-5 space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1.5"><%= sbT.recName %></label>
+                <input type="text" id="recordingName" name="name" required placeholder="<%= sbT.recPlaceholder %>" class="w-full px-3 py-2 rounded-lg text-sm bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-color)] transition">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1.5"><%= sbT.recFile %></label>
+                <div class="relative">
+                    <input type="file" id="recordingFile" name="file" accept="audio/*,.mpeg,.mpg" required class="w-full text-xs text-[var(--text-secondary)] file:mr-3 rtl:file:mr-0 rtl:file:ml-3 file:py-1.5 file:px-3 file:rounded-lg file:border file:border-[var(--border-primary)] file:bg-[var(--bg-card)] file:text-xs file:font-bold file:text-[var(--text-primary)] hover:file:bg-[var(--bg-hover)] file:cursor-pointer file:transition cursor-pointer">
+                </div>
+                <p class="text-[10px] text-[var(--text-muted)] mt-1"><%= sbT.recNote %></p>
+            </div>
+            <!-- Progress Bar -->
+            <div id="uploadProgressWrap" class="hidden space-y-1">
+                <div class="flex justify-between text-[10px] font-semibold text-[var(--text-muted)]">
+                    <span id="uploadStatus"><%= sbT.recUploadStatus %></span>
+                    <span id="uploadPercent">0%</span>
+                </div>
+                <div class="w-full h-1.5 bg-[var(--bg-card)] rounded-full overflow-hidden">
+                    <div id="uploadProgressBar" class="h-full bg-[var(--accent-color)] rounded-full transition-all duration-300" style="width:0%"></div>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button type="button" onclick="closeRecordingModal()" class="px-4 py-2 rounded-lg text-xs font-bold text-[var(--text-secondary)] bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] transition cursor-pointer"><%= sbT.recCancel %></button>
+                <button type="submit" id="recordingSubmitBtn" class="px-4 py-2 rounded-lg text-xs font-bold text-white bg-[var(--accent-color)] hover:bg-[#e0352b] transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                    <%= sbT.recUpload %>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- SMTP Settings Modal -->
+<div id="smtpModal" class="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 invisible transition-all duration-200" style="pointer-events:none">
+    <div class="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-2xl shadow-2xl shadow-black/50 w-full max-w-md mx-4 overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-[var(--border-primary)]">
+            <h3 class="text-sm font-black uppercase tracking-wider text-[var(--text-primary)]">Password Reset Email</h3>
+            <button onclick="closeSmtpModal()" class="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition p-1">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <form id="smtpSettingsForm" onsubmit="return saveSmtpSettings(event)" class="p-5 space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1.5">Email Address</label>
+                <input type="email" id="smtpEmail" name="email" required placeholder="smtp@gmail.com" class="w-full px-3 py-2 rounded-lg text-sm bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-color)] transition">
+                <p class="text-[10px] text-[var(--text-muted)] mt-1">Gmail or any SMTP email address</p>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1.5">App Password</label>
+                <input type="password" id="smtpPassword" name="password" placeholder="App Password" class="w-full px-3 py-2 rounded-lg text-sm bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-color)] transition">
+                <p class="text-[10px] text-[var(--text-muted)] mt-1">Leave blank to keep existing password</p>
+            </div>
+            <div id="smtpStatusMsg" class="text-xs hidden text-center"></div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button type="button" onclick="closeSmtpModal()" class="px-4 py-2 rounded-lg text-xs font-bold text-[var(--text-secondary)] bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] transition cursor-pointer">Cancel</button>
+                <button type="submit" class="px-4 py-2 rounded-lg text-xs font-bold text-white bg-[var(--accent-color)] hover:bg-[#e0352b] transition cursor-pointer">Save Settings</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Network Info Modal -->
+<div id="networkModal" onclick="if(event.target===this) closeNetworkModal()" class="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 invisible transition-all duration-200 p-4" style="pointer-events:none">
+    <div class="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-2xl shadow-2xl shadow-black/50 w-full max-w-lg flex flex-col max-h-[85vh] overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-[var(--border-primary)] shrink-0">
+            <h3 class="text-sm font-black uppercase tracking-wider text-[var(--text-primary)]">Network Interfaces</h3>
+            <button onclick="closeNetworkModal()" class="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition p-1 cursor-pointer">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="p-5 overflow-y-auto flex-1 font-mono" id="networkInfoContent">
+            <div class="text-center text-[var(--text-muted)] text-xs py-8">
+                <svg class="animate-spin inline-block w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-dasharray="31.4 31.4" stroke-linecap="round"/></svg>
+                Loading network info...
+            </div>
+        </div>
+        <div class="flex justify-end px-5 py-4 border-t border-[var(--border-primary)] shrink-0">
+            <button onclick="closeNetworkModal()" class="px-4 py-2 rounded-lg text-xs font-bold text-[var(--text-secondary)] bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] transition cursor-pointer">Close</button>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Time Settings Modal -->
+<div id="timeModal" onclick="if(event.target===this) closeTimeModal()" class="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 invisible transition-all duration-200 p-4" style="pointer-events:none">
+    <div class="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-2xl shadow-2xl shadow-black/50 w-full max-w-lg flex flex-col max-h-[85vh] overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-[var(--border-primary)] shrink-0">
+            <h3 class="text-sm font-black uppercase tracking-wider text-[var(--text-primary)]"><%= sbT.timeModalTitle %></h3>
+            <button onclick="closeTimeModal()" class="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition p-1 cursor-pointer">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="p-5 space-y-5 text-sm overflow-y-auto flex-1" id="timeModalBody">
+            <div class="text-center py-8 text-[var(--text-muted)] text-xs">
+                <svg class="animate-spin inline-block w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-dasharray="31.4 31.4" stroke-linecap="round"/></svg>
+                <%= sbT.loadingTimezone %>
+            </div>
+        </div>
+        <div class="flex justify-end gap-2 px-5 py-4 border-t border-[var(--border-primary)] shrink-0" id="timeModalFooter" style="display:none">
+            <button type="button" onclick="closeTimeModal()" class="px-4 py-2 rounded-lg text-xs font-bold text-[var(--text-secondary)] bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] transition cursor-pointer">Close</button>
+            <button type="button" id="timeSaveBtn" onclick="saveTimeSettings()" class="px-4 py-2 rounded-lg text-xs font-bold text-white bg-[var(--accent-color)] hover:bg-[#e0352b] transition cursor-pointer"><%= sbT.saveSettings %></button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toastContainer" class="fixed bottom-5 z-[999999] flex flex-col gap-2 pointer-events-none <%= isRtl ? 'left-5' : 'right-5' %>" style="min-width:280px;max-width:420px"></div>
+
+<div id="flashData" data-success="<%= typeof success !== 'undefined' ? success : '' %>" data-error="<%= typeof error !== 'undefined' ? error : '' %>" style="display:none"></div>
+
+<style>
+.success-msg, .error-msg { display: none !important; }
+</style>
+
+<script>
+function openRecordingModal() {
+    document.getElementById('recordingModal').classList.remove('opacity-0', 'invisible');
+    document.getElementById('recordingModal').style.pointerEvents = 'auto';
+    document.getElementById('settingsMenu').classList.remove('visible', 'opacity-100', 'scale-100');
+    document.getElementById('settingsMenu').classList.add('invisible', 'opacity-0', 'scale-95');
+    document.getElementById('settingsMenu').style.pointerEvents = 'none';
+}
+
+function closeRecordingModal() {
+    document.getElementById('recordingModal').classList.add('opacity-0', 'invisible');
+    document.getElementById('recordingModal').style.pointerEvents = 'none';
+    document.getElementById('recordingForm').reset();
+    document.getElementById('uploadProgressWrap').classList.add('hidden');
+    document.getElementById('uploadProgressBar').style.width = '0%';
+}
+
+function showToast(msg, type) {
+    var toastContainer = document.getElementById('toastContainer') || document.getElementById('toast-container');
+    if (!toastContainer) return;
+    var el = document.createElement('div');
+    el.className = 'pointer-events-auto px-5 py-3 rounded-xl text-sm font-semibold shadow-2xl shadow-black/40';
+    var isRtl = document.documentElement.dir === 'rtl';
+    var initialX = isRtl ? 'translateX(-120%)' : 'translateX(120%)';
+    el.style.transform = initialX;
+    el.style.opacity = '0';
+    el.style.transition = 'all 0.3s';
+    if (type === 'error') {
+        el.style.backgroundColor = 'rgba(255,59,48,0.15)';
+        el.style.border = '1px solid rgba(255,59,48,0.35)';
+        el.style.color = '#ff6b6b';
+    } else if (type === 'warning') {
+        el.style.backgroundColor = 'rgba(245,158,11,0.15)';
+        el.style.border = '1px solid rgba(245,158,11,0.35)';
+        el.style.color = '#fbbf24';
+    } else {
+        el.style.backgroundColor = 'rgba(34,197,94,0.15)';
+        el.style.border = '1px solid rgba(34,197,94,0.35)';
+        el.style.color = '#4ade80';
+    }
+    el.textContent = msg;
+    toastContainer.appendChild(el);
+    requestAnimationFrame(function() {
+        el.style.transform = 'translateX(0)';
+        el.style.opacity = '1';
+    });
+    setTimeout(function() {
+        el.style.transform = initialX;
+        el.style.opacity = '0';
+        setTimeout(function() { if (el && el.parentNode) el.parentNode.removeChild(el); }, 300);
+    }, 5000);
+}
+
+const recWords = {
+    uploading: "<%= sbT.recUploadStatus %>",
+    complete: "<%= sbT.recComplete %>",
+    failed: "<%= sbT.recFailed %>",
+    selectFileErr: "<%= sbT.recSelectFileErr %>",
+    nameErr: "<%= sbT.recNameErr %>",
+    uploadBtn: "<%= sbT.recUpload %>"
+};
+
+async function submitRecording(event) {
+    event.preventDefault();
+    var fileInput = document.getElementById('recordingFile');
+    var nameInput = document.getElementById('recordingName');
+    var submitBtn = document.getElementById('recordingSubmitBtn');
+    var progressWrap = document.getElementById('uploadProgressWrap');
+    var progressBar = document.getElementById('uploadProgressBar');
+    var progressPercent = document.getElementById('uploadPercent');
+    var uploadStatus = document.getElementById('uploadStatus');
+
+    if (!fileInput.files.length) { showToast(recWords.selectFileErr, 'error'); return; }
+    if (!nameInput.value.trim()) { showToast(recWords.nameErr, 'error'); return; }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = recWords.uploading;
+    progressWrap.classList.remove('hidden');
+
+    var formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+    formData.append('name', nameInput.value.trim());
+
+    try {
+        var xhr = new XMLHttpRequest();
+        var result = await new Promise(function(resolve, reject) {
+            xhr.upload.addEventListener('progress', function(e) {
+                if (e.lengthComputable) {
+                    var pct = Math.round((e.loaded / e.total) * 100);
+                    progressBar.style.width = pct + '%';
+                    progressPercent.textContent = pct + '%';
+                }
+            });
+            xhr.addEventListener('load', function() {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    resolve(JSON.parse(xhr.responseText));
+                } else {
+                    try { reject(JSON.parse(xhr.responseText)); }
+                    catch(e) { reject({ error: recWords.failed + ' (HTTP ' + xhr.status + ')' }); }
+                }
+            });
+            xhr.addEventListener('error', function() { reject({ error: 'Network error' }); });
+            xhr.open('POST', '/api/settings/recordings/upload');
+            xhr.send(formData);
+        });
+
+        progressBar.style.width = '100%';
+        uploadStatus.textContent = recWords.complete;
+        if (result.success) {
+            showToast(result.message, 'success');
+            setTimeout(closeRecordingModal, 1000);
+        } else {
+            showToast(result.error || recWords.failed, 'error');
+        }
+    } catch (err) {
+        showToast(err.error || recWords.failed, 'error');
+        uploadStatus.textContent = recWords.failed;
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = recWords.uploadBtn;
+        setTimeout(function() {
+            progressWrap.classList.add('hidden');
+            progressBar.style.width = '0%';
+        }, 3000);
+    }
+    return false;
+}
+
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    var toastContainer = document.getElementById('toastContainer');
+    if (!toastContainer) return;
+
+    var flash = document.getElementById('flashData');
+    var msg = flash ? (flash.dataset.success || flash.dataset.error) : '';
+    var type = flash && flash.dataset.error ? 'error' : 'success';
+    if (!msg) return;
+
+    function showToast(msg, type) {
+        var el = document.createElement('div');
+        el.className = 'pointer-events-auto px-5 py-3 rounded-xl text-sm font-semibold shadow-2xl shadow-black/40';
+        el.style.transform = 'translateX(120%)';
+        el.style.opacity = '0';
+        el.style.transition = 'all 0.3s';
+        if (type === 'error') {
+            el.style.backgroundColor = 'rgba(255,59,48,0.15)';
+            el.style.border = '1px solid rgba(255,59,48,0.35)';
+            el.style.color = '#ff6b6b';
+        } else if (type === 'warning') {
+            el.style.backgroundColor = 'rgba(245,158,11,0.15)';
+            el.style.border = '1px solid rgba(245,158,11,0.35)';
+            el.style.color = '#fbbf24';
+        } else {
+            el.style.backgroundColor = 'rgba(34,197,94,0.15)';
+            el.style.border = '1px solid rgba(34,197,94,0.35)';
+            el.style.color = '#4ade80';
+        }
+        el.textContent = msg;
+        toastContainer.appendChild(el);
+
+        requestAnimationFrame(function() {
+            el.style.transform = 'translateX(0)';
+            el.style.opacity = '1';
+        });
+
+        setTimeout(function() {
+            el.style.transform = 'translateX(120%)';
+            el.style.opacity = '0';
+            setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 300);
+        }, 5000);
+    }
+
+    window.showToast = showToast;
+    showToast(msg, type);
+});
+</script>
+
+<script>
+
+function openTimeModal() {
+    document.getElementById('settingsMenu').classList.remove('visible', 'opacity-100', 'scale-100');
+    document.getElementById('settingsMenu').classList.add('invisible', 'opacity-0', 'scale-95');
+    document.getElementById('settingsMenu').style.pointerEvents = 'none';
+    document.getElementById('timeModal').classList.remove('opacity-0', 'invisible');
+    document.getElementById('timeModal').style.pointerEvents = 'auto';
+    document.getElementById('timeModalFooter').style.display = 'none';
+    document.getElementById('timeModalBody').innerHTML = '<div class="text-center py-8 text-[var(--text-muted)] text-xs"><svg class="animate-spin inline-block w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-dasharray="31.4 31.4" stroke-linecap="round"/></svg> <%= sbT.loadingTimezone %></div>';
+    loadTimeSettings();
+}
+
+function closeTimeModal() {
+    document.getElementById('timeModal').classList.add('opacity-0', 'invisible');
+    document.getElementById('timeModal').style.pointerEvents = 'none';
+}
+
+async function loadTimeSettings() {
+    try {
+        const resp = await fetch('/api/settings/time');
+        const data = await resp.json();
+        if (!data.success) throw new Error(data.error);
+        renderTimeModal(data);
+    } catch (e) {
+        document.getElementById('timeModalBody').innerHTML = '<div class="text-center text-red-400 text-sm py-8">Failed to load: ' + e.message + '</div>';
+    }
+}
+
+let currentTimezone = '';
+let currentNtp = false;
+
+function renderTimeModal(data) {
+    currentTimezone = data.timezone;
+    currentNtp = data.ntpActive;
+
+    var tzOptions = data.timezoneList.map(function(tz) {
+        var sel = tz === data.timezone ? 'selected' : '';
+        return '<option value="' + tz + '" ' + sel + '>' + tz + '</option>';
+    }).join('');
+
+    var ntpChecked = data.ntpActive ? 'checked' : '';
+    var manualDisabled = data.ntpActive ? 'disabled' : '';
+
+    var now = new Date(data.timestamp);
+    var dateStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+    var timeStr = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+
+    var html =
+        '<div class="flex items-center justify-between p-3 rounded-lg bg-[var(--bg-card)] border border-[var(--border-primary)]">' +
+            '<span class="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider"><%= sbT.currentTime %></span>' +
+            '<span class="text-sm font-mono text-[var(--text-primary)] font-bold" id="timeDisplay">' + data.localTime + '</span>' +
+        '</div>' +
+
+        '<div>' +
+            '<label class="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1.5"><%= sbT.timezone %></label>' +
+            '<div class="relative">' +
+                '<input type="text" id="tzSearch" oninput="filterTimezones()" placeholder="<%= sbT.searchTimezone %>" class="w-full px-3 py-2 rounded-lg text-sm bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-color)] transition mb-1.5">' +
+                '<select id="timezoneSelect" size="6" class="w-full px-2 py-1 rounded-lg text-sm bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border-primary)] focus:outline-none focus:border-[var(--accent-color)] transition" style="scrollbar-width:thin">' + tzOptions + '</select>' +
+            '</div>' +
+        '</div>' +
+
+        '<div class="flex items-center justify-between p-3 rounded-lg bg-[var(--bg-card)] border border-[var(--border-primary)]">' +
+            '<div>' +
+                '<span class="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider"><%= sbT.ntpSync %></span>' +
+                '<p class="text-[10px] text-[var(--text-muted)] mt-0.5">' + (data.ntpActive ? 'Active' : 'Inactive') + '</p>' +
+            '</div>' +
+            '<label class="relative inline-flex items-center cursor-pointer">' +
+                '<input type="checkbox" id="ntpToggle" onchange="onNtpToggle()" class="sr-only peer" ' + ntpChecked + '>' +
+                '<div class="w-9 h-5 rounded-full bg-[var(--bg-card)] border border-[var(--border-primary)] peer-checked:bg-[var(--accent-color)]/40 peer-checked:border-[var(--accent-color)] transition after:content-[\'\'] after:absolute after:top-0.5 after:left-0.5 after:w-3.5 after:h-3.5 after:rounded-full after:bg-[var(--text-secondary)] after:transition-all peer-checked:after:translate-x-full peer-checked:after:bg-white"></div>' +
+            '</label>' +
+        '</div>' +
+
+        '<div id="manualTimeSection" class="space-y-3 p-3 rounded-lg bg-[var(--bg-card)] border border-[var(--border-primary)] ' + (data.ntpActive ? 'opacity-40' : '') + '">' +
+            '<span class="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider"><%= sbT.setManually %></span>' +
+            '<div class="flex gap-3">' +
+                '<div class="flex-1">' +
+                    '<label class="block text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1"><%= sbT.dateLabel %></label>' +
+                    '<input type="date" id="manualDate" value="' + dateStr + '" ' + manualDisabled + ' class="w-full px-3 py-2 rounded-lg text-sm bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border-primary)] focus:outline-none focus:border-[var(--accent-color)] transition">' +
+                '</div>' +
+                '<div class="flex-1">' +
+                    '<label class="block text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1"><%= sbT.timeLabel %></label>' +
+                    '<input type="time" id="manualTime" value="' + timeStr + '" ' + manualDisabled + ' class="w-full px-3 py-2 rounded-lg text-sm bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border-primary)] focus:outline-none focus:border-[var(--accent-color)] transition">' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+
+    document.getElementById('timeModalBody').innerHTML = html;
+    document.getElementById('timeModalFooter').style.display = 'flex';
+}
+
+function filterTimezones() {
+    var query = document.getElementById('tzSearch').value.toLowerCase();
+    var select = document.getElementById('timezoneSelect');
+    var options = select.options;
+    for (var i = 0; i < options.length; i++) {
+        var text = options[i].text.toLowerCase();
+        options[i].style.display = text.indexOf(query) > -1 ? '' : 'none';
+    }
+    // Select first visible
+    for (var i = 0; i < options.length; i++) {
+        if (options[i].style.display !== 'none') {
+            select.value = options[i].value;
+            break;
+        }
+    }
+}
+
+function onNtpToggle() {
+    var ntpOn = document.getElementById('ntpToggle').checked;
+    document.getElementById('manualDate').disabled = ntpOn;
+    document.getElementById('manualTime').disabled = ntpOn;
+    document.getElementById('manualTimeSection').style.opacity = ntpOn ? '0.4' : '1';
+}
+
+async function saveTimeSettings() {
+    var btn = document.getElementById('timeSaveBtn');
+    var origText = btn.textContent;
+    btn.textContent = '<%= sbT.saving %>';
+    btn.disabled = true;
+
+    var body = {};
+    var tzSelect = document.getElementById('timezoneSelect');
+    if (tzSelect) {
+        var newTz = tzSelect.value;
+        if (newTz !== currentTimezone) body.timezone = newTz;
+    }
+
+    var ntpCheckbox = document.getElementById('ntpToggle');
+    var newNtp = ntpCheckbox ? ntpCheckbox.checked : currentNtp;
+    if (newNtp !== currentNtp) body.ntp = newNtp;
+
+    var ntpIsOrBecomingOff = (body.ntp === false) || (body.ntp === undefined && !currentNtp);
+    if (ntpIsOrBecomingOff) {
+        var manualDate = document.getElementById('manualDate');
+        var manualTime = document.getElementById('manualTime');
+        if (manualDate && manualTime) {
+            body.manualDate = manualDate.value;
+            body.manualTime = manualTime.value;
+        }
+    }
+
+    if (Object.keys(body).length === 0) {
+        btn.textContent = origText;
+        btn.disabled = false;
+        closeTimeModal();
+        return;
+    }
+
+    try {
+        var resp = await fetch('/api/settings/time', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        var data = await resp.json();
+        btn.textContent = origText;
+        btn.disabled = false;
+        if (data.success) {
+            if (typeof window.showToast === 'function') window.showToast('<%= sbT.savedSuccess %>', 'success');
+            closeTimeModal();
+        } else {
+            if (typeof window.showToast === 'function') window.showToast(data.error || '<%= sbT.saveFailed %>', 'error');
+        }
+    } catch (e) {
+        btn.textContent = origText;
+        btn.disabled = false;
+        if (typeof window.showToast === 'function') window.showToast('<%= sbT.saveFailed %>', 'error');
+    }
+}
+
+function copyAddr(btn) {
+    var span = btn.parentElement.querySelector('span.font-mono');
+    if (!span) return;
+    var text = span.textContent.trim();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).catch(function(){});
+    }
+    var range = document.createRange();
+    range.selectNodeContents(span);
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    var orig = btn.innerHTML;
+    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+    setTimeout(function() { btn.innerHTML = orig; }, 1500);
+}
+
+function addrRow(label, value) {
+    var copySvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+    return '<div class="flex items-center gap-2 text-xs text-[var(--text-muted)] pl-5 py-1">' +
+        '<span class="text-[11px] uppercase tracking-wider font-bold text-[var(--text-muted)]">' + label + ':</span>' +
+        '<span class="text-sm font-mono text-[var(--text-secondary)] tracking-tight">' + value + '</span>' +
+        '<button onclick="copyAddr(this)" class="ml-auto p-0.5 rounded hover:bg-[var(--bg-hover)] transition cursor-pointer opacity-40 hover:opacity-100" title="Copy ' + label + '">' + copySvg + '</button></div>';
+}
+
+function openSmtpModal() {
+    document.getElementById('settingsMenu').classList.remove('visible', 'opacity-100', 'scale-100');
+    document.getElementById('settingsMenu').classList.add('invisible', 'opacity-0', 'scale-95');
+    document.getElementById('settingsMenu').style.pointerEvents = 'none';
+    document.getElementById('smtpModal').classList.remove('opacity-0', 'invisible');
+    document.getElementById('smtpModal').style.pointerEvents = 'auto';
+    loadSmtpSettings();
+}
+
+function closeSmtpModal() {
+    document.getElementById('smtpModal').classList.add('opacity-0', 'invisible');
+    document.getElementById('smtpModal').style.pointerEvents = 'none';
+}
+
+async function loadSmtpSettings() {
+    try {
+        const resp = await fetch('/api/settings/smtp');
+        const data = await resp.json();
+        if (data.success) {
+            if (data.email) {
+                document.getElementById('smtpEmail').value = data.email;
+            }
+            if (data.hasPassword) {
+                document.getElementById('smtpPassword').placeholder = '\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022 (Saved)';
+                document.getElementById('smtpPassword').value = '';
+                document.getElementById('smtpPassword').required = false;
+            } else {
+                document.getElementById('smtpPassword').placeholder = 'App Password';
+                document.getElementById('smtpPassword').required = true;
+            }
+        }
+    } catch (e) {
+        console.error('Failed to load SMTP settings:', e);
+    }
+}
+
+async function saveSmtpSettings(event) {
+    event.preventDefault();
+    const email = document.getElementById('smtpEmail').value;
+    const password = document.getElementById('smtpPassword').value;
+    const msgEl = document.getElementById('smtpStatusMsg');
+    
+    msgEl.classList.remove('hidden');
+    msgEl.className = 'text-xs text-zinc-400 text-center';
+    msgEl.textContent = 'Saving...';
+    
+    try {
+        const resp = await fetch('/api/settings/smtp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await resp.json();
+        if (data.success) {
+            msgEl.className = 'text-xs text-green-400 text-center';
+            msgEl.textContent = 'Saved successfully!';
+            document.getElementById('smtpPassword').value = '';
+            document.getElementById('smtpPassword').placeholder = '\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022 (Saved)';
+            document.getElementById('smtpPassword').required = false;
+            if (typeof window.showToast === 'function') {
+                window.showToast('SMTP settings saved', 'success');
+            }
+            setTimeout(closeSmtpModal, 1200);
+        } else {
+            msgEl.className = 'text-xs text-red-400 text-center';
+            msgEl.textContent = data.error || 'Failed to save settings.';
+        }
+    } catch (e) {
+        msgEl.className = 'text-xs text-red-400 text-center';
+        msgEl.textContent = 'Error saving settings.';
+    }
+}
+
+function openNetworkModal() {
+    document.getElementById('networkModal').classList.remove('opacity-0', 'invisible');
+    document.getElementById('networkModal').style.pointerEvents = 'auto';
+    document.getElementById('settingsMenu').classList.remove('visible', 'opacity-100', 'scale-100');
+    document.getElementById('settingsMenu').classList.add('invisible', 'opacity-0', 'scale-95');
+    document.getElementById('settingsMenu').style.pointerEvents = 'none';
+    loadNetworkInfo();
+}
+
+function closeNetworkModal() {
+    document.getElementById('networkModal').classList.add('opacity-0', 'invisible');
+    document.getElementById('networkModal').style.pointerEvents = 'none';
+}
+function triggerDashboardUpdate() {
+    if (!confirm('<%= currentLang === "ar" ? "هل أنت متأكد من تحديث النظام لأحدث إصدار؟" : "Are you sure you want to update Sokrat VoIP to the latest version?" %>')) return;
+    
+    document.getElementById('settingsMenu').classList.remove('visible', 'opacity-100', 'scale-100');
+    document.getElementById('settingsMenu').classList.add('invisible', 'opacity-0', 'scale-95');
+    document.getElementById('settingsMenu').style.pointerEvents = 'none';
+
+    fetch('/api/system/update', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message || 'Update initiated successfully. Reloading page in 5 seconds...');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 5000);
+            } else {
+                alert(data.error || 'Failed to trigger update');
+            }
+        })
+        .catch(err => {
+            alert('Update started. Reloading page in 5 seconds...');
+            setTimeout(() => {
+                window.location.reload();
+            }, 5000);
+        });
+}
+
+async function loadNetworkInfo() {
+    var container = document.getElementById('networkInfoContent');
+    try {
+        var resp = await fetch('/api/network-info');
+        var data = await resp.json();
+        if (!data.success) throw new Error(data.error);
+        if (!data.interfaces || data.interfaces.length === 0) {
+            container.innerHTML = '<div class="text-center text-[var(--text-muted)] text-sm py-8">No network interfaces found</div>';
+            return;
+        }
+        var html = '';
+        if (data.gateway) {
+            html += '<div class="flex items-center gap-2.5 px-3 py-2.5 mb-3 rounded-lg bg-[var(--bg-card)] border border-[var(--border-primary)]">';
+            html += '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-color)" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>';
+            html += '<span class="text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Gateway:</span>';
+            html += '<span class="text-sm font-mono text-[var(--text-primary)] tracking-tight">' + data.gateway + '</span>';
+            html += '<button onclick="copyAddr(this)" class="ml-auto p-0.5 rounded hover:bg-[var(--bg-hover)] transition cursor-pointer opacity-40 hover:opacity-100" title="Copy gateway"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>';
+        }
+        html += '<div class="space-y-2.5">';
+        for (var i = 0; i < data.interfaces.length; i++) {
+            var iface = data.interfaces[i];
+            html += '<div class="px-3 py-3 rounded-lg bg-[var(--bg-card)] border border-[var(--border-primary)]">';
+            html += '<div class="flex items-center justify-between mb-2">';
+            html += '<div class="flex items-center gap-2.5">';
+            html += '<span class="w-2.5 h-2.5 rounded-full z-10 ' + (iface.state === 'up' ? 'bg-green-400' : 'bg-red-400') + '"></span>';
+            html += '<span class="text-sm font-bold text-[var(--text-primary)] font-mono">' + iface.name + '</span>';
+            html += '<span class="text-[11px] ' + (iface.state === 'up' ? 'text-green-400' : 'text-red-400') + ' uppercase font-bold">' + iface.state + '</span>';
+            html += '</div></div>';
+            if (iface.mac) html += addrRow('MAC', iface.mac);
+            if (iface.ip4) html += addrRow('IPv4', iface.ip4);
+            if (iface.ip6) html += addrRow('IPv6', iface.ip6);
+            html += '</div>';
+        }
+        html += '</div>';
+        container.innerHTML = html;
+    } catch (e) {
+        container.innerHTML = '<div class="text-center text-red-400 text-sm py-8">Failed to load network info: ' + e.message + '</div>';
+    }
+}
+
+window.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeNetworkModal();
+        if (typeof closeTimeModal === 'function') closeTimeModal();
+        if (typeof closeRecordingModal === 'function') closeRecordingModal();
+    }
+});
+</script>
+
+
+<script>
+// Theme-matched dropdowns shared by native selects and application comboboxes.
+let enhancedSelectCounter = 0;
+let selectEnhanceFrame = null;
+
+function closeConfigDropdownMenu(menu) {
+    if (!menu) return;
+    menu.classList.add('hidden');
+    menu.style.removeProperty('display');
+    if (menu._trigger) menu._trigger.setAttribute('aria-expanded', 'false');
+}
+
+function closeConfigDropdowns(exceptMenu = null) {
+    document.querySelectorAll('.config-dropdown-menu').forEach(menu => {
+        if (menu !== exceptMenu) closeConfigDropdownMenu(menu);
+    });
+}
+
+function positionConfigDropdown(trigger, menu, preferredHeight = 320) {
+    if (!trigger || !menu || !trigger.isConnected) return;
+
+    const margin = 8;
+    const gap = 4;
+    const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
+    const viewportHeight = document.documentElement.clientHeight || window.innerHeight;
+    const rect = trigger.getBoundingClientRect();
+    const availableWidth = Math.max(0, viewportWidth - (margin * 2));
+    const width = Math.min(Math.max(rect.width, 280), availableWidth);
+    const isRtlPage = document.documentElement.dir === 'rtl';
+
+    let left = isRtlPage ? rect.right - width : rect.left;
+    left = Math.max(margin, Math.min(left, viewportWidth - width - margin));
+
+    const spaceBelow = Math.max(0, viewportHeight - rect.bottom - gap - margin);
+    const spaceAbove = Math.max(0, rect.top - gap - margin);
+    const openAbove = spaceBelow < Math.min(preferredHeight, 200) && spaceAbove > spaceBelow;
+    const availableHeight = openAbove ? spaceAbove : spaceBelow;
+
+    menu.style.width = `${width}px`;
+    menu.style.maxHeight = `${Math.max(48, Math.min(preferredHeight, availableHeight))}px`;
+    menu.style.left = `${left}px`;
+    menu.style.right = 'auto';
+
+    if (openAbove) {
+        menu.style.top = 'auto';
+        menu.style.bottom = `${viewportHeight - rect.top + gap}px`;
+    } else {
+        menu.style.top = `${rect.bottom + gap}px`;
+        menu.style.bottom = 'auto';
+    }
+}
+
+function pruneDetachedDropdownMenus() {
+    document.querySelectorAll('.config-dropdown-menu').forEach(menu => {
+        if (menu._trigger && !menu._trigger.isConnected) {
+            if (menu._selectObserver) menu._selectObserver.disconnect();
+            menu.remove();
+        }
+    });
+}
+
+function enhanceSelectElements() {
+    document.querySelectorAll('select:not(.enhanced-select):not(.no-enhance):not(.flatpickr-monthDropdown-months)').forEach(select => {
+        if (!select.parentNode) return;
+        select.classList.add('enhanced-select');
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'custom-select-wrapper relative w-full';
+        select.parentNode.insertBefore(wrapper, select);
+        wrapper.appendChild(select);
+
+        select.style.position = 'absolute';
+        select.style.opacity = '0';
+        select.style.width = '1px';
+        select.style.height = '1px';
+        select.style.padding = '0';
+        select.style.margin = '0';
+        select.style.border = 'none';
+        select.style.clip = 'rect(0,0,0,0)';
+        select.style.pointerEvents = 'none';
+
+        const trigger = document.createElement('button');
+        const menu = document.createElement('div');
+        const menuId = `config-select-menu-${++enhancedSelectCounter}`;
+
+        trigger.type = 'button';
+        trigger.setAttribute('aria-controls', menuId);
+        trigger.setAttribute('aria-haspopup', 'listbox');
+        trigger.setAttribute('aria-expanded', 'false');
+        trigger.className = 'custom-select-trigger config-dropdown-trigger w-full border rounded-lg px-3 py-2 flex items-center justify-between gap-2 cursor-pointer select-none transition';
+
+        const labelSpan = document.createElement('span');
+        labelSpan.className = 'config-dropdown-label flex-1';
+        const selectedOpt = select.options[select.selectedIndex] || select.options[0];
+        labelSpan.textContent = selectedOpt ? selectedOpt.textContent : '';
+
+        const arrowContainer = document.createElement('div');
+        arrowContainer.innerHTML = '<svg class="w-3.5 h-3.5 shrink-0 text-zinc-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>';
+        trigger.appendChild(labelSpan);
+        trigger.appendChild(arrowContainer.firstChild);
+        wrapper.appendChild(trigger);
+
+        menu.id = menuId;
+        menu.className = 'custom-select-menu config-dropdown-menu hidden';
+        menu.setAttribute('role', 'listbox');
+        menu._trigger = trigger;
+        menu._select = select;
+        menu._reposition = () => positionConfigDropdown(trigger, menu);
+        menu.addEventListener('click', event => event.stopPropagation());
+        document.body.appendChild(menu);
+
+        let searchContainer = null;
+        let searchInput = null;
+        const optionsContainer = document.createElement('div');
+        optionsContainer.className = 'custom-select-options config-dropdown-options space-y-0.5';
+        menu.appendChild(optionsContainer);
+
+        function closeMenu() {
+            closeConfigDropdownMenu(menu);
+        }
+
+        function buildOptions(filterText = '') {
+            optionsContainer.innerHTML = '';
+            const query = String(filterText || '').toLowerCase().trim();
+            let matchCount = 0;
+
+            Array.from(select.options).forEach((option, index) => {
+                if (option.disabled && option.hidden) return;
+                const text = option.textContent || '';
+                const value = option.value || '';
+                if (query && !text.toLowerCase().includes(query) && !value.toLowerCase().includes(query)) return;
+
+                matchCount++;
+                const item = document.createElement('button');
+                const isSelected = select.selectedIndex === index;
+                item.type = 'button';
+                item.className = `custom-select-option config-dropdown-option flex items-center justify-between gap-2 transition-colors ${isSelected ? 'is-selected font-bold' : ''}`;
+                item.setAttribute('role', 'option');
+                item.setAttribute('aria-selected', String(isSelected));
+                item.textContent = text;
+                item.addEventListener('click', event => {
+                    event.stopPropagation();
+                    select.selectedIndex = index;
+                    select.dispatchEvent(new Event('change', { bubbles: true }));
+                    syncState();
+                    closeMenu();
+                    buildOptions();
+                });
+                optionsContainer.appendChild(item);
+            });
+
+            if (matchCount === 0) {
+                const isArabic = document.documentElement.dir === 'rtl' || (document.documentElement.lang || '').startsWith('ar');
+                const noResult = document.createElement('div');
+                noResult.className = 'px-3 py-2 text-xs font-mono text-[var(--text-muted)] text-center italic';
+                noResult.textContent = isArabic ? 'لا توجد نتائج خيارات' : 'No matching options';
+                optionsContainer.appendChild(noResult);
+            }
+        }
+
+        function setupSearchIfNecessary() {
+            if (select.options.length <= 3 || searchContainer) return;
+
+            searchContainer = document.createElement('div');
+            searchContainer.className = 'p-1 shrink-0';
+            searchContainer.addEventListener('click', event => event.stopPropagation());
+
+            searchInput = document.createElement('input');
+            searchInput.type = 'text';
+            const isArabic = document.documentElement.dir === 'rtl' || (document.documentElement.lang || '').startsWith('ar');
+            searchInput.placeholder = isArabic ? 'بحث...' : 'Search...';
+            searchInput.className = 'custom-select-search config-dropdown-search';
+            searchInput.addEventListener('click', event => event.stopPropagation());
+            searchInput.addEventListener('input', event => buildOptions(event.target.value));
+            searchInput.addEventListener('keydown', event => {
+                if (event.key === 'Escape') {
+                    closeMenu();
+                    trigger.focus();
+                } else if (event.key === 'Enter') {
+                    event.preventDefault();
+                    const firstMatch = optionsContainer.querySelector('.custom-select-option');
+                    if (firstMatch) firstMatch.click();
+                }
+            });
+            searchContainer.appendChild(searchInput);
+            menu.insertBefore(searchContainer, optionsContainer);
+        }
+
+        function syncState() {
+            const isDisabled = select.disabled || select.hasAttribute('disabled');
+            trigger.disabled = isDisabled;
+            trigger.setAttribute('aria-disabled', String(isDisabled));
+            const currentOption = select.options[select.selectedIndex] || select.options[0];
+            labelSpan.textContent = currentOption ? currentOption.textContent : '';
+            if (isDisabled) closeMenu();
+        }
+
+        select.addEventListener('invalid', () => {
+            trigger.classList.add('border-red-500', 'ring-2', 'ring-red-500/50');
+            trigger.focus();
+        });
+        select.addEventListener('change', () => {
+            trigger.classList.remove('border-red-500', 'ring-2', 'ring-red-500/50');
+            syncState();
+        });
+
+        const selectObserver = new MutationObserver(() => {
+            syncState();
+            setupSearchIfNecessary();
+            buildOptions(searchInput ? searchInput.value : '');
+            if (!menu.classList.contains('hidden')) menu._reposition();
+        });
+        selectObserver.observe(select, {
+            attributes: true,
+            attributeFilter: ['disabled'],
+            childList: true,
+            subtree: true
+        });
+        menu._selectObserver = selectObserver;
+
+        setupSearchIfNecessary();
+        buildOptions();
+        syncState();
+
+        trigger.addEventListener('click', event => {
+            event.stopPropagation();
+            syncState();
+            if (select.disabled || select.hasAttribute('disabled')) return;
+
+            const isOpening = menu.classList.contains('hidden');
+            if (!isOpening) {
+                closeMenu();
+                return;
+            }
+
+            closeConfigDropdowns(menu);
+            setupSearchIfNecessary();
+            if (searchInput) searchInput.value = '';
+            buildOptions();
+            menu.classList.remove('hidden');
+            trigger.setAttribute('aria-expanded', 'true');
+            menu._reposition();
+            if (searchInput) setTimeout(() => searchInput.focus(), 0);
+            const selectedItem = optionsContainer.querySelector('.is-selected');
+            if (selectedItem) selectedItem.scrollIntoView({ block: 'nearest' });
+        });
+    });
+}
+
+function scheduleSelectEnhancement() {
+    if (selectEnhanceFrame !== null) return;
+    selectEnhanceFrame = window.requestAnimationFrame(() => {
+        selectEnhanceFrame = null;
+        pruneDetachedDropdownMenus();
+        enhanceSelectElements();
+    });
+}
+
+window.closeConfigDropdownMenu = closeConfigDropdownMenu;
+window.closeConfigDropdowns = closeConfigDropdowns;
+window.positionConfigDropdown = positionConfigDropdown;
+window.enhanceSelectElements = enhanceSelectElements;
+
+document.addEventListener('DOMContentLoaded', () => {
+    scheduleSelectEnhancement();
+    const observer = new MutationObserver(mutations => {
+        if (mutations.some(mutation => mutation.addedNodes.length || mutation.removedNodes.length)) {
+            scheduleSelectEnhancement();
+        }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    window.configSelectDomObserver = observer;
+});
+
+document.addEventListener('click', () => closeConfigDropdowns());
+document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') closeConfigDropdowns();
+});
+window.addEventListener('scroll', event => {
+    if (event.target && event.target.closest && event.target.closest('.config-dropdown-menu')) return;
+    document.querySelectorAll('.config-dropdown-menu:not(.hidden)').forEach(menu => {
+        const trigger = menu._trigger;
+        if (!trigger || !trigger.isConnected) {
+            closeConfigDropdownMenu(menu);
+            return;
+        }
+        const rect = trigger.getBoundingClientRect();
+        const visible = rect.bottom > 0 && rect.top < window.innerHeight && rect.right > 0 && rect.left < window.innerWidth;
+        if (visible && typeof menu._reposition === 'function') {
+            menu._reposition();
+        } else {
+            closeConfigDropdownMenu(menu);
+        }
+    });
+}, true);
+window.addEventListener('resize', () => {
+    document.querySelectorAll('.config-dropdown-menu:not(.hidden)').forEach(menu => {
+        if (typeof menu._reposition === 'function') menu._reposition();
+    });
+});
+

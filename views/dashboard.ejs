@@ -1,0 +1,882 @@
+<%
+const words = {
+    en: {
+        title: "Executive", subtitle: "Dashboard",
+        desc: "Real-time call center performance overview",
+        startTime: "Start Time", endTime: "End Time",
+        btn: "Refresh Metrics",
+        totalCalls: "Total Calls", answeredCalls: "Answered",
+        inbound: "Inbound", outbound: "Outbound",
+        answerRate: "Answer Rate", airMinutes: "air minutes",
+        min: "min",
+        chartTrend: "Call Volume Trend",
+        chartDisposition: "Call Disposition",
+        chartHourly: "Hourly Call Distribution",
+        chartTopTalkers: "Top Talkers",
+        talkTime: "Talk Time",
+        calls: "calls",
+        saving: "Saving contact...",
+        saved: "Contact saved successfully!",
+        addedToast: "Contact added to address book",
+        failedSave: "Failed to save contact",
+        errorSave: "Error: Failed to save contact",
+        uploadingCsv: "Uploading and processing CSV...",
+        imported: "Contacts imported successfully!",
+        importedToast: "Contacts imported successfully",
+        failedImport: "Failed to import CSV",
+        errorImport: "Error: Failed to import CSV"
+    },
+    ar: {
+        title: "لوحة", subtitle: "التحكم الرئيسية",
+        desc: "نظرة عامة على أداء مركز الاتصال في الوقت الفعلي",
+        startTime: "وقت البداية", endTime: "وقت النهاية",
+        btn: "تحديث مؤشرات الأداء",
+        totalCalls: "إجمالي المكالمات", answeredCalls: "تم الرد",
+        inbound: "وارد", outbound: "صادر",
+        answerRate: "نسبة الرد", airMinutes: "دقيقة اتصال",
+        min: "د",
+        chartTrend: "اتجاه حجم المكالمات",
+        chartDisposition: "تصنيف المكالمات",
+        chartHourly: "توزيع المكالمات بالساعة",
+        chartTopTalkers: "أكثر المكلمين",
+        talkTime: "وقت المحادثة",
+        calls: "مكالمات",
+        saving: "جارٍ حفظ جهة الاتصال...",
+        saved: "تم حفظ جهة الاتصال بنجاح!",
+        addedToast: "تمت إضافة جهة الاتصال إلى دفتر العناوين",
+        failedSave: "فشل في حفظ جهة الاتصال",
+        errorSave: "خطأ: فشل في حفظ جهة الاتصال",
+        uploadingCsv: "جارٍ رفع ومعالجة ملف CSV...",
+        imported: "تم استيراد جهات الاتصال بنجاح!",
+        importedToast: "تم استيراد جهات الاتصال بنجاح",
+        failedImport: "فشل في استيراد CSV",
+        errorImport: "خطأ: فشل في استيراد CSV"
+    }
+};
+const t = words[currentLang];
+const isRtl = currentLang === 'ar';
+%>
+<!DOCTYPE html>
+<html lang="<%= currentLang %>" dir="<%= isRtl ? 'rtl' : 'ltr' %>">
+<head>
+    <!-- Prevent theme flickering -->
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme') || 'dark';
+            if (theme === 'light') {
+                document.documentElement.classList.add('light-theme');
+            } else {
+                document.documentElement.classList.remove('light-theme');
+            }
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sokrat VOIP - Dashboard</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <style>
+        :root {
+            --bg-primary: #09090b;
+            --bg-secondary: #121212;
+            --bg-card: #18181b;
+            --bg-hover: #27272a;
+            --border-primary: #27272a;
+            --border-accent: #3f3f46;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --accent-color: var(--accent-color);
+            --accent-hover: var(--accent-hover);
+            --status-online: var(--accent-color);
+            --status-offline: #71717a;
+            --status-active: var(--accent-color);
+        }
+        body { 
+            background-color: var(--bg-primary); 
+            font-family: 'Roboto', 'IBM Plex Sans Arabic', sans-serif; 
+            color: var(--text-primary); 
+        }
+        /* Modern background pattern with subtle gradients */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(255, 59, 48, 0.06) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.02) 0%, transparent 45%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        .panel-surface { 
+            background-color: var(--bg-secondary); 
+            border: 1px solid var(--border-primary); 
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .accent-orange { color: var(--accent-color); }
+        .font-vibrant-display { font-weight: 900; letter-spacing: -0.01em; }
+        .card-stat { 
+            transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1), 
+                        border-color 150ms cubic-bezier(0.4, 0, 0.2, 1), 
+                        box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .card-stat:hover { 
+            transform: translateY(-2px); 
+            border-color: var(--border-accent); 
+            box-shadow: 0 8px 24px rgba(255, 59, 48, 0.1); 
+        }
+        input, select, button { 
+            transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        /* Custom Sokrat VoIP Flatpickr Dark Theme (Matches user's image) */
+        .flatpickr-calendar {
+            background: #0c0c0e !important;
+            border: 1px solid #27272a !important;
+            border-radius: 1rem !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85) !important;
+            font-family: 'Roboto', 'IBM Plex Sans Arabic', sans-serif !important;
+            padding: 0.5rem !important;
+            width: 310px !important;
+        }
+        .flatpickr-calendar.arrowTop:before,
+        .flatpickr-calendar.arrowTop:after,
+        .flatpickr-calendar.arrowBottom:before,
+        .flatpickr-calendar.arrowBottom:after {
+            display: none !important;
+        }
+        .flatpickr-months {
+            align-items: center !important;
+            padding: 0.25rem 0.5rem !important;
+        }
+        .flatpickr-months .flatpickr-month {
+            color: #ffffff !important;
+            fill: #ffffff !important;
+            font-weight: 800 !important;
+            font-size: 1.1rem !important;
+        }
+        .flatpickr-months .flatpickr-prev-month,
+        .flatpickr-months .flatpickr-next-month {
+            color: #e53e3e !important;
+            fill: #e53e3e !important;
+            padding: 0.5rem !important;
+        }
+        .flatpickr-months .flatpickr-prev-month:hover svg,
+        .flatpickr-months .flatpickr-next-month:hover svg {
+            fill: #fc8181 !important;
+        }
+        .flatpickr-current-month select.flatpickr-monthDropdown-months {
+            background: #18181b !important;
+            border: 1px solid #3f3f46 !important;
+            border-radius: 0.35rem !important;
+            color: #ffffff !important;
+            font-weight: 800 !important;
+            font-size: 0.9rem !important;
+            padding: 1px 4px !important;
+            cursor: pointer !important;
+            appearance: auto !important;
+            -webkit-appearance: menulist !important;
+            max-width: 120px !important;
+        }
+        .flatpickr-current-month .flatpickr-monthDropdown-months option {
+            background-color: #121215 !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+        }
+        .flatpickr-current-month .numInputWrapper input.cur-year {
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            font-size: 0.9rem !important;
+        }
+        .flatpickr-time {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            border-top: 1px solid #27272a !important;
+            margin-top: 0.5rem !important;
+            padding: 6px 10px !important;
+            background: #09090b !important;
+            border-radius: 0.75rem !important;
+            height: 48px !important;
+            max-height: 48px !important;
+            overflow: hidden !important;
+            box-sizing: border-box !important;
+        }
+        .flatpickr-time .numInputWrapper {
+            flex: 0 0 54px !important;
+            height: 36px !important;
+            position: relative !important;
+        }
+        .flatpickr-time .numInputWrapper input.numInput {
+            background: #18181b !important;
+            border: 1px solid #27272a !important;
+            border-radius: 0.5rem !important;
+            color: #ffffff !important;
+            font-family: 'JetBrains Mono', monospace !important;
+            font-weight: 800 !important;
+            font-size: 0.95rem !important;
+            text-align: center !important;
+            height: 36px !important;
+            line-height: normal !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            box-sizing: border-box !important;
+            width: 100% !important;
+        }
+        .flatpickr-time .numInputWrapper input.numInput:focus {
+            border-color: #e53e3e !important;
+            outline: none !important;
+            background: #27272a !important;
+        }
+        .flatpickr-time .flatpickr-time-separator {
+            color: #ffffff !important;
+            font-weight: 900 !important;
+            font-size: 1.2rem !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            height: 36px !important;
+            width: 12px !important;
+        }
+        .flatpickr-time .flatpickr-am-pm {
+            background: #18181b !important;
+            border: 1px solid #27272a !important;
+            border-radius: 0.5rem !important;
+            color: #ffffff !important;
+            font-weight: 800 !important;
+            font-size: 0.85rem !important;
+            height: 36px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 54px !important;
+            cursor: pointer !important;
+            box-sizing: border-box !important;
+        }
+        .flatpickr-time .flatpickr-am-pm:hover {
+            background: #27272a !important;
+            border-color: #e53e3e !important;
+            color: #e53e3e !important;
+        }
+        .flatpickr-time .numInputWrapper span.arrowUp,
+        .flatpickr-time .numInputWrapper span.arrowDown {
+            display: none !important;
+        }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row min-h-screen m-0 p-0">
+    <%- include('sidebar') %>
+    <div class="flex-1 p-8 relative flex flex-col min-h-screen">
+
+        <div class="mb-6 shrink-0 flex justify-between items-center <%= isRtl ? 'flex-row-reverse' : '' %>">
+            <div>
+                <h2 class="text-3xl font-vibrant-display text-white tracking-tight"><%= t.title %> <span class="accent-orange"><%= t.subtitle %></span></h2>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span class="text-xs text-[var(--text-muted)] font-mono uppercase tracking-wider"><%= isRtl ? 'نظام المقسم المباشر نشط' : 'Live Telephony Core Active' %></span>
+                </div>
+            </div>
+            <% if (isSuperAdmin) { %>
+            <button onclick="openAddContactModal()" class="config-btn-primary px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider shadow-md transition flex items-center gap-1.5 cursor-pointer">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                <span><%= isRtl ? 'إضافة جهة اتصال' : 'Add a Contact' %></span>
+            </button>
+            <% } %>
+        </div>
+
+        <form action="/" method="GET" class="panel-surface p-5 rounded-2xl mb-8 grid grid-cols-1 md:grid-cols-3 gap-4 items-end shadow-2xl">
+            <input type="hidden" name="lang" value="<%= currentLang %>">
+            <div>
+                <label class="block text-xs font-black uppercase text-zinc-400 mb-2 tracking-wider"><%= t.startTime %></label>
+                <input type="datetime-local" name="startDate" value="<%= moment(filters.startDate).format('YYYY-MM-DDTHH:mm') %>" class="w-full bg-[#09090b] border border-[#27272a] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[var(--accent-color)]">
+            </div>
+            <div>
+                <label class="block text-xs font-black uppercase text-zinc-400 mb-2 tracking-wider"><%= t.endTime %></label>
+                <input type="datetime-local" name="endDate" value="<%= moment(filters.endDate).format('YYYY-MM-DDTHH:mm') %>" class="w-full bg-[#09090b] border border-[#27272a] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[var(--accent-color)]">
+            </div>
+            <div>
+                <button type="submit" class="btn-primary w-full h-[38px] flex items-center justify-center text-xs uppercase tracking-wider"><%= t.btn %></button>
+            </div>
+        </form>
+
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6 shrink-0">
+            <div class="panel-surface rounded-xl p-5 card-stat border border-[#27272a]/30">
+                <p class="text-[10px] font-bold uppercase text-zinc-500 tracking-wider"><%= t.totalCalls %></p>
+                <p class="text-3xl font-black text-white mt-1"><%= stats.totalCalls %></p>
+                <div class="mt-2 h-1 w-full bg-zinc-800/50 rounded-full overflow-hidden">
+                    <div class="h-full bg-[var(--accent-color)] rounded-full transition-all duration-500" style="width: 100%"></div>
+                </div>
+            </div>
+            <div class="panel-surface rounded-xl p-5 card-stat border border-[#27272a]/30">
+                <p class="text-[10px] font-bold uppercase text-zinc-500 tracking-wider"><%= t.answeredCalls %></p>
+                <p class="text-3xl font-black text-white mt-1"><%= stats.answeredCalls %></p>
+                <div class="mt-2 h-1 w-full bg-zinc-800/50 rounded-full overflow-hidden">
+                    <div class="h-full bg-emerald-500 rounded-full transition-all duration-500" style="width: <%= stats.totalCalls ? (stats.answeredCalls / stats.totalCalls) * 100 : 0 %>%"></div>
+                </div>
+            </div>
+            <div class="panel-surface rounded-xl p-5 card-stat border border-[#27272a]/30">
+                <p class="text-[10px] font-bold uppercase text-zinc-500 tracking-wider"><%= t.inbound %></p>
+                <p class="text-3xl font-black text-white mt-1"><%= stats.inboundCount %></p>
+                <p class="text-xs font-bold text-[var(--accent-color)] mt-1"><%= stats.inboundMin %> <%= t.min %> <%= t.airMinutes %></p>
+            </div>
+            <div class="panel-surface rounded-xl p-5 card-stat border border-[#27272a]/30">
+                <p class="text-[10px] font-bold uppercase text-zinc-500 tracking-wider"><%= t.outbound %></p>
+                <p class="text-3xl font-black text-white mt-1"><%= stats.outboundCount %></p>
+                <p class="text-xs font-bold text-zinc-400 mt-1"><%= stats.outboundMin %> <%= t.min %> <%= t.airMinutes %></p>
+            </div>
+            <div class="panel-surface rounded-xl p-5 card-stat border border-[#27272a]/30">
+                <p class="text-[10px] font-bold uppercase text-zinc-500 tracking-wider"><%= t.answerRate %></p>
+                <p class="text-3xl font-black text-white mt-1"><%= stats.totalCalls ? Math.round((stats.answeredCalls / stats.totalCalls) * 100) : 0 %>%</p>
+                <div class="mt-2 flex items-center gap-2">
+                    <div class="flex-1 h-1 bg-zinc-800/50 rounded-full overflow-hidden">
+                        <div class="h-full bg-[var(--accent-color)] rounded-full transition-all duration-500" style="width: <%= stats.totalCalls ? (stats.answeredCalls / stats.totalCalls) * 100 : 0 %>%"></div>
+                    </div>
+                    <span class="text-[10px] font-bold text-zinc-500"><%= Math.round(stats.inboundMin + stats.outboundMin) %> <%= t.min %></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 1: Call Volume Trend + Disposition Breakdown -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6 shrink-0">
+            <div class="panel-surface border border-[#27272a]/30 rounded-2xl shadow-xl">
+                <div class="px-5 py-4 border-b border-[#27272a] bg-black/20">
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider"><%= t.chartTrend %></h2>
+                </div>
+                <div class="p-4">
+                    <div id="trendChart" class="w-full h-72"></div>
+                </div>
+            </div>
+            <div class="panel-surface border border-[#27272a]/30 rounded-2xl shadow-xl">
+                <div class="px-5 py-4 border-b border-[#27272a] bg-black/20">
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider"><%= t.chartDisposition %></h2>
+                </div>
+                <div class="p-4">
+                    <div id="dispositionChart" class="w-full h-72"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 2: Hourly Distribution + Top Talkers -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6 shrink-0">
+            <div class="panel-surface border border-[#27272a]/30 rounded-2xl shadow-xl">
+                <div class="px-5 py-4 border-b border-[#27272a] bg-black/20">
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider"><%= t.chartHourly %></h2>
+                </div>
+                <div class="p-4">
+                    <div id="hourlyChart" class="w-full h-64"></div>
+                </div>
+            </div>
+            <div class="panel-surface border border-[#27272a]/30 rounded-2xl shadow-xl">
+                <div class="px-5 py-4 border-b border-[#27272a] bg-black/20">
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider"><%= t.chartTopTalkers %></h2>
+                </div>
+                <div class="p-4">
+                    <div id="topTalkersChart" class="w-full h-64"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const trendData = <%- (typeof trendData !== 'undefined' && trendData) ? trendData : '[]' %>;
+        const dispositionData = <%- (typeof dispositionData !== 'undefined' && dispositionData) ? dispositionData : '[]' %>;
+        const hourlyData = <%- (typeof hourlyData !== 'undefined' && hourlyData) ? hourlyData : '[]' %>;
+        const topTalkersData = <%- (typeof topTalkers !== 'undefined' && topTalkers) ? topTalkers : '[]' %>;
+        const _isRtl = <%= (typeof isRtl !== 'undefined' && isRtl) ? 'true' : 'false' %>;
+        const _t = {
+            talkTime: '<%= t.talkTime %>',
+            min: '<%= t.min %>',
+            calls: '<%= t.calls %>',
+            saving: '<%= t.saving %>',
+            saved: '<%= t.saved %>',
+            addedToast: '<%= t.addedToast %>',
+            failedSave: '<%= t.failedSave %>',
+            errorSave: '<%= t.errorSave %>',
+            uploadingCsv: '<%= t.uploadingCsv %>',
+            imported: '<%= t.imported %>',
+            importedToast: '<%= t.importedToast %>',
+            failedImport: '<%= t.failedImport %>',
+            errorImport: '<%= t.errorImport %>'
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const clockEl = document.getElementById('digitalClock');
+            if (clockEl) { setInterval(() => { clockEl.textContent = new Date().toTimeString().split(' ')[0]; }, 1000); }
+            if (typeof anime !== 'undefined' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                anime({
+                    targets: '.card-stat',
+                    opacity: [0, 1],
+                    translateY: [15, 0],
+                    delay: anime.stagger(50),
+                    duration: 450,
+                    easing: 'easeOutCubic'
+                });
+            }
+
+            const isLight = document.body.classList.contains('light-theme');
+            const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim() || '#dc2626';
+
+            // -- Call Volume Trend --
+            const trendChart = echarts.init(document.getElementById('trendChart'), isLight ? null : 'dark');
+            trendChart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: isLight ? '#ffffff' : '#18181b',
+                    borderColor: isLight ? '#e4e4e7' : '#27272a',
+                    textStyle: { color: isLight ? '#09090b' : '#ffffff', fontSize: 11 }
+                },
+                legend: {
+                    bottom: 0,
+                    textStyle: { color: isLight ? '#27272a' : '#a1a1aa', fontSize: 10, fontWeight: 'bold' }
+                },
+                grid: { left: 40, right: 20, top: 20, bottom: 50 },
+                xAxis: {
+                    type: 'category',
+                    data: trendData.map(d => d.date.slice(5)),
+                    axisLine: { lineStyle: { color: '#27272a' } },
+                    axisLabel: { color: isLight ? '#52525b' : '#a1a1aa', fontSize: 9, fontWeight: 'bold' }
+                },
+                yAxis: {
+                    type: 'value',
+                    splitLine: { lineStyle: { color: isLight ? '#e4e4e7' : '#27272a', type: 'dashed' } },
+                    axisLabel: { color: isLight ? '#52525b' : '#a1a1aa', fontSize: 9 }
+                },
+                series: [
+                    {
+                        name: 'Total',
+                        type: 'line',
+                        smooth: true,
+                        symbol: 'circle',
+                        symbolSize: 6,
+                        lineStyle: { width: 2.5, color: accent },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: accent + '60' },
+                                { offset: 1, color: accent + '05' }
+                            ])
+                        },
+                        itemStyle: { color: accent },
+                        data: trendData.map(d => d.total)
+                    },
+                    {
+                        name: 'Inbound',
+                        type: 'bar',
+                        barWidth: 6,
+                        barGap: '20%',
+                        itemStyle: { color: accent, borderRadius: [3, 3, 0, 0] },
+                        data: trendData.map(d => d.inbound)
+                    },
+                    {
+                        name: 'Outbound',
+                        type: 'bar',
+                        barWidth: 6,
+                        itemStyle: { color: '#00b4d8', borderRadius: [3, 3, 0, 0] },
+                        data: trendData.map(d => d.outbound)
+                    }
+                ]
+            });
+            window.addEventListener('resize', () => trendChart.resize());
+
+            // -- Disposition Breakdown --
+            const accentColor = accent;
+            const dispPalette = {
+                'ANSWERED': accentColor,
+                'BUSY': '#fbbf24',
+                'NO ANSWER': '#2dd4bf',
+                'FAILED': '#a855f7',
+                'CONGESTION': '#f97316',
+                'UNKNOWN': '#71717a'
+            };
+            const dispChart = echarts.init(document.getElementById('dispositionChart'), isLight ? null : 'dark');
+            dispChart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'item',
+                    formatter: function(params) { return params.name + ': ' + params.value + ' ' + _t.calls + ' (' + params.percent + '%)'; },
+                    backgroundColor: isLight ? '#ffffff' : '#18181b',
+                    borderColor: isLight ? '#e4e4e7' : '#27272a',
+                    textStyle: { color: isLight ? '#09090b' : '#ffffff', fontSize: 11 }
+                },
+                legend: {
+                    bottom: 0,
+                    textStyle: { color: isLight ? '#27272a' : '#a1a1aa', fontSize: 10, fontWeight: 'bold' }
+                },
+                series: [{
+                    type: 'pie',
+                    radius: ['35%', '65%'],
+                    center: ['50%', '45%'],
+                    roseType: 'area',
+                    itemStyle: {
+                        borderRadius: 6,
+                        borderColor: isLight ? '#ffffff' : '#121212',
+                        borderWidth: 2.5,
+                        shadowBlur: 20,
+                        shadowColor: 'rgba(0, 0, 0, 0.25)'
+                    },
+                    label: {
+                        show: true,
+                        formatter: '{b}\n{d}%',
+                        fontSize: 10,
+                        fontWeight: 'bold',
+                        color: isLight ? '#27272a' : '#d4d4d8'
+                    },
+                    data: dispositionData.map(d => ({
+                        value: d.value,
+                        name: d.name,
+                        itemStyle: { color: dispPalette[d.name] || '#71717a' }
+                    })),
+                    animationEasing: 'cubicOut',
+                    animationDuration: 650
+                }]
+            });
+            window.addEventListener('resize', () => dispChart.resize());
+
+            // -- Hourly Distribution --
+            const hourlyChart = echarts.init(document.getElementById('hourlyChart'), isLight ? null : 'dark');
+            hourlyChart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: isLight ? '#ffffff' : '#18181b',
+                    borderColor: isLight ? '#e4e4e7' : '#27272a',
+                    textStyle: { color: isLight ? '#09090b' : '#ffffff', fontSize: 11 }
+                },
+                grid: { left: 40, right: 20, top: 20, bottom: 30 },
+                xAxis: {
+                    type: 'category',
+                    data: hourlyData.map(d => d.hour),
+                    axisLine: { lineStyle: { color: '#27272a' } },
+                    axisLabel: { color: isLight ? '#52525b' : '#a1a1aa', fontSize: 9, fontWeight: 'bold' }
+                },
+                yAxis: {
+                    type: 'value',
+                    splitLine: { lineStyle: { color: isLight ? '#e4e4e7' : '#27272a', type: 'dashed' } },
+                    axisLabel: { color: isLight ? '#52525b' : '#71717a', fontSize: 9 }
+                },
+                series: [{
+                    type: 'bar',
+                    barWidth: '70%',
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: accent },
+                            { offset: 1, color: accent + '40' }
+                        ]),
+                        borderRadius: [4, 4, 0, 0]
+                    },
+                    data: hourlyData.map(d => d.calls),
+                    animationEasing: 'cubicOut',
+                    animationDuration: 500
+                }]
+            });
+            window.addEventListener('resize', () => hourlyChart.resize());
+
+            // -- Top Talkers --
+            const talkersChart = echarts.init(document.getElementById('topTalkersChart'), isLight ? null : 'dark');
+            talkersChart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'shadow' },
+                    backgroundColor: isLight ? '#ffffff' : '#18181b',
+                    borderColor: isLight ? '#e4e4e7' : '#27272a',
+                    textStyle: { color: isLight ? '#09090b' : '#ffffff', fontSize: 11 },
+                    formatter: function(params) {
+                        const p = params[0];
+                        const data = topTalkersData[p.dataIndex];
+                        return p.name + '<br/>' + _t.talkTime + ': ' + Math.round(data.talkSec / 60) + ' ' + _t.min + '<br/>' + _t.calls + ': ' + data.calls;
+                    }
+                },
+                grid: { left: 120, right: 40, top: 10, bottom: 30 },
+                xAxis: {
+                    type: 'value',
+                    splitLine: { lineStyle: { color: isLight ? '#e4e4e7' : '#27272a', type: 'dashed' } },
+                    axisLabel: { color: isLight ? '#52525b' : '#71717a', fontSize: 9, formatter: function(v) { return v + ' ' + _t.min; } }
+                },
+                yAxis: {
+                    type: 'category',
+                    data: topTalkersData.map(d => d.name.split(' (')[0]),
+                    axisLine: { show: false },
+                    axisTick: { show: false },
+                    axisLabel: { color: isLight ? '#27272a' : '#ffffff', fontSize: 10, fontWeight: 'bold' }
+                },
+                series: [{
+                    type: 'bar',
+                    barWidth: '60%',
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                            { offset: 0, color: accent },
+                            { offset: 1, color: '#00b4d8' }
+                        ]),
+                        borderRadius: [0, 4, 4, 0]
+                    },
+                    data: topTalkersData.map(d => Math.round(d.talkSec / 60)),
+                    label: {
+                        show: true,
+                        position: 'right',
+                        formatter: function(params) {
+                            const data = topTalkersData[params.dataIndex];
+                            return data.calls + ' ' + _t.calls;
+                        },
+                        fontSize: 9,
+                        fontWeight: 'bold',
+                        color: isLight ? '#52525b' : '#a1a1aa'
+                    },
+                    animationEasing: 'cubicOut',
+                    animationDuration: 600
+                }]
+            });
+            window.addEventListener('resize', () => talkersChart.resize());
+
+            // Initialize Flatpickr on datetime inputs
+            flatpickr('input[type="datetime-local"]', {
+                enableTime: true,
+                dateFormat: "Y-m-d H:i:S",
+                altInput: true,
+                altFormat: "m/d/Y h:i K",
+                time_24hr: false,
+                allowInput: true,
+                scrollInputIntoView: false,
+                appendTo: document.body,
+                monthSelectorType: "dropdown"
+            });
+        });
+    </script>
+
+    <% if (isSuperAdmin) { %>
+    <!-- Add Contact Modal -->
+    <div id="addContactModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-300">
+        <div id="addContactModalContainer" class="bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-2xl w-full max-w-md p-6 shadow-2xl scale-95 transition-all duration-300 transform">
+            <div class="flex justify-between items-center mb-5 <%= isRtl ? 'flex-row-reverse' : '' %>">
+                <h3 class="text-sm font-black text-white uppercase tracking-wider"><%= isRtl ? 'إضافة جهة اتصال جديدة' : 'Add New Contact' %></h3>
+                <button onclick="closeAddContactModal()" class="text-zinc-500 hover:text-white transition cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Selection Tabs: Manual / CSV -->
+            <div class="flex border-b border-[var(--border-primary)] mb-5">
+                <button onclick="switchContactTab('manual')" id="tabBtnManual" class="flex-1 pb-2.5 text-[10px] font-black uppercase tracking-wider border-b-2 border-[var(--accent-color)] text-[var(--accent-color)] transition-all duration-150 cursor-pointer">
+                    <%= isRtl ? 'إضافة يدوية' : 'Manual Entry' %>
+                </button>
+                <button onclick="switchContactTab('csv')" id="tabBtnCsv" class="flex-1 pb-2.5 text-[10px] font-black uppercase tracking-wider border-b-2 border-transparent text-zinc-500 hover:text-zinc-300 transition-all duration-150 cursor-pointer">
+                    <%= isRtl ? 'استيراد CSV' : 'CSV Import' %>
+                </button>
+            </div>
+
+            <!-- Manual Form -->
+            <form id="manualContactForm" onsubmit="submitManualContact(event)">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-[10px] font-black uppercase text-zinc-400 mb-1.5 tracking-wider"><%= isRtl ? 'الاسم الأول' : 'First Name' %></label>
+                        <input type="text" id="contactFirstName" required class="w-full bg-[#09090b] border border-[#27272a] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[var(--accent-color)]">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black uppercase text-zinc-400 mb-1.5 tracking-wider"><%= isRtl ? 'اسم العائلة' : 'Last Name' %></label>
+                        <input type="text" id="contactLastName" required class="w-full bg-[#09090b] border border-[#27272a] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[var(--accent-color)]">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black uppercase text-zinc-400 mb-1.5 tracking-wider"><%= isRtl ? 'رقم الهاتف' : 'Phone Number' %></label>
+                        <input type="text" id="contactPhone" required placeholder="e.g. 010..." class="w-full bg-[#09090b] border border-[#27272a] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[var(--accent-color)]">
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary w-full py-2.5 text-xs uppercase tracking-wider mt-6">
+                    <%= isRtl ? 'حفظ جهة الاتصال' : 'Save Contact' %>
+                </button>
+            </form>
+
+            <!-- CSV Form -->
+            <form id="csvContactForm" class="hidden" onsubmit="submitCsvContact(event)">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-[10px] font-black uppercase text-zinc-400 mb-1.5 tracking-wider"><%= isRtl ? 'اختر ملف CSV' : 'Select CSV File' %></label>
+                        <input type="file" id="contactCsvFile" accept=".csv" required class="w-full text-xs text-zinc-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border file:border-[#27272a] file:bg-[#09090b] file:text-xs file:font-bold file:text-white hover:file:bg-[#27272a] file:cursor-pointer file:transition cursor-pointer">
+                        <p class="text-[9px] text-zinc-500 mt-2">
+                            <%= isRtl ? 'يجب أن يحتوي الملف على الأعمدة بالترتيب: الاسم الأول، اسم العائلة، رقم الهاتف' : 'CSV structure: First Name, Last Name, Phone Number. Header row is ignored.' %>
+                        </p>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary w-full py-2.5 text-xs uppercase tracking-wider mt-6">
+                    <%= isRtl ? 'استيراد جهات الاتصال' : 'Import Contacts' %>
+                </button>
+            </form>
+            
+            <p id="contactModalMsg" class="text-xs text-center mt-3.5 hidden"></p>
+        </div>
+    </div>
+
+    <script>
+        function openAddContactModal() {
+            const modal = document.getElementById('addContactModal');
+            const container = document.getElementById('addContactModalContainer');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.classList.add('opacity-100', 'pointer-events-auto');
+            container.classList.remove('scale-95');
+            container.classList.add('scale-100');
+        }
+
+        function closeAddContactModal() {
+            const modal = document.getElementById('addContactModal');
+            const container = document.getElementById('addContactModalContainer');
+            modal.classList.remove('opacity-100', 'pointer-events-auto');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            container.classList.remove('scale-100');
+            container.classList.add('scale-95');
+            
+            // Reset forms after transition completes
+            setTimeout(() => {
+                document.getElementById('manualContactForm').reset();
+                document.getElementById('csvContactForm').reset();
+                const msgEl = document.getElementById('contactModalMsg');
+                msgEl.classList.add('hidden');
+            }, 300);
+        }
+
+        function switchContactTab(tab) {
+            const btnManual = document.getElementById('tabBtnManual');
+            const btnCsv = document.getElementById('tabBtnCsv');
+            const formManual = document.getElementById('manualContactForm');
+            const formCsv = document.getElementById('csvContactForm');
+            const msgEl = document.getElementById('contactModalMsg');
+            msgEl.classList.add('hidden');
+
+            if (tab === 'manual') {
+                btnManual.className = "flex-1 pb-2.5 text-[10px] font-black uppercase tracking-wider border-b-2 border-[var(--accent-color)] text-[var(--accent-color)] transition-all duration-150 cursor-pointer";
+                btnCsv.className = "flex-1 pb-2.5 text-[10px] font-black uppercase tracking-wider border-b-2 border-transparent text-zinc-500 hover:text-zinc-300 transition-all duration-150 cursor-pointer";
+                formManual.classList.remove('hidden');
+                formCsv.classList.add('hidden');
+            } else {
+                btnCsv.className = "flex-1 pb-2.5 text-[10px] font-black uppercase tracking-wider border-b-2 border-[var(--accent-color)] text-[var(--accent-color)] transition-all duration-150 cursor-pointer";
+                btnManual.className = "flex-1 pb-2.5 text-[10px] font-black uppercase tracking-wider border-b-2 border-transparent text-zinc-500 hover:text-zinc-300 transition-all duration-150 cursor-pointer";
+                formCsv.classList.remove('hidden');
+                formManual.classList.add('hidden');
+            }
+        }
+
+        async function submitManualContact(e) {
+            e.preventDefault();
+            const firstName = document.getElementById('contactFirstName').value;
+            const lastName = document.getElementById('contactLastName').value;
+            const phone = document.getElementById('contactPhone').value;
+            const msgEl = document.getElementById('contactModalMsg');
+
+            msgEl.classList.remove('hidden', 'text-green-400', 'text-red-400');
+            msgEl.className = 'text-xs text-center mt-3.5 text-zinc-400';
+            msgEl.textContent = _t.saving;
+
+            try {
+                const resp = await fetch('/api/contacts/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ firstName, lastName, phone })
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    msgEl.className = 'text-xs text-center mt-3.5 text-green-400';
+                    msgEl.textContent = _t.saved;
+                    document.getElementById('manualContactForm').reset();
+                    if (typeof window.showToast === 'function') {
+                        window.showToast(_t.addedToast, 'success');
+                    }
+                    setTimeout(closeAddContactModal, 1500);
+                } else {
+                    msgEl.className = 'text-xs text-center mt-3.5 text-red-400';
+                    msgEl.textContent = data.error || _t.failedSave;
+                }
+            } catch (err) {
+                msgEl.className = 'text-xs text-center mt-3.5 text-red-400';
+                msgEl.textContent = _t.errorSave;
+            }
+        }
+
+        async function submitCsvContact(e) {
+            e.preventDefault();
+            const fileInput = document.getElementById('contactCsvFile');
+            const file = fileInput.files[0];
+            const msgEl = document.getElementById('contactModalMsg');
+
+            if (!file) return;
+
+            msgEl.classList.remove('hidden', 'text-green-400', 'text-red-400');
+            msgEl.className = 'text-xs text-center mt-3.5 text-zinc-400';
+            msgEl.textContent = _t.uploadingCsv;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const resp = await fetch('/api/contacts/csv-import', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    msgEl.className = 'text-xs text-center mt-3.5 text-green-400';
+                    msgEl.textContent = data.message || _t.imported;
+                    document.getElementById('csvContactForm').reset();
+                    if (typeof window.showToast === 'function') {
+                        window.showToast(_t.importedToast, 'success');
+                    }
+                    setTimeout(closeAddContactModal, 1800);
+                } else {
+                    msgEl.className = 'text-xs text-center mt-3.5 text-red-400';
+                    msgEl.textContent = data.error || _t.failedImport;
+                }
+            } catch (err) {
+                msgEl.className = 'text-xs text-center mt-3.5 text-red-400';
+                msgEl.textContent = _t.errorImport;
+            }
+        }
+    </script>
+    <% } %>
+    <script>
+        // Fix Flatpickr month dropdown: force <select> visible, handle click for showPicker()
+        (function() {
+            function forceMonthSelect() {
+                document.querySelectorAll('.flatpickr-current-month').forEach(function(el) {
+                    var sel = el.querySelector('.flatpickr-monthDropdown-months');
+                    var cur = el.querySelector('.cur-month');
+                    if (!sel) return;
+                    if (cur) cur.style.setProperty('display', 'none', 'important');
+                    sel.style.setProperty('display', 'inline-block', 'important');
+                    sel.style.setProperty('pointer-events', 'auto', 'important');
+                    sel.style.setProperty('cursor', 'pointer', 'important');
+                    sel.style.setProperty('opacity', '1', 'important');
+                });
+            }
+            // Force month select element display
+            // Initial run + poll aggressively for 3 seconds
+            forceMonthSelect();
+            var pollTimer = setInterval(function() {
+                forceMonthSelect();
+            }, 100);
+            setTimeout(function() { clearInterval(pollTimer); }, 3000);
+            // Watch for new calendars
+            var obs = new MutationObserver(function(muts) {
+                muts.forEach(function(mut) {
+                    mut.addedNodes.forEach(function(n) {
+                        if (n.nodeType === 1) {
+                            if (n.querySelectorAll) forceMonthSelect();
+                        }
+                    });
+                });
+            });
+            obs.observe(document.body, { childList: true, subtree: true });
+        })();
+    </script>

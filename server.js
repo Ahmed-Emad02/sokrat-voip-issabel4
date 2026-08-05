@@ -8258,6 +8258,12 @@ app.post('/api/config/dongle-mappings/:dongleName/toggle', requireAuth, async (r
         return res.status(500).json({ success: false, error: error.message });
     }
 });
+
+const csvUpload = multer({
+    dest: UPLOAD_TMP,
+    limits: { fileSize: 10 * 1024 * 1024 }
+});
+
 app.post('/api/contacts/csv-import', csvUpload.single('file'), async (req, res) => {
     if (!isSuperAdmin(req)) {
         if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);

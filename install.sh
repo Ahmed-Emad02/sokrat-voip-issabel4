@@ -84,7 +84,7 @@ echo " GSM dongles selected: $NUM_DONGLES"
 echo "[1/14] Installing system packages..."
 # Install EPEL first so sox (which lives in EPEL) resolves
 yum install -y epel-release
-yum install -y nano net-tools sox sqlite picotts
+yum install -y nano net-tools sox sqlite picotts python3 python3-devel gcc gcc-c++ make
 
 # Announcements in Issabel use picotts.agi, which requires both sox and pico2wave.
 PICO_AGI_SOURCE=/var/www/html/admin/modules/announcement/agi-bin/picotts.agi
@@ -152,8 +152,8 @@ fi
 # ──────────────────────────────────────────────
 # Step 4 — Install Dependencies
 # ──────────────────────────────────────────────
-echo "[4/14] Installing npm dependencies from package-lock.json..."
-npm ci --omit=dev
+echo "[4/14] Installing npm dependencies..."
+npm install --omit=dev --legacy-peer-deps
 
 echo "  [4b] Installing ffmpeg (static build, recording upload conversion)..."
 if ! command -v ffmpeg &>/dev/null; then

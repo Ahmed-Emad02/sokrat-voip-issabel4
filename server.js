@@ -17,7 +17,7 @@ const execFileAsync = (file, args, options) => new Promise((resolve, reject) => 
     });
 });
 const session = require('express-session');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const multer = require('multer');
 const ffmpeg = require('fluent-ffmpeg');

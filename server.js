@@ -6490,14 +6490,35 @@ app.put('/api/config/routes/inbound', async (req, res) => {
             }
         }
 
-        await pool.query(`
-            UPDATE \`asterisk\`.\`incoming\`
-            SET description = ?, extension = ?, destination = ?
-            WHERE (extension = ? OR extension = ? OR (extension IS NULL AND ? = ''))
-              AND (description = ? OR (description IS NULL AND ? = ''))
-              AND (destination = ? OR (destination IS NULL AND ? = ''))
+        const [matching] = await pool.query(`
+            SELECT extension, description, destination
+            FROM \`asterisk\`.\`incoming\`
+            WHERE (description = ? AND description != '')
+               OR (extension = ? AND extension != '')
+               OR (extension = ? AND extension != '')
+               OR (destination = ? AND destination != '')
             LIMIT 1
-        `, [desc, ext, dest, origExt, rawOrigExt, origExt, origDesc, origDesc, origDest, origDest]);
+        `, [origDesc, origExt, rawOrigExt, origDest]);
+
+        if (matching.length > 0) {
+            const targetDesc = matching[0].description;
+            const targetExt = matching[0].extension || '';
+            const targetDest = matching[0].destination || '';
+            await pool.query(`
+                UPDATE \`asterisk\`.\`incoming\`
+                SET description = ?, extension = ?, destination = ?
+                WHERE (description = ? OR (description IS NULL AND ? = ''))
+                  AND (extension = ? OR (extension IS NULL AND ? = ''))
+                  AND (destination = ? OR (destination IS NULL AND ? = ''))
+                LIMIT 1
+            `, [desc, ext, dest, targetDesc, targetDesc, targetExt, targetExt, targetDest, targetDest]);
+        } else {
+            await pool.query(`
+                INSERT INTO \`asterisk\`.\`incoming\`
+                (cidnum, extension, destination, answer, wait, privacyman, mohclass, description, grppre, delay_answer, pricid, pmmaxretries, pmminlength)
+                VALUES ('', ?, ?, NULL, NULL, 0, 'default', ?, '', 0, '', '3', '10')
+            `, [ext, dest, desc]);
+        }
 
         reloadPbxConfig();
         res.json({

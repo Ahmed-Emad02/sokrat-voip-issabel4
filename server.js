@@ -6501,17 +6501,14 @@ app.put('/api/config/routes/inbound', async (req, res) => {
         `, [origDesc, origExt, rawOrigExt, origDest]);
 
         if (matching.length > 0) {
-            const targetDesc = matching[0].description;
+            const targetDesc = matching[0].description || '';
             const targetExt = matching[0].extension || '';
-            const targetDest = matching[0].destination || '';
             await pool.query(`
                 UPDATE \`asterisk\`.\`incoming\`
                 SET description = ?, extension = ?, destination = ?
-                WHERE (description = ? OR (description IS NULL AND ? = ''))
-                  AND (extension = ? OR (extension IS NULL AND ? = ''))
-                  AND (destination = ? OR (destination IS NULL AND ? = ''))
+                WHERE description = ? AND extension = ?
                 LIMIT 1
-            `, [desc, ext, dest, targetDesc, targetDesc, targetExt, targetExt, targetDest, targetDest]);
+            `, [desc, ext, dest, targetDesc, targetExt]);
         } else {
             await pool.query(`
                 INSERT INTO \`asterisk\`.\`incoming\`

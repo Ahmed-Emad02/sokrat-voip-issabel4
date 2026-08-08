@@ -3111,6 +3111,7 @@ function isTabAllowed(tabName) {
                 }
 
                 this.render();
+                this.emitChange();
             }
 
             setDialplan(destStr) {
@@ -3126,6 +3127,7 @@ function isTabAllowed(tabName) {
                 }
                 this.searchTerm = '';
                 this.render();
+                this.emitChange();
             }
 
             emitChange() {

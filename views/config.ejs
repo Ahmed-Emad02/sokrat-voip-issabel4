@@ -83,26 +83,24 @@ function isTabAllowed(tabName) {
             border-color: var(--accent-color) !important;
         }
         .config-btn-primary {
-            background-color: var(--accent-color) !important;
+            background-color: #991b1b !important;
             color: #ffffff !important;
             font-weight: 700 !important;
             border-radius: 0.5rem !important;
             transition: all 150ms ease-in-out !important;
         }
         .config-btn-primary:hover {
-            background-color: var(--accent-hover, #dc2626) !important;
+            background-color: #b91c1c !important;
         }
         .config-btn-secondary {
-            background-color: var(--bg-card) !important;
-            color: var(--text-secondary) !important;
-            border: 1px solid var(--border-primary) !important;
+            color: #ffffff !important;
+            border: none !important;
             font-weight: 600 !important;
             border-radius: 0.5rem !important;
             transition: all 150ms ease-in-out !important;
         }
         .config-btn-secondary:hover {
-            background-color: var(--bg-hover) !important;
-            color: var(--text-primary) !important;
+            color: #ffffff !important;
         }
         /* Unified action hierarchy for configuration feature cards. */
         .config-action-btn {
@@ -112,9 +110,9 @@ function isTabAllowed(tabName) {
             gap: 0.45rem;
             min-height: 2.25rem;
             padding: 0.5rem 0.8rem;
-            color: var(--text-secondary);
-            background: var(--bg-card);
-            border: 1px solid var(--border-primary);
+            color: #ffffff;
+            background: none;
+            border: none;
             border-radius: 0.625rem;
             font-size: 0.75rem;
             font-weight: 700;
@@ -124,13 +122,12 @@ function isTabAllowed(tabName) {
             transition: transform 150ms ease, background-color 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
         }
         .config-action-btn:hover {
-            color: var(--text-primary);
-            background: var(--bg-hover);
+            color: #ffffff;
             border-color: var(--border-accent);
-            transform: translateY(-1px);
+            transform: none;
         }
         .config-action-btn:active {
-            transform: translateY(0);
+            transform: none;
         }
         .config-action-btn:focus-visible {
             outline: 2px solid var(--accent-color);
@@ -148,13 +145,13 @@ function isTabAllowed(tabName) {
         }
         .config-action-btn--primary {
             color: #ffffff;
-            background: linear-gradient(180deg, #dc2626 0%, #991b1b 100%);
+            background: #991b1b;
             border-color: rgba(248, 113, 113, 0.55);
             box-shadow: 0 6px 18px rgba(153, 27, 27, 0.3);
         }
         .config-action-btn--primary:hover {
             color: #ffffff;
-            background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
+            background: #b91c1c;
             border-color: rgba(254, 202, 202, 0.7);
         }
         .config-action-btn--positive {
@@ -205,17 +202,15 @@ function isTabAllowed(tabName) {
             border-radius: 0.75rem;
         }
         html.light-theme .config-action-btn {
-            background: #ffffff;
-            border-color: #cbd5e1;
-            color: #475569;
+            border: none;
+            color: #000000;
         }
         html.light-theme .config-action-btn:hover {
-            background: #f1f5f9;
-            color: #0f172a;
+            color: #000000;
         }
         html.light-theme .config-action-btn--primary {
             color: #ffffff;
-            background: linear-gradient(180deg, #dc2626 0%, #991b1b 100%);
+            background: #dc2626;
             border-color: #b91c1c;
         }
         html.light-theme .config-action-btn--positive {
@@ -234,31 +229,71 @@ function isTabAllowed(tabName) {
             background: #ecfdf5;
             border-color: #a7f3d0;
         }
+        /* Extension Device Type Tech Badge Styling & Light Mode High-Contrast Overrides */
+        .ext-tech-badge {
+            padding: 0.2rem 0.55rem;
+            font-size: 0.6875rem;
+            font-weight: 800;
+            border-radius: 0.375rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            width: fit-content;
+        }
+        .ext-tech-webrtc {
+            background-color: rgba(168, 85, 247, 0.15);
+            color: #d8b4fe;
+            border: 1px solid rgba(168, 85, 247, 0.35);
+        }
+        .ext-tech-sip {
+            background-color: rgba(100, 116, 139, 0.2);
+            color: #cbd5e1;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+        }
+        html.light-theme .ext-tech-webrtc {
+            background-color: #f3e8ff !important;
+            color: #581c87 !important;
+            border-color: #c084fc !important;
+        }
+        html.light-theme .ext-tech-sip {
+            background-color: #e2e8f0 !important;
+            color: #0f172a !important;
+            border-color: #64748b !important;
+        }
         .config-tab-btn {
             font-weight: 700;
             font-size: 0.75rem;
-            padding: 0.4rem 0.75rem;
-            border-radius: 0.375rem;
-            transition: all 150ms ease;
+            padding: 0.45rem 0.75rem;
+            border-radius: 0.6rem !important;
+            transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), background 220ms ease, border-color 220ms ease, box-shadow 220ms ease !important;
             cursor: pointer;
             white-space: nowrap;
         }
+        .config-tab-btn:hover {
+            transform: none !important;
+        }
+        .config-tab-btn:active {
+            transform: none !important;
+        }
         .config-tab-active {
-            background: linear-gradient(180deg, #b91c1c 0%, #991b1b 50%, #7f1d1d 100%) !important;
+            background: #991b1b !important;
             color: #ffffff !important;
-            border: 1px solid rgba(255, 255, 255, 0.22) !important;
-            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.3), 0 4px 16px rgba(153, 27, 27, 0.45) !important;
+            border: 1px solid rgba(239, 68, 68, 0.4) !important;
+            box-shadow: 0 4px 14px rgba(88, 10, 10, 0.5) !important;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
         }
+        html.light-theme .config-tab-active {
+            background: #b91c1c !important;
+            border-color: rgba(239, 68, 68, 0.4) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 14px rgba(127, 29, 29, 0.35) !important;
+        }
         .config-tab-inactive {
-            background-color: rgba(255, 255, 255, 0.03) !important;
-            color: var(--text-secondary) !important;
-            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            color: #ffffff !important;
+            border: none !important;
         }
         .config-tab-inactive:hover {
-            background-color: rgba(255, 255, 255, 0.08) !important;
-            color: var(--text-primary) !important;
-            border-color: rgba(255, 255, 255, 0.16) !important;
+            color: #ffffff !important;
         }
         .ext-pill {
             cursor: pointer;
@@ -322,11 +357,10 @@ function isTabAllowed(tabName) {
             }
             html.config-subsidebar-collapsed #configSubSidebar #toggleConfigSubSidebarBtn,
             #configSubSidebar.subsidebar-collapsed #toggleConfigSubSidebarBtn {
-                position: relative !important;
-                top: auto !important;
-                right: auto !important;
-                left: auto !important;
-                margin: 0 auto !important;
+                width: 100% !important;
+                justify-content: center !important;
+                padding-left: 0.35rem !important;
+                padding-right: 0.35rem !important;
             }
             html.config-subsidebar-collapsed #configSubSidebar #reloadPbxBtn,
             #configSubSidebar.subsidebar-collapsed #reloadPbxBtn {
@@ -341,14 +375,15 @@ function isTabAllowed(tabName) {
     <%- include('sidebar') %>
 
     <!-- PBX Configuration Sub-Sidebar -->
-    <aside id="configSubSidebar" class="config-sub-sidebar w-full md:w-[220px] h-auto md:h-screen md:sticky top-0 z-40 bg-[var(--bg-secondary)] flex flex-col justify-between p-4 shrink-0 transition-all duration-300 border-b md:border-b-0 <%= isRtl ? 'border-l border-[var(--border-primary)] md:border-l md:border-r-0' : 'border-r border-[var(--border-primary)] md:border-r md:border-l-0' %>">
+    <aside id="configSubSidebar" class="config-sub-sidebar w-full md:w-[220px] h-auto md:h-screen md:sticky top-0 z-40 bg-transparent flex flex-col justify-between p-4 shrink-0 transition-all duration-300 border-b md:border-b-0 <%= isRtl ? 'border-l border-[var(--border-primary)] md:border-l md:border-r-0' : 'border-r border-[var(--border-primary)] md:border-r md:border-l-0' %>">
         <script>
             function updateConfigSubCollapseButtonIcon(isCollapsed) {
                 const icon = document.getElementById('configSubCollapseIcon');
                 const btn = document.getElementById('toggleConfigSubSidebarBtn');
                 if (!icon || !btn) return;
                 const isRtl = document.documentElement.dir === 'rtl';
-                btn.setAttribute('title', isCollapsed ? (isRtl ? 'توسيع القائمة' : 'Maximize Sub Sidebar') : (isRtl ? 'تصغير القائمة' : 'Minimize Sub Sidebar'));
+                const text = isCollapsed ? (isRtl ? 'توسيع القائمة' : 'Expand Sub Sidebar') : (isRtl ? 'تصغير القائمة' : 'Collapse Sub Sidebar');
+                btn.setAttribute('title', text);
                 if (isCollapsed) {
                     icon.style.transform = 'rotate(180deg)';
                 } else {
@@ -391,12 +426,6 @@ function isTabAllowed(tabName) {
                         <%= isRtl ? 'الإعدادات' : 'Configuration' %>
                     </span>
                 </div>
-                <!-- Toggle Button -->
-                <button id="toggleConfigSubSidebarBtn" type="button" onclick="toggleConfigSubSidebar()" class="hidden md:flex p-1.5 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-primary)] text-[var(--text-muted)] hover:text-white hover:border-[var(--accent-color)] transition-all cursor-pointer shrink-0" title="<%= isRtl ? 'تصغير/توسيع القائمة' : 'Toggle Sub Sidebar' %>">
-                    <svg id="configSubCollapseIcon" class="w-3.5 h-3.5 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="<%= isRtl ? 'M13 5l-7 7 7 7M19 5l-7 7 7 7' : 'M11 19l-7-7 7-7m8 14l-7-7 7-7' %>" />
-                    </svg>
-                </button>
             </div>
 
             <!-- Ordered Navigation Tabs (Top to Bottom: extensions -> ringgroups -> inbound -> trunks -> outbound -> queues -> timegroups -> timeconditions -> voicemail -> ivr -> recordings -> diagram) -->
@@ -539,8 +568,16 @@ function isTabAllowed(tabName) {
             </nav>
         </div>
 
-        <!-- Footer Reload PBX Button -->
-        <div class="pt-3 border-t border-[var(--border-primary)] shrink-0 mt-auto">
+        <!-- Footer Action Area -->
+        <div class="pt-3 border-t border-[var(--border-primary)] shrink-0 mt-auto flex flex-col gap-2">
+            <!-- Minimize / Maximize Config Sub Sidebar Button for Desktop (right above apply changes button) -->
+            <button id="toggleConfigSubSidebarBtn" type="button" onclick="toggleConfigSubSidebar()" class="hidden md:flex items-center justify-center w-full py-2 px-3 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-primary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--accent-color)] hover:bg-[var(--bg-hover)] transition-all cursor-pointer" title="<%= isRtl ? 'تصغير القائمة' : 'Collapse Sub Sidebar' %>">
+                <svg id="configSubCollapseIcon" class="w-4 h-4 shrink-0 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="<%= isRtl ? 'M13 5l-7 7 7 7M19 5l-7 7 7 7' : 'M11 19l-7-7 7-7m8 14l-7-7 7-7' %>" />
+                </svg>
+            </button>
+
+            <!-- Footer Reload PBX Button -->
             <button id="reloadPbxBtn" onclick="reloadPbxConfig()" class="config-btn-primary w-full py-2.5 px-3 flex items-center justify-center gap-2 text-xs cursor-pointer">
                 <svg id="reloadIcon" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -615,6 +652,7 @@ function isTabAllowed(tabName) {
                                 <th class="py-3 px-4"><%= isRtl ? 'الوصف' : 'Description' %></th>
                                 <th class="py-3 px-4"><%= isRtl ? 'استراتيجية الاتصال' : 'Strategy' %></th>
                                 <th class="py-3 px-4"><%= isRtl ? 'الإعلان' : 'Announcement' %></th>
+                                <th class="py-3 px-4"><%= isRtl ? 'الموسيقى أثناء الانتظار' : 'Music On Hold' %></th>
                                 <th class="py-3 px-4"><%= isRtl ? 'قائمة التحويلات' : 'Extension List' %></th>
                                 <th class="py-3 px-4"><%= isRtl ? 'تخطي المشغول' : 'Skip Busy' %></th>
                                 <th class="py-3 px-4"><%= isRtl ? 'التسجيل' : 'Recording' %></th>
@@ -623,7 +661,7 @@ function isTabAllowed(tabName) {
                             </tr>
                         </thead>
                         <tbody id="ringgroups-table-body" class="divide-y divide-[var(--border-primary)] text-sm font-medium text-[var(--text-primary)]">
-                            <tr><td colspan="9" class="py-8 text-center text-[var(--text-muted)]">Loading ring groups...</td></tr>
+                            <tr><td colspan="10" class="py-8 text-center text-[var(--text-muted)]">Loading ring groups...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1166,26 +1204,47 @@ function isTabAllowed(tabName) {
         <!-- TAB 9: TIME GROUPS -->
         <% if (isTabAllowed('timegroups')) { %>
         <div id="section-timegroups" class="tab-section hidden">
-            <div class="config-card p-6">
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-                    <div>
-                        <h2 class="text-lg font-extrabold text-[var(--text-primary)]"><%= isRtl ? 'مجموعات الوقت (Time Groups)' : 'Time Groups' %></h2>
-                        <p class="text-xs text-[var(--text-muted)]"><%= isRtl ? 'تعريف الفترات الزمنية لتحديد شروط تحويل المكالمات' : 'Define time intervals used to route calls based on schedule' %></p>
+            <div class="config-card p-6 space-y-6">
+                <!-- Header Card with Search & Action -->
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-[var(--border-primary)]">
+                    <div class="flex items-start gap-3.5">
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0 shadow-lg shadow-indigo-500/5">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2.5">
+                                <h2 class="text-lg font-extrabold text-[var(--text-primary)] tracking-tight"><%= isRtl ? 'مجموعات الوقت (Time Groups)' : 'Time Groups' %></h2>
+                                <span id="timegroups-count-badge" class="px-2.5 py-0.5 rounded-full bg-indigo-500/15 text-indigo-400 border border-indigo-500/30 text-[10px] font-extrabold">0 Groups</span>
+                            </div>
+                            <p class="text-xs text-[var(--text-muted)] mt-0.5"><%= isRtl ? 'تعريف فترات وساعات وأيام العمل الرسمية لاستخدامها في توجيه المكالمات' : 'Define business hours, days of week, and date interval windows for call routing' %></p>
+                        </div>
                     </div>
-                    <button onclick="openTimeGroupModal()" class="config-btn-primary px-4 py-2 flex items-center gap-2 text-xs cursor-pointer">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
-                        <span><%= isRtl ? 'إضافة مجموعة وقت' : 'Add Time Group' %></span>
-                    </button>
+                    <div class="flex items-center gap-3 w-full lg:w-auto">
+                        <div class="relative flex-1 lg:w-64">
+                            <input type="text" id="timegroups-search-input" oninput="filterTimeGroupsTable()" placeholder="<%= isRtl ? 'بحث في مجموعات الوقت...' : 'Search time groups...' %>" class="config-input w-full pl-9 pr-4 py-2 text-xs">
+                            <svg class="w-4 h-4 absolute left-3 top-2.5 text-[var(--text-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <button onclick="openTimeGroupModal()" class="config-btn-primary px-4 py-2 flex items-center justify-center gap-2 text-xs cursor-pointer shrink-0 shadow-md">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
+                            <span><%= isRtl ? 'إضافة مجموعة وقت' : 'Add Time Group' %></span>
+                        </button>
+                    </div>
                 </div>
 
-                <div class="overflow-x-auto">
+                <!-- Table Container -->
+                <div class="overflow-x-auto rounded-xl border border-[var(--border-primary)] bg-[var(--bg-primary)]/40">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-[var(--bg-card)] border-b border-[var(--border-primary)] text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
-                                <th class="py-3 px-4 w-20"><%= isRtl ? 'الرقم' : 'ID' %></th>
-                                <th class="py-3 px-4"><%= isRtl ? 'الوصف' : 'Description' %></th>
-                                <th class="py-3 px-4"><%= isRtl ? 'القواعد المحددة' : 'Configured Time Rules' %></th>
-                                <th class="py-3 px-4 text-center w-40"><%= isRtl ? 'الإجراءات' : 'Actions' %></th>
+                                <th class="py-3.5 px-4 w-20"><%= isRtl ? 'الرقم' : 'ID' %></th>
+                                <th class="py-3.5 px-4"><%= isRtl ? 'الوصف' : 'Description' %></th>
+                                <th class="py-3.5 px-4"><%= isRtl ? 'القواعد المحددة' : 'Configured Time Rules' %></th>
+                                <th class="py-3.5 px-4 text-center w-36"><%= isRtl ? 'الشروط المرتبطة' : 'Linked Conditions' %></th>
+                                <th class="py-3.5 px-4 text-center w-40"><%= isRtl ? 'الإجراءات' : 'Actions' %></th>
                             </tr>
                         </thead>
                         <tbody id="timegroups-table-body">
@@ -1200,28 +1259,48 @@ function isTabAllowed(tabName) {
         <!-- TAB 10: TIME CONDITIONS -->
         <% if (isTabAllowed('timeconditions')) { %>
         <div id="section-timeconditions" class="tab-section hidden">
-            <div class="config-card p-6">
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-                    <div>
-                        <h2 class="text-lg font-extrabold text-[var(--text-primary)]"><%= isRtl ? 'شروط الوقت (Time Conditions)' : 'Time Conditions' %></h2>
-                        <p class="text-xs text-[var(--text-muted)]"><%= isRtl ? 'تحويل المكالمات لوجهات مختلفة بناءً على وقت الاتصال الحالي ومجموعة الوقت المحددة' : 'Route calls to different destinations based on time match/no-match' %></p>
+            <div class="config-card p-6 space-y-6">
+                <!-- Header Card with Search & Action -->
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-[var(--border-primary)]">
+                    <div class="flex items-start gap-3.5">
+                        <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center shrink-0 shadow-lg shadow-cyan-500/5">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2.5">
+                                <h2 class="text-lg font-extrabold text-[var(--text-primary)] tracking-tight"><%= isRtl ? 'شروط الوقت (Time Conditions)' : 'Time Conditions' %></h2>
+                                <span id="timeconditions-count-badge" class="px-2.5 py-0.5 rounded-full bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 text-[10px] font-extrabold">0 Conditions</span>
+                            </div>
+                            <p class="text-xs text-[var(--text-muted)] mt-0.5"><%= isRtl ? 'توجيه المكالمات تلقائياً بناءً على تقييم وقت الاتصال الحالي مقابل مجموعة الوقت المحددة' : 'Evaluate calls against Time Groups to route calls to match vs non-match destinations' %></p>
+                        </div>
                     </div>
-                    <button onclick="openTimeConditionModal()" class="config-btn-primary px-4 py-2 flex items-center gap-2 text-xs cursor-pointer">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
-                        <span><%= isRtl ? 'إضافة شرط وقت' : 'Add Time Condition' %></span>
-                    </button>
+                    <div class="flex items-center gap-3 w-full lg:w-auto">
+                        <div class="relative flex-1 lg:w-64">
+                            <input type="text" id="timeconditions-search-input" oninput="filterTimeConditionsTable()" placeholder="<%= isRtl ? 'بحث في شروط الوقت...' : 'Search time conditions...' %>" class="config-input w-full pl-9 pr-4 py-2 text-xs">
+                            <svg class="w-4 h-4 absolute left-3 top-2.5 text-[var(--text-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <button onclick="openTimeConditionModal()" class="config-btn-primary px-4 py-2 flex items-center justify-center gap-2 text-xs cursor-pointer shrink-0 shadow-md">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
+                            <span><%= isRtl ? 'إضافة شرط وقت' : 'Add Time Condition' %></span>
+                        </button>
+                    </div>
                 </div>
 
-                <div class="overflow-x-auto">
+                <!-- Table Container -->
+                <div class="overflow-x-auto rounded-xl border border-[var(--border-primary)] bg-[var(--bg-primary)]/40">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="bg-[var(--bg-card)] border-b border-[var(--border-primary)] text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
-                                <th class="py-3 px-4 w-20"><%= isRtl ? 'الرقم' : 'ID' %></th>
-                                <th class="py-3 px-4"><%= isRtl ? 'الاسم الظاهر' : 'Display Name' %></th>
-                                <th class="py-3 px-4"><%= isRtl ? 'مجموعة الوقت' : 'Time Group' %></th>
-                                <th class="py-3 px-4"><%= isRtl ? 'الوجهة عند المطابقة (True)' : 'Destination if Matched' %></th>
-                                <th class="py-3 px-4"><%= isRtl ? 'الوجهة عند عدم المطابقة (False)' : 'Destination if Not Matched' %></th>
-                                <th class="py-3 px-4 text-center w-40"><%= isRtl ? 'الإجراءات' : 'Actions' %></th>
+                                <th class="py-3.5 px-4 w-20"><%= isRtl ? 'الرقم' : 'ID' %></th>
+                                <th class="py-3.5 px-4"><%= isRtl ? 'الاسم الظاهر' : 'Display Name' %></th>
+                                <th class="py-3.5 px-4"><%= isRtl ? 'مجموعة الوقت' : 'Time Group' %></th>
+                                <th class="py-3.5 px-4"><%= isRtl ? 'الوجهة عند المطابقة (True / Open)' : 'Destination if Matched (True / Open)' %></th>
+                                <th class="py-3.5 px-4"><%= isRtl ? 'الوجهة عند عدم المطابقة (False / Closed)' : 'Destination if Unmatched (False / Closed)' %></th>
+                                <th class="py-3.5 px-4 text-center w-40"><%= isRtl ? 'الإجراءات' : 'Actions' %></th>
                             </tr>
                         </thead>
                         <tbody id="timeconditions-table-body">
@@ -1232,7 +1311,6 @@ function isTabAllowed(tabName) {
             </div>
         </div>
         <% } %>
-
         <!-- TAB 13: ANNOUNCEMENTS -->
         <% if (isTabAllowed('announcements')) { %>
         <div id="section-announcements" class="tab-section hidden">
@@ -1437,6 +1515,77 @@ function isTabAllowed(tabName) {
                     <!-- Rendered dynamically by fetchRtcpDiagnostics() -->
                 </div>
             </div>
+
+            <!-- Dongle & SIM State Duration Reports Panel -->
+            <div class="config-card overflow-hidden">
+                <div class="p-5 sm:p-6 border-b border-[var(--border-primary)]">
+                    <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                        <div class="flex items-start gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-extrabold text-[var(--text-primary)]"><%= isRtl ? 'تقارير مدة حالات المودم والشرائح' : 'Dongle & SIM State Duration Reports' %></h3>
+                                <p class="text-xs text-[var(--text-muted)] mt-1"><%= isRtl ? 'تحليل الزمن المستغرق لكل مودم وشريحة في كل حالة (جاهز، في مكالمة، غير مهيأ، غير متصل).' : 'Track exact duration spent in each state (Free, Busy, Not Initialized, Disconnected) per Dongle and SIM Number.' %></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters Bar -->
+                <div class="p-4 sm:px-6 border-b border-[var(--border-primary)] bg-[var(--bg-primary)]/25 space-y-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase text-[var(--text-secondary)] mb-1"><%= isRtl ? 'من تاريخ/وقت' : 'Start Time' %></label>
+                            <input type="datetime-local" id="dongleReportStartDate" class="config-input w-full text-xs font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase text-[var(--text-secondary)] mb-1"><%= isRtl ? 'إلى تاريخ/وقت' : 'End Time' %></label>
+                            <input type="datetime-local" id="dongleReportEndDate" class="config-input w-full text-xs font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase text-[var(--text-secondary)] mb-1"><%= isRtl ? 'المودم' : 'Dongle' %></label>
+                            <select id="dongleReportDongleSelect" class="config-input w-full text-xs font-mono">
+                                <option value="ALL"><%= isRtl ? 'جميع الأجهزة (ALL)' : 'All Dongles (ALL)' %></option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase text-[var(--text-secondary)] mb-1"><%= isRtl ? 'رقم الشريحة (DID)' : 'SIM Number (DID)' %></label>
+                            <select id="dongleReportSimSelect" class="config-input w-full text-xs font-mono">
+                                <option value="ALL"><%= isRtl ? 'جميع الشرائح (ALL)' : 'All SIM Numbers (ALL)' %></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+                        <div class="flex flex-wrap items-center gap-1.5">
+                            <span class="text-[11px] font-bold text-[var(--text-secondary)] me-1"><%= isRtl ? 'فترات سريعة:' : 'Quick Presets:' %></span>
+                            <button type="button" onclick="setDongleReportPreset('today')" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-[var(--bg-card)] border border-[var(--border-primary)] text-[var(--text-secondary)] hover:text-white hover:border-[var(--accent-color)] transition-all cursor-pointer"><%= isRtl ? 'اليوم' : 'Today' %></button>
+                            <button type="button" onclick="setDongleReportPreset('yesterday')" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-[var(--bg-card)] border border-[var(--border-primary)] text-[var(--text-secondary)] hover:text-white hover:border-[var(--accent-color)] transition-all cursor-pointer"><%= isRtl ? 'الأمس' : 'Yesterday' %></button>
+                            <button type="button" onclick="setDongleReportPreset('7days')" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-[var(--bg-card)] border border-[var(--border-primary)] text-[var(--text-secondary)] hover:text-white hover:border-[var(--accent-color)] transition-all cursor-pointer"><%= isRtl ? 'آخر 7 أيام' : 'Last 7 Days' %></button>
+                            <button type="button" onclick="setDongleReportPreset('30days')" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-[var(--bg-card)] border border-[var(--border-primary)] text-[var(--text-secondary)] hover:text-white hover:border-[var(--accent-color)] transition-all cursor-pointer"><%= isRtl ? 'آخر 30 يوماً' : 'Last 30 Days' %></button>
+                        </div>
+
+                        <button type="button" onclick="fetchDongleStateReports()" class="config-action-btn config-action-btn--primary px-4 py-2 text-xs cursor-pointer">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            <span><%= isRtl ? 'توليد التقرير' : 'Generate Report' %></span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Report Summary Cards & Detailed Tables -->
+                <div class="p-5 sm:p-6 space-y-6">
+                    <div id="dongleReportSummaryContainer" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <!-- Summary metrics populated dynamically -->
+                    </div>
+
+                    <div id="dongleReportTablesContainer" class="space-y-6">
+                        <!-- Reports tables populated dynamically -->
+                    </div>
+                </div>
+            </div>
         </div>
         <% } %>
 
@@ -1489,8 +1638,8 @@ function isTabAllowed(tabName) {
                 </div>
 
                 <!-- Terminal Container Window -->
-                <div id="ttyTerminalWrapper" class="relative w-full border border-[var(--border-primary)] rounded-xl bg-[#09090b] p-3 overflow-hidden" style="height: calc(100vh - 280px); min-height: 550px;">
-                    <div id="terminalContainer" class="w-full h-full font-mono text-xs text-emerald-400 overflow-auto focus:outline-none select-text" tabindex="0"></div>
+                <div id="ttyTerminalWrapper" class="relative w-full border border-[var(--border-primary)] rounded-xl bg-[#09090b] p-3 overflow-hidden cursor-text" style="height: calc(100vh - 280px); min-height: 550px;" onclick="if(window.ttyXterm) window.ttyXterm.focus()">
+                    <div id="terminalContainer" class="w-full h-full font-mono text-xs text-emerald-400 overflow-auto focus:outline-none select-text"></div>
                 </div>
             </div>
         </div>
@@ -1546,6 +1695,7 @@ function isTabAllowed(tabName) {
                                 <label class="block text-[11px] font-bold text-[var(--text-secondary)] uppercase mb-1"><%= isRtl ? 'نوع جهاز التحويلة *' : 'Extension Tech / Device Type *' %></label>
                                 <select id="extTech" class="config-input w-full text-xs font-semibold">
                                     <option value="sip" selected><%= isRtl ? 'هاتف شبكة اعتيادي (Generic SIP Device - UDP / Port 5060)' : 'Generic SIP Device (Hardware / Port 5060)' %></option>
+                                    <option value="webrtc"><%= isRtl ? 'هاتف المتصفح البرمجي (WebRTC Softphone - WSS / Port 5066)' : 'WebRTC Softphone (Browser WSS / Port 5066)' %></option>
                                 </select>
                             </div>
                             <div>
@@ -1612,7 +1762,7 @@ function isTabAllowed(tabName) {
                             <span><%= isRtl ? 'الإعدادات التلقائية المطبقة للنظام:' : 'Automatic System Extension Defaults:' %></span>
                         </div>
                         <ul class="text-[var(--text-muted)] list-disc list-inside text-[11px] space-y-0.5 font-medium">
-                            <li><strong>Device Port:</strong> 5060 (SIP / UDP)</li>
+                            <li><strong>Device Port:</strong> 5066 (WebRTC / WSS) or 5060 (SIP / UDP)</li>
                             <li><strong>NAT Setting:</strong> Enabled (nat = yes)</li>
                             <li><strong>Call Recording:</strong> ALWAYS (Inbound/Outbound Internal & External)</li>
                         </ul>
@@ -1628,6 +1778,30 @@ function isTabAllowed(tabName) {
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+    <!-- MODAL: WEBRTC CREDENTIALS DISPLAY -->
+    <div id="webrtcCredentialsModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-primary)] shadow-2xl max-w-md w-full p-6 text-[var(--text-primary)]">
+            <div class="flex items-center justify-between mb-4 pb-2 border-b border-[var(--border-primary)]">
+                <h3 class="text-base font-extrabold text-purple-400 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                    <span><%= isRtl ? 'بيانات اتصال هاتف WebRTC' : 'WebRTC Softphone Credentials' %></span>
+                </h3>
+                <button type="button" onclick="closeModal('webrtcCredentialsModal')" class="text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer">✕</button>
+            </div>
+            <p class="text-xs text-[var(--text-muted)] mb-4">
+                <%= isRtl ? 'تم إنشاء تحويلة WebRTC بنجاح. يمكنك استخدام هذه البيانات لتسجيل الدخول في هاتف المتصفح.' : 'WebRTC softphone extension created successfully. Use these details to configure your WebRTC device.' %>
+            </p>
+            <div class="space-y-2 bg-[var(--bg-card)] p-4 rounded-xl border border-[var(--border-primary)] text-xs font-mono">
+                <div class="flex justify-between"><span class="text-[var(--text-muted)]">Extension:</span><span id="credExt" class="font-bold text-white"></span></div>
+                <div class="flex justify-between"><span class="text-[var(--text-muted)]">Name:</span><span id="credName" class="font-bold text-white"></span></div>
+                <div class="flex justify-between"><span class="text-[var(--text-muted)]">Secret (Password):</span><span id="credSecret" class="font-bold text-amber-400"></span></div>
+                <div class="flex justify-between"><span class="text-[var(--text-muted)]">WebSocket Server:</span><span id="credWsUrl" class="font-bold text-purple-400"></span></div>
+            </div>
+            <div class="flex justify-end mt-5">
+                <button type="button" onclick="closeModal('webrtcCredentialsModal')" class="config-btn-primary px-5 py-2 text-xs"><%= isRtl ? 'تم' : 'Done' %></button>
+            </div>
         </div>
     </div>
 
@@ -1716,17 +1890,30 @@ function isTabAllowed(tabName) {
                                                 <div id="rgQuickPickContainer" class="flex flex-wrap gap-1.5"></div>
                     </div>
 
-                    <!-- SECTION 4: ANNOUNCEMENT -->
-                    <div class="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 space-y-3">
-                        <div class="flex items-center justify-between pb-2 border-b border-amber-500/15">
-                            <span class="text-xs font-black uppercase tracking-wider text-amber-400 flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-                                <%= isRtl ? 'الإعلان الصوتي' : 'Announcement' %>
-                            </span>
+                    <!-- SECTION 4: ANNOUNCEMENT & MUSIC ON HOLD -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        <div class="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 space-y-3">
+                            <div class="flex items-center justify-between pb-2 border-b border-amber-500/15">
+                                <span class="text-xs font-black uppercase tracking-wider text-amber-400 flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                                    <%= isRtl ? 'الإعلان الصوتي' : 'Announcement' %>
+                                </span>
+                            </div>
+                            <select id="rgAnnMsg" class="config-input w-full text-xs">
+                                <option value="0"><%= isRtl ? 'بدون إعلان' : 'None / No Announcement' %></option>
+                            </select>
                         </div>
-                        <select id="rgAnnMsg" class="config-input w-full text-xs">
-                            <option value="0"><%= isRtl ? 'بدون إعلان' : 'None / No Announcement' %></option>
-                        </select>
+                        <div class="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 space-y-3">
+                            <div class="flex items-center justify-between pb-2 border-b border-emerald-500/15">
+                                <span class="text-xs font-black uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-2v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 .895-2 3-2 3 .895 3 2zm12 0c0 1.105-1.343 2-3 2s-3-.895-3-2 .895-2 3-2 3 .895 3 2zM9 10l12-2" /></svg>
+                                    <%= isRtl ? 'الموسيقى أثناء الانتظار' : 'Play Music On Hold' %>
+                                </span>
+                            </div>
+                            <select id="rgRinging" class="config-input w-full text-xs font-mono font-bold">
+                                <option value="Ring"><%= isRtl ? 'نغمة الرنين (افتراضي)' : 'Ring (Default Ringtone)' %></option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- SECTION 5: DESTINATION IF NO ANSWER (Post Destination) -->
@@ -3694,7 +3881,7 @@ function isTabAllowed(tabName) {
             }
             stopRtcpTimer();
             if (tabId === 'extensions') fetchExtensions();
-            if (tabId === 'ringgroups') { fetchRecordings(); fetchRingGroups(); fetchExtensions(); fetchQueues(); fetchIvrs(); fetchTimeConditions(); fetchAnnouncements(); }
+            if (tabId === 'ringgroups') { fetchRecordings(); fetchRingGroups(); fetchExtensions(); fetchQueues(); fetchIvrs(); fetchTimeConditions(); fetchAnnouncements(); fetchMohData(); }
             if (tabId === 'queues') { fetchRecordings(); fetchExtensions(); fetchRingGroups(); fetchQueues(); fetchAnnouncements(); }
             if (tabId === 'ivr') { fetchRecordings(); fetchExtensions(); fetchRingGroups(); fetchQueues(); fetchIvrs(); fetchAnnouncements(); }
             if (tabId === 'recordings') fetchRecordings();
@@ -3705,7 +3892,13 @@ function isTabAllowed(tabName) {
             if (tabId === 'announcements') { fetchAnnouncements(); fetchRecordings(); fetchExtensions(); fetchRingGroups(); fetchQueues(); fetchIvrs(); fetchTimeConditions(); }
             if (tabId === 'voicemail') fetchVoicemailExtensions();
             if (tabId === 'modem') fetchModemConfig();
-            if (tabId === 'terminal') initTtyTerminal();
+            if (tabId === 'terminal') {
+                initTtyTerminal();
+                setTimeout(() => {
+                    if (typeof ttyFitAddon !== 'undefined' && ttyFitAddon) try { ttyFitAddon.fit(); } catch(_) {}
+                    if (typeof ttyXterm !== 'undefined' && ttyXterm) try { ttyXterm.focus(); } catch(_) {}
+                }, 100);
+            }
             if (tabId === 'diagram') fetchDiagramData();
             if (tabId === 'inbound') { fetchExtensions(); fetchRingGroups(); fetchQueues(); fetchIvrs(); fetchTimeConditions(); fetchAnnouncements(); fetchInboundRoutes(); fetchDongleMappingsTab(); }
             if (tabId === 'dongles') { switchTab('inbound'); return; }
@@ -3790,7 +3983,10 @@ function isTabAllowed(tabName) {
                         const groupText = ext.emp_group
                             ? `<span class="text-[10px] font-bold text-red-400 truncate">${escapeHtml(ext.emp_group)}</span>`
                             : `<span class="text-[10px] text-[var(--text-muted)]">${isRtl ? 'بدون مجموعة' : 'No group'}</span>`;
-                        const techBadge = `<span class="px-2 py-0.5 text-[11px] font-bold rounded bg-slate-500/15 text-slate-300">Generic SIP Device</span>`;
+                        const isWebRtcExt = (ext.tech === 'pjsip' || ext.tech === 'webrtc');
+                        const techBadge = isWebRtcExt
+                            ? `<span class="ext-tech-badge ext-tech-webrtc"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>WebRTC Softphone</span>`
+                            : `<span class="ext-tech-badge ext-tech-sip">Generic SIP Device</span>`;
 
                         tr.innerHTML = `
                             <td class="py-3 px-4 font-mono font-bold text-[var(--text-primary)]">${escapeHtml(ext.extension)}</td>
@@ -3909,7 +4105,7 @@ function isTabAllowed(tabName) {
         }
 
         async function openExtensionModal() {
-            document.getElementById('extModalTitle').textContent = isRtl ? 'إضافة تحويلة جديدة (Generic SIP)' : 'Add Extension (Generic SIP)';
+            document.getElementById('extModalTitle').textContent = isRtl ? 'إضافة تحويلة جديدة (WebRTC / Generic SIP)' : 'Add Extension (WebRTC / Generic SIP)';
             document.getElementById('extEditMode').value = 'false';
             document.getElementById('extNum').disabled = false;
             document.getElementById('extensionForm').reset();
@@ -3934,7 +4130,7 @@ function isTabAllowed(tabName) {
             document.getElementById('extName').value = name || '';
             document.getElementById('extSecret').value = secret || '';
             document.getElementById('extVoicemail').value = (voicemail === 'default' || voicemail === 'enabled') ? 'enabled' : 'disabled';
-            document.getElementById('extTech').value = 'sip';
+            document.getElementById('extTech').value = (tech === 'pjsip' || tech === 'webrtc') ? 'webrtc' : 'sip';
             document.getElementById('extVoicemail').dispatchEvent(new Event('change', { bubbles: true }));
             document.getElementById('extTech').dispatchEvent(new Event('change', { bubbles: true }));
             resetEmployeeProfileFields();
@@ -4005,6 +4201,13 @@ function isTabAllowed(tabName) {
                 showToast(data.message, 'success');
                 closeModal('extensionModal');
                 fetchExtensions();
+                if (tech === 'webrtc' && !wasEdit) {
+                    document.getElementById('credExt').textContent = extNum;
+                    document.getElementById('credName').textContent = name;
+                    document.getElementById('credSecret').textContent = secret;
+                    document.getElementById('credWsUrl').textContent = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.hostname + (location.protocol === 'https:' ? ':8089/ws' : ':8088/ws');
+                    openModal('webrtcCredentialsModal');
+                }
             } catch (error) {
                 const prefix = extensionCreated
                     ? (isRtl ? 'تم إنشاء التحويلة، لكن تعذر حفظ بيانات الموظف: ' : 'Extension created, but employee profile failed: ')
@@ -4137,6 +4340,21 @@ function isTabAllowed(tabName) {
             });
         }
 
+        function populateMohRingGroupDropdown() {
+            const sel = document.getElementById('rgRinging');
+            if (!sel) return;
+            const currentVal = sel.value || 'Ring';
+            sel.innerHTML = `<option value="Ring">${isRtl ? 'نغمة الرنين (افتراضي)' : 'Ring (Default Ringtone)'}</option>`;
+            const mohList = typeof loadedMohCategories !== 'undefined' ? loadedMohCategories : [];
+            mohList.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat.name;
+                opt.textContent = `${isRtl ? 'موسيقى الانتظار:' : 'Music on Hold:'} ${cat.name}${cat.fileCount !== undefined ? ` (${cat.fileCount} ${isRtl ? 'مقاطع' : 'tracks'})` : ''}`;
+                sel.appendChild(opt);
+            });
+            sel.value = currentVal;
+        }
+
         function fetchRingGroups() {
             const tbody = document.getElementById('ringgroups-table-body');
             return fetch('/api/config/ringgroups')
@@ -4150,7 +4368,7 @@ function isTabAllowed(tabName) {
                     if (!tbody) return;
                     tbody.innerHTML = '';
                     if (data.ringgroups.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="9" class="py-6 text-center text-[var(--text-muted)]">No ring groups found.</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="10" class="py-6 text-center text-[var(--text-muted)]">No ring groups found.</td></tr>';
                         return;
                     }
                     data.ringgroups.forEach(rg => {
@@ -4158,12 +4376,16 @@ function isTabAllowed(tabName) {
                         tr.className = 'hover:bg-[var(--bg-hover)] transition-colors';
                         const recMatch = loadedRecordingsList.find(r => r.id == rg.annmsg_id);
                         const annText = recMatch ? recMatch.displayname : (rg.annmsg_id ? 'ID #' + rg.annmsg_id : 'None');
+                        const mohDisplay = (!rg.ringing || rg.ringing === 'Ring')
+                            ? `<span class="px-2 py-0.5 text-[11px] font-bold rounded bg-slate-500/15 text-slate-400 border border-slate-500/20">Ring</span>`
+                            : `<span class="px-2 py-0.5 text-[11px] font-bold rounded bg-amber-500/15 text-amber-300 border border-amber-500/20 truncate max-w-[120px] inline-block align-middle" title="MoH: ${rg.ringing}">MoH: ${rg.ringing}</span>`;
 
                         tr.innerHTML = `
                             <td class="py-3 px-4 font-mono font-bold text-[var(--text-primary)]">${rg.grpnum}</td>
                             <td class="py-3 px-4 font-bold text-[var(--text-primary)]">${rg.description || '-'}</td>
                             <td class="py-3 px-4 font-mono text-xs text-[var(--text-secondary)]">${rg.strategy || 'ringall'}</td>
                             <td class="py-3 px-4 font-mono text-xs text-[var(--text-secondary)]">${annText}</td>
+                            <td class="py-3 px-4">${mohDisplay}</td>
                             <td class="py-3 px-4 font-mono text-xs text-[var(--text-secondary)]">${rg.grplist}</td>
                             <td class="py-3 px-4"><span class="px-2 py-0.5 text-[11px] font-bold rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">Yes</span></td>
                             <td class="py-3 px-4"><span class="px-2 py-0.5 text-[11px] font-bold rounded bg-purple-500/15 text-purple-400 border border-purple-500/20">Always</span></td>
@@ -4181,18 +4403,34 @@ function isTabAllowed(tabName) {
                 .catch(err => console.error(err));
         }
 
+        function getNextAvailableRingGroupNum() {
+            const existingNums = new Set((loadedRingGroupsList || []).map(rg => String(rg.grpnum)));
+            let candidate = 600;
+            while (existingNums.has(String(candidate))) {
+                candidate++;
+            }
+            return String(candidate);
+        }
+
         async function openRingGroupModal() {
             await ensureAllConfigListsLoaded();
             document.getElementById('rgModalTitle').textContent = isRtl ? 'إضافة مجموعة جديدة' : 'Add Ring Group';
             document.getElementById('rgEditMode').value = "false";
             document.getElementById('rgNum').disabled = false;
             document.getElementById('ringGroupForm').reset();
+
+            const num = getNextAvailableRingGroupNum();
+            document.getElementById('rgNum').value = num;
+
             populateAnnouncementsDropdown();
+            populateMohRingGroupDropdown();
+            document.getElementById('rgRinging').value = 'Ring';
             renderQuickPickPills();
 
-            const num = document.getElementById('rgNum').value.trim() || '600';
             const destVal = `ext-group,${num},1`;
             document.getElementById('rgPostDestination').value = destVal;
+            const noticeNumEl = document.getElementById('rgPostDestCreateNoticeNum');
+            if (noticeNumEl) noticeNumEl.textContent = destVal;
 
             initDestinationSelectInstances();
             if (rgPostDestSelectInstance) rgPostDestSelectInstance.setDialplan(destVal);
@@ -4214,7 +4452,9 @@ function isTabAllowed(tabName) {
             document.getElementById('rgTime').value = rg.grptime || 20;
             document.getElementById('rgList').value = rg.grplist || '';
             populateAnnouncementsDropdown();
+            populateMohRingGroupDropdown();
             document.getElementById('rgAnnMsg').value = rg.annmsg_id || 0;
+            document.getElementById('rgRinging').value = rg.ringing || 'Ring';
             renderQuickPickPills();
 
             const destVal = rg.postdest || `ext-group,${grpnum},1`;
@@ -4236,6 +4476,25 @@ function isTabAllowed(tabName) {
             const grptime = document.getElementById('rgTime').value;
             const grplist = document.getElementById('rgList').value.trim();
             const annmsg_id = document.getElementById('rgAnnMsg').value;
+            const ringing = document.getElementById('rgRinging').value;
+
+            if (!grpnum || !/^\d+$/.test(grpnum)) {
+                showToast(isRtl ? 'يرجى إدخال رقم مجموعة اتصال صحيح' : 'Please enter a valid numeric Ring Group number.', 'error');
+                return;
+            }
+            if (!description) {
+                showToast(isRtl ? 'يرجى إدخال وصف للمجموعة' : 'Please enter a Group Description.', 'error');
+                return;
+            }
+            if (!grplist) {
+                showToast(isRtl ? 'يرجى تحديد أو كتابة رقم تحويلة واحد على الأقل' : 'Please enter or select at least one Extension.', 'error');
+                return;
+            }
+            if (!isEdit && loadedRingGroupsList && loadedRingGroupsList.some(rg => String(rg.grpnum) === String(grpnum))) {
+                showToast((isRtl ? 'رقم مجموعة الاتصال ' : 'Ring Group ') + grpnum + (isRtl ? ' موجود بالفعل. يرجى اختيار رقم آخر.' : ' already exists. Please choose a different number.'), 'error');
+                return;
+            }
+
             const postdest = isEdit ? document.getElementById('rgPostDestination').value.trim() : (`ext-group,${grpnum},1`);
 
             const url = isEdit ? '/api/config/ringgroups/' + grpnum : '/api/config/ringgroups';
@@ -4244,7 +4503,7 @@ function isTabAllowed(tabName) {
             fetch(url, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ grpnum, description, strategy, grptime, grplist, annmsg_id, postdest })
+                body: JSON.stringify({ grpnum, description, strategy, grptime, grplist, annmsg_id, ringing, postdest })
             })
             .then(res => res.json())
             .then(data => {
@@ -4253,6 +4512,9 @@ function isTabAllowed(tabName) {
                     closeModal('ringGroupModal');
                     fetchRingGroups();
                 } else showToast(data.error, 'error');
+            })
+            .catch(err => {
+                showToast(err.message || 'Request failed', 'error');
             });
         }
         function deleteRingGroup(grpnum) {
@@ -4347,7 +4609,11 @@ function isTabAllowed(tabName) {
             const el = document.getElementById(inputId);
             if (!el) return [];
             const val = el.value || '';
-            return val.split(/[\r\n\s\-,]+/).map(s => s.trim()).filter(Boolean);
+            return val.split(/[\r\n\s\-,]+/).map(s => {
+                const clean = s.trim().replace(/^[A-Za-z]+\//, '').replace(/@.*/, '');
+                const match = clean.match(/(\d+)/);
+                return match ? match[1] : clean;
+            }).filter(Boolean);
         }
 
         function clearAllQueueAgents() {
@@ -4570,11 +4836,11 @@ function isTabAllowed(tabName) {
                                         <svg class="w-3 h-3 fill-emerald-400" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                                         <span><%= isRtl ? 'تشغيل' : 'Play' %></span>
                                     </button>
-                                    <a href="/api/config/recordings/audio/${rec.id}?download=1" class="px-2.5 py-1 text-xs font-semibold text-blue-400 hover:bg-blue-500/10 rounded border border-blue-500/30 flex items-center gap-1 cursor-pointer">
+                                    <a href="/api/config/recordings/audio/${rec.id}?download=1" class="btn-link px-2.5 py-1 text-xs font-semibold text-blue-400 hover:bg-blue-500/10 rounded border border-blue-500/30 flex items-center gap-1 cursor-pointer">
                                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                         <span><%= isRtl ? 'تحميل' : 'Download' %></span>
                                     </a>
-                                    <button onclick="deleteRecording(${rec.id}, \`${(rec.displayname || '').replace(/`/g, '\\`')}\`)" class="px-2.5 py-1 text-xs font-semibold text-red-400 hover:bg-red-500/10 rounded border border-red-500/30">Delete</button>
+                                    <button onclick="deleteRecording(${rec.id}, ${JSON.stringify(rec.displayname || '')})" class="px-2.5 py-1 text-xs font-semibold text-red-400 hover:bg-red-500/10 rounded border border-red-500/30">Delete</button>
                                 </div>
                             </td>
                         `;
@@ -7387,6 +7653,42 @@ function isTabAllowed(tabName) {
         let loadedTimeGroupsList = [];
         let loadedTimeConditionsList = [];
 
+        // Helper string formatters for Issabel Time Rules
+        const WEEKDAY_NAMES = { mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun' };
+        const MONTH_NAMES = { jan: 'Jan', feb: 'Feb', mar: 'Mar', apr: 'Apr', may: 'May', jun: 'Jun', jul: 'Jul', aug: 'Aug', sep: 'Sep', oct: 'Oct', nov: 'Nov', dec: 'Dec' };
+
+        function formatWeekdayText(val) {
+            if (!val || val === '*' || val === '*-*') return isRtl ? 'كل أيام الأسبوع' : 'All Weekdays';
+            if (val.includes('-')) {
+                const [s, e] = val.split('-');
+                return `${WEEKDAY_NAMES[s] || s} - ${WEEKDAY_NAMES[e] || e}`;
+            }
+            return val.split(',').map(d => WEEKDAY_NAMES[d] || d).join(', ');
+        }
+
+        function formatMonthdayText(val) {
+            if (!val || val === '*' || val === '*-*') return isRtl ? 'كل أيام الشهر' : 'All Monthdays';
+            if (val.includes('-')) {
+                const [s, e] = val.split('-');
+                return `Day ${s} - ${e}`;
+            }
+            return `Day ${val}`;
+        }
+
+        function formatMonthText(val) {
+            if (!val || val === '*' || val === '*-*') return isRtl ? 'كل الشهور' : 'All Months';
+            if (val.includes('-')) {
+                const [s, e] = val.split('-');
+                return `${MONTH_NAMES[s] || s} - ${MONTH_NAMES[e] || e}`;
+            }
+            return val.split(',').map(m => MONTH_NAMES[m] || m).join(', ');
+        }
+
+        function formatTimeText(val) {
+            if (!val || val === '*' || val === '*-*') return isRtl ? 'طوال اليوم (24 ساعة)' : 'All Day (00:00 - 23:59)';
+            return val;
+        }
+
         // --- TIME GROUPS CLIENT LOGIC ---
 
         function fetchTimeGroups() {
@@ -7401,50 +7703,92 @@ function isTabAllowed(tabName) {
                     loadedTimeGroupsList = data.timegroups;
                     populateTcTimeGroupsSelect();
 
-                    const tbody = document.getElementById('timegroups-table-body');
-                    if (!tbody) return;
-                    tbody.innerHTML = '';
-                    if (data.timegroups.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="4" class="py-6 text-center text-[var(--text-muted)]">No time groups found.</td></tr>';
-                        return;
-                    }
+                    const countBadge = document.getElementById('timegroups-count-badge');
+                    if (countBadge) countBadge.textContent = `${data.timegroups.length} ${data.timegroups.length === 1 ? 'Group' : 'Groups'}`;
 
-                    data.timegroups.forEach(tg => {
-                        const tr = document.createElement('tr');
-                        tr.className = 'hover:bg-[var(--bg-hover)] transition-colors border-b border-[var(--border-primary)]/40 text-xs';
-                        
-                        let rulesHTML = '';
-                        if (tg.rules && tg.rules.length > 0) {
-                            tg.rules.forEach(rule => {
-                                const timeStr = rule.time || '*';
-                                const weekdayStr = rule.weekday || '*';
-                                const monthdayStr = rule.monthday || '*';
-                                const monthStr = rule.month || '*';
-                                rulesHTML += `
-                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-800 text-zinc-300 border border-zinc-700 font-mono my-0.5 mr-1">
-                                        <svg class="w-3 h-3 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                        ${timeStr} | ${weekdayStr} | ${monthdayStr} | ${monthStr}
-                                    </span>
-                                `;
-                            });
-                        } else {
-                            rulesHTML = '<span class="text-zinc-500 italic">No rules defined (matches always)</span>';
-                        }
-
-                        tr.innerHTML = `
-                            <td class="py-3 px-4 font-mono font-bold text-[var(--text-primary)]">${tg.id}</td>
-                            <td class="py-3 px-4 font-bold text-[var(--text-primary)]">${tg.description}</td>
-                            <td class="py-3 px-4">${rulesHTML}</td>
-                            <td class="py-3 px-4 text-center">
-                                <div class="flex items-center justify-center gap-2">
-                                    <button onclick="editTimeGroup(${tg.id})" class="px-2.5 py-1 text-xs font-semibold text-blue-400 hover:bg-blue-500/10 rounded border border-blue-500/30 transition cursor-pointer">Edit</button>
-                                    <button onclick="deleteTimeGroup(${tg.id})" class="px-2.5 py-1 text-xs font-semibold text-red-400 hover:bg-red-500/10 rounded border border-red-500/30 transition cursor-pointer">Delete</button>
-                                </div>
-                            </td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
+                    renderTimeGroupsTable(data.timegroups);
                 });
+        }
+
+        function renderTimeGroupsTable(groups) {
+            const tbody = document.getElementById('timegroups-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            
+            if (!groups || groups.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-xs text-[var(--text-muted)]">${isRtl ? 'لا توجد مجموعات وقت محددة.' : 'No time groups found.'}</td></tr>`;
+                return;
+            }
+
+            groups.forEach(tg => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-[var(--bg-hover)] transition-colors border-b border-[var(--border-primary)]/40 text-xs timegroup-row';
+                tr.setAttribute('data-search', `${tg.id} ${tg.description}`.toLowerCase());
+                
+                let rulesHTML = '';
+                if (tg.rules && tg.rules.length > 0) {
+                    tg.rules.forEach(rule => {
+                        const timeStr = formatTimeText(rule.time);
+                        const weekdayStr = formatWeekdayText(rule.weekday);
+                        const monthdayStr = formatMonthdayText(rule.monthday);
+                        const monthStr = formatMonthText(rule.month);
+                        
+                        rulesHTML += `
+                            <div class="inline-flex flex-wrap items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-mono my-1 mr-1.5 shadow-sm">
+                                <span class="text-indigo-400 font-bold">🕐 ${timeStr}</span>
+                                <span class="text-indigo-500/50">•</span>
+                                <span>📅 ${weekdayStr}</span>
+                                <span class="text-indigo-500/50">•</span>
+                                <span>📆 ${monthdayStr}</span>
+                                <span class="text-indigo-500/50">•</span>
+                                <span>🗓️ ${monthStr}</span>
+                            </div>
+                        `;
+                    });
+                } else {
+                    rulesHTML = '<span class="text-zinc-500 italic text-[11px]">No rules defined (matches always)</span>';
+                }
+
+                tr.innerHTML = `
+                    <td class="py-3.5 px-4 font-mono font-bold text-[var(--text-primary)]"><span class="px-2 py-0.5 rounded bg-[var(--bg-card)] border border-[var(--border-primary)] text-indigo-400">#${tg.id}</span></td>
+                    <td class="py-3.5 px-4 font-bold text-[var(--text-primary)]">${tg.description}</td>
+                    <td class="py-3.5 px-4">${rulesHTML}</td>
+                    <td class="py-3.5 px-4 text-center">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold ${tg.linked_conditions_count > 0 ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30' : 'bg-zinc-800 text-zinc-400 border border-zinc-700'}">
+                            ${tg.linked_conditions_count} ${tg.linked_conditions_count === 1 ? 'Condition' : 'Conditions'}
+                        </span>
+                    </td>
+                    <td class="py-3.5 px-4 text-center">
+                        <div class="flex items-center justify-center gap-2">
+                            <button onclick="editTimeGroup(${tg.id})" class="px-3 py-1 text-xs font-semibold text-indigo-400 hover:bg-indigo-500/10 rounded-lg border border-indigo-500/30 transition cursor-pointer flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                <span>Edit</span>
+                            </button>
+                            <button onclick="deleteTimeGroup(${tg.id})" class="px-3 py-1 text-xs font-semibold text-rose-400 hover:bg-rose-500/10 rounded-lg border border-rose-500/30 transition cursor-pointer flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                <span>Delete</span>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterTimeGroupsTable() {
+            const input = document.getElementById('timegroups-search-input');
+            if (!input) return;
+            const q = input.value.trim().toLowerCase();
+            const rows = document.querySelectorAll('.timegroup-row');
+            rows.forEach(row => {
+                const search = row.getAttribute('data-search') || '';
+                const text = row.textContent.toLowerCase();
+                if (!q || search.includes(q) || text.includes(q)) {
+                    row.classList.remove('hidden');
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
         }
 
         function openTimeGroupModal() {
@@ -7461,209 +7805,296 @@ function isTabAllowed(tabName) {
             const container = document.getElementById('timeGroupRulesListContainer');
             if (!container) return;
 
+            const ruleIndex = container.children.length + 1;
             const card = document.createElement('div');
-            card.className = 'rule-card p-4 border border-[var(--border-primary)] rounded-xl bg-[var(--bg-card)]/40 relative flex flex-col gap-3.5';
+            card.className = 'rule-card p-4 border border-sky-500/20 rounded-xl bg-sky-950/20 relative flex flex-col gap-3.5 transition-all hover:border-sky-500/40';
             
-            // Build weekday selector options
-            const weekdays = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-            const weekdayLabels = { mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun' };
-            
-            let weekdayButtons = '';
-            weekdays.forEach(day => {
-                let isActive = false;
-                if (data && data.weekday) {
-                    const wParts = data.weekday.split(',');
-                    // check if ranges mon-fri, etc.
-                    if (data.weekday.includes('-')) {
-                        // resolve simple range
-                        const [start, end] = data.weekday.split('-');
-                        const startIdx = weekdays.indexOf(start);
-                        const endIdx = weekdays.indexOf(end);
-                        const currIdx = weekdays.indexOf(day);
-                        if (startIdx !== -1 && endIdx !== -1 && currIdx >= startIdx && currIdx <= endIdx) {
-                            isActive = true;
+            const daysList = [
+                { id: 'sat', labelEn: 'Sat', labelAr: 'السبت' },
+                { id: 'sun', labelEn: 'Sun', labelAr: 'الأحد' },
+                { id: 'mon', labelEn: 'Mon', labelAr: 'الإثنين' },
+                { id: 'tue', labelEn: 'Tue', labelAr: 'الثلاثاء' },
+                { id: 'wed', labelEn: 'Wed', labelAr: 'الأربعاء' },
+                { id: 'thu', labelEn: 'Thu', labelAr: 'الخميس' },
+                { id: 'fri', labelEn: 'Fri', labelAr: 'الجمعة' }
+            ];
+
+            // Determine active days from data.weekday
+            let activeDaysSet = new Set(['sat', 'sun', 'mon', 'tue', 'wed', 'thu', 'fri']);
+            if (data && data.weekday && data.weekday !== '*') {
+                activeDaysSet = new Set();
+                const wkStr = data.weekday.toLowerCase();
+                const allDaysOrder = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+                if (wkStr.includes('-')) {
+                    const [s, e] = wkStr.split('-');
+                    const sIdx = allDaysOrder.indexOf(s);
+                    const eIdx = allDaysOrder.indexOf(e);
+                    if (sIdx !== -1 && eIdx !== -1) {
+                        for (let i = sIdx; i <= eIdx; i++) {
+                            activeDaysSet.add(allDaysOrder[i]);
                         }
-                    } else if (wParts.includes(day)) {
-                        isActive = true;
                     }
+                } else {
+                    wkStr.split(',').forEach(d => activeDaysSet.add(d.trim()));
                 }
-                const activeClasses = isActive ? 'bg-blue-600 text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)]';
-                weekdayButtons += `
-                    <button type="button" data-val="${day}" class="weekday-pill px-2.5 py-1 text-[10px] font-bold rounded-lg border border-[var(--border-primary)] ${activeClasses} hover:text-white cursor-pointer transition">
-                        ${weekdayLabels[day]}
+            }
+
+            let dayTogglesHTML = '';
+            daysList.forEach(d => {
+                const isActive = activeDaysSet.has(d.id);
+                const activeClass = isActive ? 'bg-blue-600 text-white font-black shadow-sm shadow-blue-500/30' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] font-bold';
+                dayTogglesHTML += `
+                    <button type="button" data-day="${d.id}" onclick="toggleDayPill(this)" class="day-toggle-btn px-3 py-1.5 text-xs rounded-lg border border-[var(--border-primary)] ${activeClass} hover:text-white cursor-pointer transition-all">
+                        ${isRtl ? d.labelAr : d.labelEn}
                     </button>
                 `;
             });
 
-            // Build month selector options
-            const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
-            const monthLabels = { jan: 'Jan', feb: 'Feb', mar: 'Mar', apr: 'Apr', may: 'May', jun: 'Jun', jul: 'Jul', aug: 'Aug', sep: 'Sep', oct: 'Oct', nov: 'Nov', dec: 'Dec' };
-            
-            let monthButtons = '';
+            // Build monthday options
+            let mthdayOptions = '<option value="*">All Monthdays</option>';
+            for (let d = 1; d <= 31; d++) {
+                mthdayOptions += `<option value="${d}">Day ${d}</option>`;
+            }
+
+            // Build month options
+            const months = [
+                { val: '*', label: 'All Months (Jan-Dec)' },
+                { val: 'jan', label: 'January' },
+                { val: 'feb', label: 'February' },
+                { val: 'mar', label: 'March' },
+                { val: 'apr', label: 'April' },
+                { val: 'may', label: 'May' },
+                { val: 'jun', label: 'June' },
+                { val: 'jul', label: 'July' },
+                { val: 'aug', label: 'August' },
+                { val: 'sep', label: 'September' },
+                { val: 'oct', label: 'October' },
+                { val: 'nov', label: 'November' },
+                { val: 'dec', label: 'December' }
+            ];
+            let startMthOptions = '';
+            let finishMthOptions = '';
             months.forEach(m => {
-                let isActive = false;
-                if (data && data.month) {
-                    const mParts = data.month.split(',');
-                    if (data.month.includes('-')) {
-                        const [start, end] = data.month.split('-');
-                        const startIdx = months.indexOf(start);
-                        const endIdx = months.indexOf(end);
-                        const currIdx = months.indexOf(m);
-                        if (startIdx !== -1 && endIdx !== -1 && currIdx >= startIdx && currIdx <= endIdx) {
-                            isActive = true;
-                        }
-                    } else if (mParts.includes(m)) {
-                        isActive = true;
-                    }
-                }
-                const activeClasses = isActive ? 'bg-blue-600 text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)]';
-                monthButtons += `
-                    <button type="button" data-val="${m}" class="month-pill px-2 py-1 text-[9px] font-bold rounded-lg border border-[var(--border-primary)] ${activeClasses} hover:text-white cursor-pointer transition">
-                        ${monthLabels[m]}
-                    </button>
-                `;
+                startMthOptions += `<option value="${m.val}">${m.label}</option>`;
+                finishMthOptions += `<option value="${m.val}">${m.label}</option>`;
             });
 
-            // Parse time range
+            // Parse initial data
             let startTime = '';
-            let endTime = '';
+            let finishTime = '';
             if (data && data.time && data.time !== '*') {
                 const parts = data.time.split('-');
                 startTime = parts[0] || '';
-                endTime = parts[1] || '';
+                finishTime = parts[1] || '';
             }
 
-            // Monthdays range parse
-            let startMonthday = '';
-            let endMonthday = '';
+            let startMthday = '*';
+            let finishMthday = '*';
             if (data && data.monthday && data.monthday !== '*') {
                 const parts = data.monthday.split('-');
-                startMonthday = parts[0] || '';
-                endMonthday = parts[1] || '';
+                startMthday = parts[0] || '*';
+                finishMthday = parts[1] || parts[0] || '*';
             }
 
-            // Options 1-31 helper
-            let dayOptions = '<option value="">Any</option>';
-            for (let d = 1; d <= 31; d++) {
-                dayOptions += `<option value="${d}">${d}</option>`;
+            let startMth = '*';
+            let finishMth = '*';
+            if (data && data.month && data.month !== '*') {
+                const parts = data.month.split('-');
+                startMth = parts[0] || '*';
+                finishMth = parts[1] || parts[0] || '*';
             }
 
             card.innerHTML = `
-                <button type="button" onclick="removeTimeGroupRuleFromModal(this)" class="absolute top-3 right-3 text-red-400 hover:text-red-600 text-xs font-bold cursor-pointer transition">Remove</button>
-                <div class="text-xs font-bold text-white mb-1 flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-                    Time Rule Window
-                </div>
-                
-                <!-- Time range controls -->
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-[10px] text-[var(--text-secondary)] uppercase mb-1">Start Time</label>
-                        <input type="time" value="${startTime}" class="rule-start-time config-input w-full py-1 text-xs">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] text-[var(--text-secondary)] uppercase mb-1">End Time</label>
-                        <input type="time" value="${endTime}" class="rule-end-time config-input w-full py-1 text-xs">
-                    </div>
-                </div>
-                
-                <!-- Weekdays multi-select buttons -->
-                <div>
-                    <label class="block text-[10px] text-[var(--text-secondary)] uppercase mb-1">Days of Week (cont. or specific)</label>
-                    <div class="flex flex-wrap gap-1 mb-1.5">
-                        ${weekdayButtons}
-                    </div>
+                <div class="flex items-center justify-between border-b border-sky-500/15 pb-2.5">
                     <div class="flex items-center gap-2">
-                        <button type="button" onclick="setWeekdayPreset(this, 'all')" class="text-[9px] text-blue-400 font-bold hover:underline cursor-pointer">All Week</button>
-                        <span class="text-zinc-600 text-[9px]">•</span>
-                        <button type="button" onclick="setWeekdayPreset(this, 'workdays')" class="text-[9px] text-blue-400 font-bold hover:underline cursor-pointer">Mon-Fri</button>
-                        <span class="text-zinc-600 text-[9px]">•</span>
-                        <button type="button" onclick="setWeekdayPreset(this, 'weekend')" class="text-[9px] text-blue-400 font-bold hover:underline cursor-pointer">Sat-Sun</button>
+                        <span class="w-5 h-5 rounded-full bg-sky-500/20 text-sky-400 border border-sky-500/30 text-[10px] font-black flex items-center justify-center">${ruleIndex}</span>
+                        <span class="text-xs font-extrabold text-sky-300">${isRtl ? 'قاعدة الجدول الزمني' : 'Schedule Interval Rule'}</span>
+                        <span class="rule-chip-preview text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md bg-sky-950 text-sky-400 border border-sky-500/30"></span>
                     </div>
+                    <button type="button" onclick="removeTimeGroupRuleFromModal(this)" class="text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 px-2 py-1 rounded text-xs font-bold transition flex items-center gap-1 cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        <span>Remove</span>
+                    </button>
+                </div>
+
+                <!-- Presets -->
+                <div class="flex items-center gap-2 flex-wrap text-[10px]">
+                    <span class="text-[var(--text-muted)] font-bold uppercase tracking-wider">${isRtl ? 'نماذج سريعة:' : 'Schedule Presets:'}</span>
+                    <button type="button" onclick="applyRulePreset(this, 'satthu_work')" class="px-2.5 py-1 rounded-lg bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/30 font-bold transition cursor-pointer flex items-center gap-1">
+                        <span>⭐ Sat - Thu 09:00 - 17:00 (${isRtl ? 'الجمعة عطلة' : 'Fri Off'})</span>
+                    </button>
+                    <button type="button" onclick="applyRulePreset(this, 'monfri_work')" class="px-2.5 py-1 rounded-lg bg-sky-500/15 text-sky-300 border border-sky-500/30 hover:bg-sky-500/30 font-bold transition cursor-pointer">Mon - Fri 09:00 - 17:00</button>
+                    <button type="button" onclick="applyRulePreset(this, 'allday')" class="px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30 font-bold transition cursor-pointer">24/7 Always Open</button>
                 </div>
                 
-                <!-- Days of Month range select -->
-                <div class="grid grid-cols-2 gap-3">
+                <!-- Time Range -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[10px] text-[var(--text-secondary)] uppercase mb-1">Start Day of Month</label>
-                        <select class="rule-start-monthday config-input w-full py-1 text-xs">
-                            ${dayOptions}
+                        <label class="block text-[10px] font-bold text-[var(--text-secondary)] uppercase mb-1">${isRtl ? 'وقت بداية العمل *' : 'Start Working Hour'}</label>
+                        <input type="time" value="${startTime}" onchange="updateRulePreviewChip(this)" class="rule-start-time config-input w-full py-1.5 text-xs font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-[var(--text-secondary)] uppercase mb-1">${isRtl ? 'وقت نهاية العمل *' : 'Finish Working Hour'}</label>
+                        <input type="time" value="${finishTime}" onchange="updateRulePreviewChip(this)" class="rule-finish-time config-input w-full py-1.5 text-xs font-mono">
+                    </div>
+                </div>
+
+                <!-- Days of Week Toggles -->
+                <div>
+                    <label class="block text-[10px] font-bold text-[var(--text-secondary)] uppercase mb-1.5">${isRtl ? 'أيام العمل الفعالة (انقر للتفعيل/الإلغاء):' : 'Active Working Days (Click to Toggle):'}</label>
+                    <div class="flex flex-wrap gap-1.5">
+                        ${dayTogglesHTML}
+                    </div>
+                </div>
+
+                <!-- Monthday Range -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] font-bold text-[var(--text-secondary)] uppercase mb-1">${isRtl ? 'يوم بداية الشهر (1-31)' : 'Start Month Day'}</label>
+                        <select onchange="updateRulePreviewChip(this)" class="rule-start-monthday config-input w-full py-1.5 text-xs font-semibold">
+                            ${mthdayOptions}
                         </select>
                     </div>
                     <div>
-                        <label class="block text-[10px] text-[var(--text-secondary)] uppercase mb-1">End Day of Month</label>
-                        <select class="rule-end-monthday config-input w-full py-1 text-xs">
-                            ${dayOptions}
+                        <label class="block text-[10px] font-bold text-[var(--text-secondary)] uppercase mb-1">${isRtl ? 'يوم نهاية الشهر (1-31)' : 'Finish Month Day'}</label>
+                        <select onchange="updateRulePreviewChip(this)" class="rule-finish-monthday config-input w-full py-1.5 text-xs font-semibold">
+                            ${mthdayOptions}
                         </select>
                     </div>
                 </div>
-                
-                <!-- Months multi-select pills -->
-                <div>
-                    <label class="block text-[10px] text-[var(--text-secondary)] uppercase mb-1">Months</label>
-                    <div class="flex flex-wrap gap-1 mb-1.5">
-                        ${monthButtons}
+
+                <!-- Month Range -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] font-bold text-[var(--text-secondary)] uppercase mb-1">${isRtl ? 'شهر البداية' : 'Start Month'}</label>
+                        <select onchange="updateRulePreviewChip(this)" class="rule-start-month config-input w-full py-1.5 text-xs font-semibold">
+                            ${startMthOptions}
+                        </select>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <button type="button" onclick="setMonthPreset(this, 'all')" class="text-[9px] text-blue-400 font-bold hover:underline cursor-pointer">All Year</button>
+                    <div>
+                        <label class="block text-[10px] font-bold text-[var(--text-secondary)] uppercase mb-1">${isRtl ? 'شهر النهاية' : 'Finish Month'}</label>
+                        <select onchange="updateRulePreviewChip(this)" class="rule-finish-month config-input w-full py-1.5 text-xs font-semibold">
+                            ${finishMthOptions}
+                        </select>
                     </div>
                 </div>
             `;
             
             container.appendChild(card);
             
-            // Set values on newly created selects
-            const startSelect = card.querySelector('.rule-start-monthday');
-            const endSelect = card.querySelector('.rule-end-monthday');
-            if (startMonthday) startSelect.value = startMonthday;
-            if (endMonthday) endSelect.value = endMonthday;
+            // Set initial select values
+            card.querySelector('.rule-start-monthday').value = startMthday;
+            card.querySelector('.rule-finish-monthday').value = finishMthday;
+            card.querySelector('.rule-start-month').value = startMth;
+            card.querySelector('.rule-finish-month').value = finishMth;
+
+            updateRulePreviewChip(card);
+        }
+
+        function toggleDayPill(btn) {
+            btn.classList.toggle('bg-blue-600');
+            btn.classList.toggle('text-white');
+            btn.classList.toggle('font-black');
+            btn.classList.toggle('shadow-sm');
+            btn.classList.toggle('shadow-blue-500/30');
+            btn.classList.toggle('bg-[var(--bg-secondary)]');
+            btn.classList.toggle('text-[var(--text-secondary)]');
+            btn.classList.toggle('font-bold');
+
+            updateRulePreviewChip(btn);
+        }
+
+        function updateRulePreviewChip(elem) {
+            const card = elem.closest ? elem.closest('.rule-card') : elem;
+            if (!card) return;
+
+            const startTime = card.querySelector('.rule-start-time').value;
+            const finishTime = card.querySelector('.rule-finish-time').value;
+            
+            const activeButtons = Array.from(card.querySelectorAll('.day-toggle-btn.bg-blue-600'));
+            const activeDays = activeButtons.map(b => b.getAttribute('data-day'));
+
+            const startMthday = card.querySelector('.rule-start-monthday').value;
+            const finishMthday = card.querySelector('.rule-finish-monthday').value;
+            const startMth = card.querySelector('.rule-start-month').value;
+            const finishMth = card.querySelector('.rule-finish-month').value;
+
+            let timeText = isRtl ? 'طوال اليوم' : 'All Day';
+            if (startTime && finishTime) timeText = `${startTime}-${finishTime}`;
+            else if (startTime) timeText = startTime;
+
+            let wkText = isRtl ? 'كل الأيام' : 'All Weekdays';
+            if (activeDays.length > 0 && activeDays.length < 7) {
+                wkText = activeDays.map(d => d.toUpperCase()).join(',');
+            }
+
+            let mthdayText = '*';
+            if (startMthday !== '*' && finishMthday !== '*') {
+                mthdayText = startMthday === finishMthday ? startMthday : `${startMthday}-${finishMthday}`;
+            } else if (startMthday !== '*') mthdayText = startMthday;
+
+            let mthText = '*';
+            if (startMth !== '*' && finishMth !== '*') {
+                mthText = startMth === finishMth ? startMth : `${startMth}-${finishMth}`;
+            } else if (startMth !== '*') mthText = startMth;
+
+            const chip = card.querySelector('.rule-chip-preview');
+            if (chip) {
+                chip.textContent = `${timeText} | ${wkText} | ${mthdayText} | ${mthText}`;
+            }
+        }
+
+        function applyRulePreset(btn, preset) {
+            const card = btn.closest('.rule-card');
+            if (!card) return;
+
+            const dayBtns = card.querySelectorAll('.day-toggle-btn');
+            
+            function setDaysActive(targetDays) {
+                dayBtns.forEach(b => {
+                    const day = b.getAttribute('data-day');
+                    const isActive = targetDays.includes(day);
+                    if (isActive) {
+                        b.className = 'day-toggle-btn px-3 py-1.5 text-xs rounded-lg border border-[var(--border-primary)] bg-blue-600 text-white font-black shadow-sm shadow-blue-500/30 hover:text-white cursor-pointer transition-all';
+                    } else {
+                        b.className = 'day-toggle-btn px-3 py-1.5 text-xs rounded-lg border border-[var(--border-primary)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] font-bold hover:text-white cursor-pointer transition-all';
+                    }
+                });
+            }
+
+            if (preset === 'satthu_work') {
+                card.querySelector('.rule-start-time').value = '09:00';
+                card.querySelector('.rule-finish-time').value = '17:00';
+                setDaysActive(['sat', 'sun', 'mon', 'tue', 'wed', 'thu']);
+                card.querySelector('.rule-start-monthday').value = '*';
+                card.querySelector('.rule-finish-monthday').value = '*';
+                card.querySelector('.rule-start-month').value = '*';
+                card.querySelector('.rule-finish-month').value = '*';
+            } else if (preset === 'monfri_work') {
+                card.querySelector('.rule-start-time').value = '09:00';
+                card.querySelector('.rule-finish-time').value = '17:00';
+                setDaysActive(['mon', 'tue', 'wed', 'thu', 'fri']);
+                card.querySelector('.rule-start-monthday').value = '*';
+                card.querySelector('.rule-finish-monthday').value = '*';
+                card.querySelector('.rule-start-month').value = '*';
+                card.querySelector('.rule-finish-month').value = '*';
+            } else if (preset === 'allday') {
+                card.querySelector('.rule-start-time').value = '';
+                card.querySelector('.rule-finish-time').value = '';
+                setDaysActive(['sat', 'sun', 'mon', 'tue', 'wed', 'thu', 'fri']);
+                card.querySelector('.rule-start-monthday').value = '*';
+                card.querySelector('.rule-finish-monthday').value = '*';
+                card.querySelector('.rule-start-month').value = '*';
+                card.querySelector('.rule-finish-month').value = '*';
+            }
+
+            updateRulePreviewChip(card);
         }
 
         function removeTimeGroupRuleFromModal(btn) {
             const card = btn.closest('.rule-card');
             if (card) card.remove();
         }
-
-        function setWeekdayPreset(btn, preset) {
-            const card = btn.closest('.rule-card');
-            const pills = card.querySelectorAll('.weekday-pill');
-            const workdays = ['mon', 'tue', 'wed', 'thu', 'fri'];
-            const weekend = ['sat', 'sun'];
-            
-            pills.forEach(pill => {
-                const val = pill.getAttribute('data-val');
-                let active = false;
-                if (preset === 'all') active = true;
-                else if (preset === 'workdays' && workdays.includes(val)) active = true;
-                else if (preset === 'weekend' && weekend.includes(val)) active = true;
-                
-                if (active) {
-                    pill.className = 'weekday-pill px-2.5 py-1 text-[10px] font-bold rounded-lg border border-[var(--border-primary)] bg-blue-600 text-white hover:text-white cursor-pointer transition';
-                } else {
-                    pill.className = 'weekday-pill px-2.5 py-1 text-[10px] font-bold rounded-lg border border-[var(--border-primary)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-white cursor-pointer transition';
-                }
-            });
-        }
-
-        function setMonthPreset(btn, preset) {
-            const card = btn.closest('.rule-card');
-            const pills = card.querySelectorAll('.month-pill');
-            pills.forEach(pill => {
-                if (preset === 'all') {
-                    pill.className = 'month-pill px-2 py-1 text-[9px] font-bold rounded-lg border border-[var(--border-primary)] bg-blue-600 text-white hover:text-white cursor-pointer transition';
-                }
-            });
-        }
-
-        // Global delegate listener to toggle pills on click
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('weekday-pill') || e.target.classList.contains('month-pill')) {
-                e.target.classList.toggle('bg-blue-600');
-                e.target.classList.toggle('text-white');
-                e.target.classList.toggle('bg-[var(--bg-secondary)]');
-                e.target.classList.toggle('text-[var(--text-secondary)]');
-            }
-        });
 
         function editTimeGroup(id) {
             const tg = loadedTimeGroupsList.find(g => g.id === id);
@@ -7699,37 +8130,24 @@ function isTabAllowed(tabName) {
             
             ruleCards.forEach(card => {
                 const startTime = card.querySelector('.rule-start-time').value;
-                const endTime = card.querySelector('.rule-end-time').value;
-                
-                let timeVal = '';
-                if (startTime && endTime) {
-                    timeVal = `${startTime}-${endTime}`;
-                }
-                
-                const activeWeekdays = [];
-                card.querySelectorAll('.weekday-pill.bg-blue-600').forEach(p => {
-                    activeWeekdays.push(p.getAttribute('data-val'));
-                });
-                
-                const startMonthday = card.querySelector('.rule-start-monthday').value;
-                const endMonthday = card.querySelector('.rule-end-monthday').value;
-                let monthdayVal = '';
-                if (startMonthday && endMonthday) {
-                    monthdayVal = `${startMonthday}-${endMonthday}`;
-                } else if (startMonthday) {
-                    monthdayVal = startMonthday;
-                }
-                
-                const activeMonths = [];
-                card.querySelectorAll('.month-pill.bg-blue-600').forEach(p => {
-                    activeMonths.push(p.getAttribute('data-val'));
-                });
+                const finishTime = card.querySelector('.rule-finish-time').value;
+
+                const activeButtons = Array.from(card.querySelectorAll('.day-toggle-btn.bg-blue-600'));
+                const activeDays = activeButtons.map(b => b.getAttribute('data-day'));
+
+                const startMthday = card.querySelector('.rule-start-monthday').value;
+                const finishMthday = card.querySelector('.rule-finish-monthday').value;
+                const startMth = card.querySelector('.rule-start-month').value;
+                const finishMth = card.querySelector('.rule-finish-month').value;
                 
                 rules.push({
-                    time: timeVal,
-                    weekday: activeWeekdays.join(','),
-                    monthday: monthdayVal,
-                    month: activeMonths.join(',')
+                    start_time: startTime,
+                    finish_time: finishTime,
+                    active_days: activeDays,
+                    start_monthday: startMthday,
+                    finish_monthday: finishMthday,
+                    start_month: startMth,
+                    finish_month: finishMth
                 });
             });
             
@@ -7783,35 +8201,83 @@ function isTabAllowed(tabName) {
                 .then(data => {
                     if (!data || !data.success || !data.timeconditions) return;
                     loadedTimeConditionsList = data.timeconditions;
-                    const tbody = document.getElementById('timeconditions-table-body');
-                    if (!tbody) return;
-                    tbody.innerHTML = '';
-                    if (data.timeconditions.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="6" class="py-6 text-center text-[var(--text-muted)]">No Time Conditions found.</td></tr>';
-                        return;
-                    }
 
-                    data.timeconditions.forEach(tc => {
-                        const tr = document.createElement('tr');
-                        tr.className = 'hover:bg-[var(--bg-hover)] transition-colors border-b border-[var(--border-primary)]/40 text-xs';
-                        
-                        tr.innerHTML = `
-                            <td class="py-3 px-4 font-mono font-bold text-[var(--text-primary)]">${tc.timeconditions_id}</td>
-                            <td class="py-3 px-4 font-bold text-[var(--text-primary)]">${tc.displayname}</td>
-                            <td class="py-3 px-4 font-semibold text-blue-400">${tc.timegroup_name || 'None (ID: ' + tc.timegroup_id + ')'}</td>
-                            <td class="py-3 px-4 font-mono text-xs text-emerald-400 font-bold">${formatDestination(tc.truegoto)}</td>
-                            <td class="py-3 px-4 font-mono text-xs text-rose-400 font-bold">${formatDestination(tc.falsegoto)}</td>
-                            <td class="py-3 px-4 text-center">
-                                <div class="flex items-center justify-center gap-2">
-                                    <button onclick="editTimeCondition(${tc.timeconditions_id})" class="px-2.5 py-1 text-xs font-semibold text-blue-400 hover:bg-blue-500/10 rounded border border-blue-500/30 transition cursor-pointer">Edit</button>
-                                    <button onclick="deleteTimeCondition(${tc.timeconditions_id})" class="px-2.5 py-1 text-xs font-semibold text-red-400 hover:bg-red-500/10 rounded border border-red-500/30 transition cursor-pointer">Delete</button>
-                                </div>
-                            </td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
+                    const countBadge = document.getElementById('timeconditions-count-badge');
+                    if (countBadge) countBadge.textContent = `${data.timeconditions.length} ${data.timeconditions.length === 1 ? 'Condition' : 'Conditions'}`;
+
+                    renderTimeConditionsTable(data.timeconditions);
                 });
         }
+
+        function renderTimeConditionsTable(conditions) {
+            const tbody = document.getElementById('timeconditions-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            if (!conditions || conditions.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-xs text-[var(--text-muted)]">${isRtl ? 'لا توجد شروط وقت محددة.' : 'No Time Conditions found.'}</td></tr>`;
+                return;
+            }
+
+            conditions.forEach(tc => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-[var(--bg-hover)] transition-colors border-b border-[var(--border-primary)]/40 text-xs timecondition-row';
+                tr.setAttribute('data-search', `${tc.timeconditions_id} ${tc.displayname} ${tc.timegroup_name || ''} ${tc.truegoto || ''} ${tc.falsegoto || ''}`.toLowerCase());
+                
+                tr.innerHTML = `
+                    <td class="py-3.5 px-4 font-mono font-bold text-[var(--text-primary)]"><span class="px-2 py-0.5 rounded bg-[var(--bg-card)] border border-[var(--border-primary)] text-cyan-400">#${tc.timeconditions_id}</span></td>
+                    <td class="py-3.5 px-4 font-bold text-[var(--text-primary)]">${tc.displayname}</td>
+                    <td class="py-3.5 px-4 font-semibold text-indigo-400">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 text-xs font-bold">
+                            <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            ${tc.timegroup_name || 'Group #' + tc.timegroup_id}
+                        </span>
+                    </td>
+                    <td class="py-3.5 px-4">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-mono">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                            ${formatDestination(tc.truegoto)}
+                        </span>
+                    </td>
+                    <td class="py-3.5 px-4">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-500/10 text-rose-300 border border-rose-500/20 font-mono">
+                            <span class="w-2 h-2 rounded-full bg-rose-400"></span>
+                            ${formatDestination(tc.falsegoto)}
+                        </span>
+                    </td>
+                    <td class="py-3.5 px-4 text-center">
+                        <div class="flex items-center justify-center gap-2">
+                            <button onclick="editTimeCondition(${tc.timeconditions_id})" class="px-3 py-1 text-xs font-semibold text-cyan-400 hover:bg-cyan-500/10 rounded-lg border border-cyan-500/30 transition cursor-pointer flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                <span>Edit</span>
+                            </button>
+                            <button onclick="deleteTimeCondition(${tc.timeconditions_id})" class="px-3 py-1 text-xs font-semibold text-rose-400 hover:bg-rose-500/10 rounded-lg border border-rose-500/30 transition cursor-pointer flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                <span>Delete</span>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterTimeConditionsTable() {
+            const input = document.getElementById('timecondition-search-input');
+            if (!input) return;
+            const q = input.value.trim().toLowerCase();
+            const rows = document.querySelectorAll('.timecondition-row');
+            rows.forEach(row => {
+                const search = row.getAttribute('data-search') || '';
+                const text = row.textContent.toLowerCase();
+                if (!q || search.includes(q) || text.includes(q)) {
+                    row.classList.remove('hidden');
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+        }
+
         function populateTcTimeGroupsSelect() {
             const select = document.getElementById('tcTimeGroup');
             if (!select) return;
@@ -7868,7 +8334,6 @@ function isTabAllowed(tabName) {
             document.getElementById('timeConditionModalTitle').textContent = (isRtl ? 'تعديل شرط الوقت: ' : 'Edit Time Condition: ') + tc.displayname;
             openModal('timeConditionModal');
         }
-
 
         function saveTimeCondition(e) {
             e.preventDefault();
@@ -7938,6 +8403,7 @@ function isTabAllowed(tabName) {
                     loadedMohCategories = data.categories;
                     populateMohCategorySelect();
                     renderMohFilesTable();
+                    if (typeof populateMohRingGroupDropdown === 'function') populateMohRingGroupDropdown();
                 })
                 .catch(err => {
                     showToast('Failed to load Music on Hold data: ' + err.message, 'error');
@@ -8492,6 +8958,10 @@ function isTabAllowed(tabName) {
                     return;
                 }
 
+                // Populate Dongle and SIM selects for reports
+                populateDongleReportFilterSelects(data.dongles);
+
+                grid.innerHTML = '';
                 const dongleIds = Object.keys(data.dongles);
                 if (countBadge) {
                     countBadge.textContent = `${dongleIds.length} ${isRtl ? 'أجهزة' : (dongleIds.length === 1 ? 'device' : 'devices')}`;
@@ -8690,6 +9160,8 @@ function isTabAllowed(tabName) {
                     return;
                 }
 
+                fetchDongleStateReports();
+
                 if (badge) badge.textContent = `${data.activeCount || 0} Active Streams`;
 
                 if (!data.channels || data.channels.length === 0) {
@@ -8727,10 +9199,9 @@ function isTabAllowed(tabName) {
 
                     const neutralClass = 'text-[var(--text-muted)] bg-[var(--bg-card)] border-[var(--border-primary)]';
                     const jitterClass = !hasJitter ? neutralClass : (ch.jitterMs < 20 ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : (ch.jitterMs < 50 ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' : 'text-red-400 bg-red-500/10 border-red-500/20'));
-
                     const lossClass = !hasLoss ? neutralClass : (ch.packetLoss === 0 ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : (ch.packetLoss < 3 ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' : 'text-red-400 bg-red-500/10 border-red-500/20'));
-
                     const rttClass = !hasRtt ? neutralClass : (ch.rttMs < 100 ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : (ch.rttMs < 200 ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' : 'text-red-400 bg-red-500/10 border-red-500/20'));
+
                     html += `
                         <div class="p-4 rounded-xl border border-[var(--border-primary)] bg-[var(--bg-primary)]/40 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
                             <div class="space-y-1">
@@ -8752,9 +9223,294 @@ function isTabAllowed(tabName) {
                 html += '</div>';
                 container.innerHTML = html;
             } catch (e) {
-                container.innerHTML = `<div class="text-center py-6 text-xs text-red-400">Error rendering RTCP diagnostics: ${escapeHtml(e.message)}</div>`;
+                container.innerHTML = `<div class="text-center py-6 text-xs text-red-400">Error fetching RTCP diagnostics: ${escapeHtml(e.message)}</div>`;
             }
         }
+        window.fetchRtcpDiagnostics = fetchRtcpDiagnostics;
+
+        function populateDongleReportFilterSelects(donglesObj) {
+            const dSelect = document.getElementById('dongleReportDongleSelect');
+            const sSelect = document.getElementById('dongleReportSimSelect');
+            if (!dSelect || !sSelect) return;
+
+            const currD = dSelect.value || 'ALL';
+            const currS = sSelect.value || 'ALL';
+
+            dSelect.innerHTML = `<option value="ALL">${isRtl ? 'جميع الأجهزة (ALL)' : 'All Dongles (ALL)'}</option>`;
+            sSelect.innerHTML = `<option value="ALL">${isRtl ? 'جميع الشرائح (ALL)' : 'All SIM Numbers (ALL)'}</option>`;
+
+            const simSet = new Set();
+            if (donglesObj) {
+                Object.keys(donglesObj).sort().forEach(dId => {
+                    const opt = document.createElement('option');
+                    opt.value = dId;
+                    opt.textContent = dId;
+                    dSelect.appendChild(opt);
+
+                    const dInfo = donglesObj[dId];
+                    if (dInfo && dInfo.phone_number) simSet.add(dInfo.phone_number);
+                });
+            }
+
+            simSet.forEach(num => {
+                const opt = document.createElement('option');
+                opt.value = num;
+                opt.textContent = num;
+                sSelect.appendChild(opt);
+            });
+
+            dSelect.value = currD;
+            sSelect.value = currS;
+        }
+
+        let dongleReportStartPicker = null;
+        let dongleReportEndPicker = null;
+
+        function initDongleReportPickers() {
+            if (typeof flatpickr !== 'undefined') {
+                const startEl = document.getElementById('dongleReportStartDate');
+                const endEl = document.getElementById('dongleReportEndDate');
+                if (startEl && !dongleReportStartPicker) {
+                    dongleReportStartPicker = flatpickr(startEl, {
+                        enableTime: true,
+                        dateFormat: "Y-m-d H:i:S",
+                        altInput: true,
+                        altFormat: "m/d/Y h:i K",
+                        time_24hr: false,
+                        allowInput: true,
+                        monthSelectorType: "dropdown"
+                    });
+                }
+                if (endEl && !dongleReportEndPicker) {
+                    dongleReportEndPicker = flatpickr(endEl, {
+                        enableTime: true,
+                        dateFormat: "Y-m-d H:i:S",
+                        altInput: true,
+                        altFormat: "m/d/Y h:i K",
+                        time_24hr: false,
+                        allowInput: true,
+                        monthSelectorType: "dropdown"
+                    });
+                }
+            }
+        }
+
+        function formatDateTimeStr(d) {
+            const pad = (n) => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+        }
+
+        function setDongleReportPreset(preset) {
+            initDongleReportPickers();
+
+            const startD = new Date();
+            const endD = new Date();
+
+            if (preset === 'today') {
+                startD.setHours(0, 0, 0, 0);
+                endD.setHours(23, 59, 59, 999);
+            } else if (preset === 'yesterday') {
+                startD.setDate(startD.getDate() - 1);
+                startD.setHours(0, 0, 0, 0);
+                endD.setDate(endD.getDate() - 1);
+                endD.setHours(23, 59, 59, 999);
+            } else if (preset === '7days') {
+                startD.setDate(startD.getDate() - 6);
+                startD.setHours(0, 0, 0, 0);
+                endD.setHours(23, 59, 59, 999);
+            } else if (preset === '30days') {
+                startD.setDate(startD.getDate() - 29);
+                startD.setHours(0, 0, 0, 0);
+                endD.setHours(23, 59, 59, 999);
+            }
+
+            const startStr = formatDateTimeStr(startD);
+            const endStr = formatDateTimeStr(endD);
+
+            if (dongleReportStartPicker) dongleReportStartPicker.setDate(startD, true);
+            else {
+                const el = document.getElementById('dongleReportStartDate');
+                if (el) el.value = startStr;
+            }
+
+            if (dongleReportEndPicker) dongleReportEndPicker.setDate(endD, true);
+            else {
+                const el = document.getElementById('dongleReportEndDate');
+                if (el) el.value = endStr;
+            }
+
+            fetchDongleStateReports();
+        }
+        window.setDongleReportPreset = setDongleReportPreset;
+
+        async function fetchDongleStateReports() {
+            initDongleReportPickers();
+
+            const startInput = document.getElementById('dongleReportStartDate');
+            const endInput = document.getElementById('dongleReportEndDate');
+            const dongleSelect = document.getElementById('dongleReportDongleSelect');
+            const simSelect = document.getElementById('dongleReportSimSelect');
+
+            const summaryContainer = document.getElementById('dongleReportSummaryContainer');
+            const tablesContainer = document.getElementById('dongleReportTablesContainer');
+            if (!summaryContainer || !tablesContainer) return;
+
+            if (startInput && !startInput.value) {
+                const d = new Date(); d.setHours(0, 0, 0, 0);
+                if (dongleReportStartPicker) dongleReportStartPicker.setDate(d, true);
+                else startInput.value = formatDateTimeStr(d);
+            }
+            if (endInput && !endInput.value) {
+                const d = new Date(); d.setHours(23, 59, 59, 999);
+                if (dongleReportEndPicker) dongleReportEndPicker.setDate(d, true);
+                else endInput.value = formatDateTimeStr(d);
+            }
+
+            const startDate = startInput ? startInput.value : '';
+            const endDate = endInput ? endInput.value : '';
+            const dongleId = dongleSelect ? dongleSelect.value : 'ALL';
+            const simNumber = simSelect ? simSelect.value : 'ALL';
+
+            summaryContainer.innerHTML = `<div class="col-span-full text-center text-xs text-[var(--text-muted)] py-4">${isRtl ? 'جاري تحميل تفاصيل التقرير...' : 'Loading state duration report metrics...'}</div>`;
+            tablesContainer.innerHTML = '';
+
+            try {
+                const url = `/api/config/modem/reports?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}&dongleId=${encodeURIComponent(dongleId)}&simNumber=${encodeURIComponent(simNumber)}`;
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (!data.success) {
+                    summaryContainer.innerHTML = `<div class="col-span-full text-center text-xs text-red-400 py-4">Error: ${escapeHtml(data.error)}</div>`;
+                    return;
+                }
+
+                const g = data.globalSummary || {};
+                summaryContainer.innerHTML = `
+                    <div class="panel-surface rounded-xl p-4 border border-[var(--border-primary)] bg-emerald-500/5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">${isRtl ? 'جاهز / متاح' : 'Ready (Free)'}</span>
+                            <span class="text-xs font-mono font-bold text-emerald-400">${g.Free?.pct || 0}%</span>
+                        </div>
+                        <p class="text-xl font-black text-white mt-1 font-mono">${g.Free?.formatted || '0s'}</p>
+                        <p class="text-[11px] text-[var(--text-muted)] mt-0.5">${isRtl ? 'زمن الجاهزية لاستقبال واتصال المكالمات' : 'Ready to place & receive calls'}</p>
+                    </div>
+
+                    <div class="panel-surface rounded-xl p-4 border border-[var(--border-primary)] bg-blue-500/5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-400">${isRtl ? 'في مكالمة (مشغول)' : 'In Call (Busy)'}</span>
+                            <span class="text-xs font-mono font-bold text-blue-400">${g.Busy?.pct || 0}%</span>
+                        </div>
+                        <p class="text-xl font-black text-white mt-1 font-mono">${g.Busy?.formatted || '0s'}</p>
+                        <p class="text-[11px] text-[var(--text-muted)] mt-0.5">${isRtl ? 'زمن المحادثات النشطة' : 'Active talk / call duration'}</p>
+                    </div>
+
+                    <div class="panel-surface rounded-xl p-4 border border-[var(--border-primary)] bg-rose-500/5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-rose-400">${isRtl ? 'غير مهيأ / متوقف' : 'Not Initialized'}</span>
+                            <span class="text-xs font-mono font-bold text-rose-400">${g['Not Initialized']?.pct || 0}%</span>
+                        </div>
+                        <p class="text-xl font-black text-white mt-1 font-mono">${g['Not Initialized']?.formatted || '0s'}</p>
+                        <p class="text-[11px] text-[var(--text-muted)] mt-0.5">${isRtl ? 'زمن التوقف أو الخطأ' : 'Initializing/error status'}</p>
+                    </div>
+
+                    <div class="panel-surface rounded-xl p-4 border border-[var(--border-primary)] bg-amber-500/5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400">${isRtl ? 'غير متصل' : 'Disconnected'}</span>
+                            <span class="text-xs font-mono font-bold text-amber-400">${g['Not connected']?.pct || 0}%</span>
+                        </div>
+                        <p class="text-xl font-black text-white mt-1 font-mono">${g['Not connected']?.formatted || '0s'}</p>
+                        <p class="text-[11px] text-[var(--text-muted)] mt-0.5">${isRtl ? 'زمن عدم الاتصال بالسنترال' : 'Unattached USB device status'}</p>
+                    </div>
+                `;
+
+                let donglesHTML = `
+                    <div class="panel-surface rounded-2xl border border-[var(--border-primary)] overflow-hidden">
+                        <div class="px-5 py-3 border-b border-[var(--border-primary)] bg-[var(--bg-primary)]/40 flex items-center justify-between">
+                            <h4 class="text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">${isRtl ? 'تقرير مدة حالات أجهزة المودم' : 'Per-Dongle State Duration Breakdown'}</h4>
+                            <span class="text-[10px] font-mono text-[var(--text-muted)]">${isRtl ? 'إجمالي النطاق الزمني:' : 'Window:'} ${escapeHtml(data.timeframe?.formattedWindow || '')}</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-[var(--bg-card)] border-b border-[var(--border-primary)] text-[11px] font-bold text-[var(--text-secondary)] uppercase">
+                                        <th class="py-2.5 px-4">${isRtl ? 'الجهاز' : 'Dongle'}</th>
+                                        <th class="py-2.5 px-4">${isRtl ? 'رقم الشريحة' : 'SIM Number'}</th>
+                                        <th class="py-2.5 px-4">${isRtl ? 'جاهز (Free)' : 'Free (Ready)'}</th>
+                                        <th class="py-2.5 px-4">${isRtl ? 'مشغول (Busy)' : 'Busy (In Call)'}</th>
+                                        <th class="py-2.5 px-4">${isRtl ? 'غير مهيأ' : 'Not Initialized'}</th>
+                                        <th class="py-2.5 px-4">${isRtl ? 'غير متصل' : 'Disconnected'}</th>
+                                        <th class="py-2.5 px-4">${isRtl ? 'المكالمات / المحادثة' : 'Calls / Talk Time'}</th>
+                                        <th class="py-2.5 px-4 text-center">${isRtl ? 'نسبة الجاهزية' : 'Readiness Uptime'}</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-[var(--border-primary)] text-xs font-mono">
+                `;
+
+                if (!data.dongleReports || data.dongleReports.length === 0) {
+                    donglesHTML += `<tr><td colspan="8" class="py-6 text-center text-[var(--text-muted)]">${isRtl ? 'لا توجد بيانات مسجلة في هذه الفترة الزمانية.' : 'No dongle state logs recorded in this timeframe.'}</td></tr>`;
+                } else {
+                    data.dongleReports.forEach(d => {
+                        const free = d.states?.Free || { formatted: '0s', pct: 0 };
+                        const busy = d.states?.Busy || { formatted: '0s', pct: 0 };
+                        const notInit = d.states?.['Not Initialized'] || { formatted: '0s', pct: 0 };
+                        const notConn = d.states?.['Not connected'] || { formatted: '0s', pct: 0 };
+                        const uptime = d.uptimePct || 0;
+
+                        donglesHTML += `
+                            <tr class="hover:bg-[var(--bg-hover)] transition-colors">
+                                <td class="py-3 px-4 font-bold text-white">${escapeHtml(d.dongle_name)}</td>
+                                <td class="py-3 px-4 text-blue-400 font-bold">${escapeHtml(d.sim_number || '-')}</td>
+                                <td class="py-3 px-4">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-emerald-400 font-bold">${free.formatted}</span>
+                                        <span class="text-[10px] text-zinc-500">(${free.pct}%)</span>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-blue-400 font-bold">${busy.formatted}</span>
+                                        <span class="text-[10px] text-zinc-500">(${busy.pct}%)</span>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-rose-400 font-bold">${notInit.formatted}</span>
+                                        <span class="text-[10px] text-zinc-500">(${notInit.pct}%)</span>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-amber-400 font-bold">${notConn.formatted}</span>
+                                        <span class="text-[10px] text-zinc-500">(${notConn.pct}%)</span>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4 text-zinc-300">
+                                    ${d.totalCalls || 0} ${isRtl ? 'مكالمة' : 'calls'} (${d.talkMin || 0} ${isRtl ? 'د' : 'min'})
+                                </td>
+                                <td class="py-3 px-4 text-center">
+                                    <span class="px-2 py-0.5 text-[11px] font-bold rounded ${uptime >= 90 ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20' : uptime >= 60 ? 'bg-amber-500/15 text-amber-300 border border-amber-500/20' : 'bg-rose-500/15 text-rose-400 border border-rose-500/20'}">
+                                        ${uptime}%
+                                    </span>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                donglesHTML += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+
+                tablesContainer.innerHTML = donglesHTML;
+
+            } catch (err) {
+                summaryContainer.innerHTML = `<div class="col-span-full text-center text-xs text-red-400 py-4">Failed to fetch dongle reports: ${escapeHtml(err.message)}</div>`;
+            }
+        }
+        window.fetchDongleStateReports = fetchDongleStateReports;
         let rtcpTimer = null;
         function startRtcpTimer() {
             stopRtcpTimer();
@@ -8796,6 +9552,7 @@ function isTabAllowed(tabName) {
             if (typeof window.Terminal !== 'undefined') {
                 ttyXterm = new window.Terminal({
                     cursorStyle: 'block',
+                    convertEol: true,
                     fontFamily: '"JetBrains Mono", "Courier New", monospace',
                     fontSize: 13,
                     theme: {
@@ -8820,8 +9577,14 @@ function isTabAllowed(tabName) {
                 }
 
                 ttyXterm.open(container);
-                if (ttyFitAddon) try { ttyFitAddon.fit(); } catch(_) {}
+                setTimeout(() => {
+                    if (ttyFitAddon) try { ttyFitAddon.fit(); } catch(_) {}
+                    if (ttyXterm) try { ttyXterm.focus(); } catch(_) {}
+                }, 50);
 
+                container.addEventListener('click', () => {
+                    if (ttyXterm) ttyXterm.focus();
+                });
                 ttyXterm.attachCustomKeyEventHandler((arg) => {
                     if ((arg.ctrlKey || arg.metaKey) && arg.code === 'KeyC' && arg.type === 'keydown') {
                         if (ttyXterm.hasSelection()) {

@@ -41,9 +41,9 @@ collect_dongle_count() {
     elif [[ -t 2 ]] && { exec 3<>/proc/self/fd/2; } 2>/dev/null; then
         input_fd=3
     else
-        echo "Error: no interactive terminal is available for the dongle count prompt." >&2
-        echo "Download install.sh and run 'bash install.sh', or set NUM_DONGLES to a value from 1 to 25." >&2
-        return 1
+        echo "Non-interactive environment detected; defaulting to $default_count GSM dongle(s)."
+        NUM_DONGLES=$default_count
+        return 0
     fi
 
     while true; do
@@ -343,15 +343,31 @@ append_context() {
     fi
 }
 
-# Strip old [from-internal-custom] before appending (ensures upgrades get the latest version)
-echo "  Stripping old [from-internal-custom]..."
-python3 -c "import re;f=open('/etc/asterisk/extensions_custom.conf').read();f=re.sub(r'\\[from-internal-custom\\].*?(?=\\n\\[|\\Z)', '', f, flags=re.DOTALL);open('/etc/asterisk/extensions_custom.conf','w').write(f)"
+# Strip old [from-internal-custom], [from-intercom-autoanswer], [intercom-predial-autoanswer], [from-intercom-conf] before appending
+echo "  Stripping old dialplan custom contexts..."
+python3 -c "import re;f=open('/etc/asterisk/extensions_custom.conf').read();f=re.sub(r'\[from-internal-custom\].*?(?=\n\[|\Z)', '', f, flags=re.DOTALL);f=re.sub(r'\[from-intercom-autoanswer\].*?(?=\n\[|\Z)', '', f, flags=re.DOTALL);f=re.sub(r'\[intercom-predial-autoanswer\].*?(?=\n\[|\Z)', '', f, flags=re.DOTALL);f=re.sub(r'\[from-intercom-conf\].*?(?=\n\[|\Z)', '', f, flags=re.DOTALL);open('/etc/asterisk/extensions_custom.conf','w').write(f)"
 echo "  Stripped."
 
-# Append ChanSpy & Hijack from-internal-custom
+# Append Intercom, ChanSpy & Hijack from-internal-custom
 append_context '[from-internal-custom]' '[from-internal-custom]' << 'CHANSPY'
 
 [from-internal-custom]
+; === Solution A: Direct 1-to-1 Intercom Code (*80 + Extension, e.g. *80102) ===
+exten => _*80X.,1,NoOp(--- Keypad Direct 1-to-1 Intercom to ${EXTEN:3} ---)
+same => n,Set(INTERCOM_CALLER=${CALLERID(num)})
+same => n,Goto(from-intercom-autoanswer,${EXTEN:3},1)
+
+; === Solution B: All-Available Extensions Mass Intercom Code (*800 or 800) ===
+exten => *800,1,NoOp(--- Keypad Mass Intercom to All Available Extensions ---)
+same => n,Set(HOST_EXT=${CALLERID(num)})
+same => n,Set(ROOM_ID=88${RAND(100000,999999)})
+same => n,System(/usr/bin/node /opt/sokrat-voip/scripts/trigger-intercom-code.js ${HOST_EXT} ${ROOM_ID} &)
+same => n,Answer()
+same => n,ConfBridge(${ROOM_ID})
+same => n,Hangup()
+
+exten => 800,1,Goto(*800,1)
+
 exten => _222X.,1,NoOp(Spying on extension ${EXTEN:3} in Listen-only mode)
 exten => _222X.,n,Answer()
 exten => _222X.,n,Set(spyee_dial=${DB(DEVICE/${EXTEN:3}/dial)})
@@ -386,13 +402,41 @@ same => n,Hangup()
 
 CHANSPY
 
-# Install AGI hijack script
-echo "  Installing AGI hijack script..."
+append_context '[from-intercom-autoanswer]' '[from-intercom-autoanswer]' << 'INTERCOM_CTX'
+
+[from-intercom-autoanswer]
+exten => _X.,1,NoOp(--- Auto-Answer Intercom Call to ${EXTEN} ---)
+same => n,ExecIf($["${INTERCOM_CALLER}" != ""]?Set(CALLERID(name)=Intercom ${INTERCOM_CALLER}):Set(CALLERID(name)=Intercom))
+same => n,ExecIf($["${INTERCOM_CALLER}" != ""]?Set(CALLERID(num)=${INTERCOM_CALLER}):Set(CALLERID(num)=226))
+same => n,Set(spyee_dial=${DB(DEVICE/${EXTEN}/dial)})
+same => n,GotoIf($["${spyee_dial}" = ""]?fallback)
+same => n,Dial(${spyee_dial},30,A(beep)b(intercom-predial-autoanswer^s^1))
+same => n,Hangup()
+same => n(fallback),Dial(SIP/${EXTEN},30,A(beep)b(intercom-predial-autoanswer^s^1))
+same => n,Hangup()
+
+[intercom-predial-autoanswer]
+exten => s,1,NoOp(--- Predial Auto-Answer SIP Header Injection ---)
+same => n,SIPAddHeader(Call-Info: <sip:127.0.0.1>\;answer-after=0)
+same => n,SIPAddHeader(Alert-Info: info=alert-autoanswer)
+same => n,Return()
+
+[from-intercom-conf]
+exten => _X.,1,NoOp(--- Intercom Target Join ConfBridge ${EXTEN} ---)
+same => n,Answer()
+same => n,ConfBridge(${EXTEN})
+same => n,Hangup()
+
+INTERCOM_CTX
+
+# Install AGI hijack script & trigger script permissions
+echo "  Installing AGI hijack script & scripts..."
 mkdir -p /var/lib/asterisk/agi-bin
 cp "$INSTALL_DIR/agi-bin/hijack_call.py" /var/lib/asterisk/agi-bin/hijack_call.py
 chmod +x /var/lib/asterisk/agi-bin/hijack_call.py
 chown asterisk:asterisk /var/lib/asterisk/agi-bin/hijack_call.py
-echo "  hijack_call.py installed."
+chmod +x "$INSTALL_DIR/scripts/trigger-intercom-code.js" 2>/dev/null || true
+echo "  hijack_call.py and scripts initialized."
 
 # Strip old [from-dongle-custom] and [ext-moh] before appending (ensures upgrades get the latest version)
 echo "  Stripping old [from-dongle-custom] and [ext-moh]..."
@@ -675,6 +719,21 @@ fi
 httpd -t 2>&1 | grep -v 'Could not reliably' | grep -v 'AH00558' || true
 systemctl restart httpd
 echo "  Apache restarted"
+
+# Disable USB autosuspend in GRUB and modprobe
+echo "  Disabling USB autosuspend in GRUB & modprobe..."
+if [ -f /etc/default/grub ]; then
+    if ! grep -q "usbcore.autosuspend=-1" /etc/default/grub; then
+        sed -i 's/GRUB_CMDLINE_LINUX="\(.*\)"/GRUB_CMDLINE_LINUX="\1 usbcore.autosuspend=-1"/' /etc/default/grub
+        grub2-mkconfig -o /boot/grub2/grub.cfg 2>/dev/null || true
+    fi
+fi
+echo "options usbcore autosuspend=-1" > /etc/modprobe.d/disable-usb-autosuspend.conf 2>/dev/null || true
+
+# Sync PHP timezone
+if [ -f /etc/php.ini ]; then
+    sed -i 's@^;\?date\.timezone =.*@date.timezone = "Africa/Cairo"@' /etc/php.ini
+fi
 
 # ──────────────────────────────────────────────
 # Step 12 — Create systemd Service

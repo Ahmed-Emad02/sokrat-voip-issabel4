@@ -7,7 +7,7 @@ const net = require('net');
 const http = require('http');
 const https = require('https');
 const { Server } = require('socket.io');
-const { exec, execFile } = require('child_process');
+const { exec, execFile, spawn } = require('child_process');
 const util = require('util');
 const execPromise = util.promisify(exec);
 const execFileAsync = (file, args, options) => new Promise((resolve, reject) => {
@@ -24,6 +24,7 @@ const ffmpeg = require('fluent-ffmpeg');
 const axios = require('axios');
 const crypto = require('crypto');
 
+const { getPhoneVariants } = require('./lib/phone-normalization');
 require('dotenv').config({ path: path.join(__dirname, '.env'), quiet: true });
 
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'issabel-dashboard-encryption-key-32c'; // Must be 32 bytes
@@ -128,6 +129,20 @@ app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/photos', express.static(path.join(__dirname, 'public', 'photos')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.get('/favicon.ico', (req, res) => {
+    res.setHeader('Content-Type', 'image/x-icon');
+    res.sendFile(path.join(__dirname, 'public', 'favicon.ico'), (err) => {
+        if (err && !res.headersSent) res.status(204).end();
+    });
+});
+
+app.get('/favicon.png', (req, res) => {
+    res.setHeader('Content-Type', 'image/png');
+    res.sendFile(path.join(__dirname, 'public', 'favicon.png'), (err) => {
+        if (err && !res.headersSent) res.status(204).end();
+    });
+});
+
 const sessionMiddleware = session({
     secret: SESSION_SECRET,
     resave: false,
@@ -242,6 +257,38 @@ async function initAuthDb() {
             auto_backup_schedule VARCHAR(50) DEFAULT 'daily',
             last_backup_at DATETIME DEFAULT NULL,
             last_backup_status VARCHAR(50) DEFAULT NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+    `);
+    await conn.execute(`
+        CREATE TABLE IF NOT EXISTS dashboard_inbound_blacklist (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            phone_number VARCHAR(50) NOT NULL UNIQUE,
+            description VARCHAR(255) DEFAULT NULL,
+            action VARCHAR(30) DEFAULT 'zapateller',
+            enabled TINYINT(1) DEFAULT 1,
+            blocked_count INT DEFAULT 0,
+            last_blocked_at DATETIME DEFAULT NULL,
+            created_at DATETIME DEFAULT NULL,
+            updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            KEY idx_phone (phone_number),
+            KEY idx_enabled (enabled)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+    `);
+
+    await conn.execute(`
+        CREATE TABLE IF NOT EXISTS dongle_state_logs (
+            id BIGINT AUTO_INCREMENT PRIMARY KEY,
+            dongle_name VARCHAR(50) NOT NULL,
+            sim_number VARCHAR(50) DEFAULT NULL,
+            imsi VARCHAR(30) DEFAULT NULL,
+            imei VARCHAR(30) DEFAULT NULL,
+            state VARCHAR(50) NOT NULL,
+            started_at DATETIME NOT NULL,
+            ended_at DATETIME DEFAULT NULL,
+            duration_sec INT DEFAULT 0,
+            KEY idx_dongle_start (dongle_name, started_at),
+            KEY idx_sim_start (sim_number, started_at),
+            KEY idx_state (state)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8
     `);
     // Migrate columns for existing partial tables
@@ -573,7 +620,8 @@ function requireConfigPermission(subTab) {
 app.use((req, res, next) => {
     const publicPaths = [
         '/login', '/logout', '/forgot-password', '/reset-password',
-        '/api/auth/forgot-password', '/api/auth/reset-password', '/api/network-info'
+        '/api/auth/forgot-password', '/api/auth/reset-password', '/api/network-info',
+        '/favicon.ico', '/favicon.png', '/robots.txt'
     ];
     if (publicPaths.includes(req.path) || req.path.startsWith('/public/')) {
         return next();
@@ -1509,28 +1557,68 @@ async function applyDongleHotplugMappingDefaults() {
 }
 
 
+const lastKnownDongleStates = {};
+
+async function recordDongleStateLog(dongleName, state, simNumber = null, imsi = null, imei = null) {
+    if (!dongleName || !state) return;
+    const safeName = String(dongleName).trim().toLowerCase();
+    const safeState = String(state).trim();
+
+    if (lastKnownDongleStates[safeName] === safeState) return;
+    lastKnownDongleStates[safeName] = safeState;
+
+    try {
+        await pool.query(
+            `UPDATE \`asterisk\`.\`dongle_state_logs\`
+             SET ended_at = NOW(),
+                 duration_sec = GREATEST(0, TIMESTAMPDIFF(SECOND, started_at, NOW()))
+             WHERE dongle_name = ? AND ended_at IS NULL`,
+            [safeName]
+        );
+        await pool.query(
+            `INSERT INTO \`asterisk\`.\`dongle_state_logs\`
+             (dongle_name, sim_number, imsi, imei, state, started_at)
+             VALUES (?, ?, ?, ?, ?, NOW())`,
+            [safeName, simNumber || null, imsi || null, imei || null, safeState]
+        );
+    } catch (err) {
+        console.error(`DONGLE-STATE-LOG: Error recording state for ${safeName}:`, err.message);
+    }
+}
+
 function autoHealDongles() {
     applyDongleHotplugMappingDefaults();
     getDevicesOutputCached((err, stdout) => {
         if (err || !stdout) return;
         const devices = parseDevicesOutput(stdout, true);
         const now = Date.now();
+
+        const activeDongleIds = new Set();
         for (const dev of devices) {
-            const id = dev.ID;
-            const state = (dev.State || '').toLowerCase();
-            if (state.includes('not initia')) {
-                if (!dongleNotInitTimestamps[id]) {
-                    dongleNotInitTimestamps[id] = now;
-                } else if (now - dongleNotInitTimestamps[id] >= 3000 && !dongleRestartedOnce[id]) {
-                    dongleRestartedOnce[id] = true;
-                    console.log(`AUTO-HEAL: ${id} stuck in "Not Initialized" for 3s. Restarting once...`);
-                    execFile(ASTERISK_BIN, ['-rx', `dongle restart now ${id}`]);
-                }
-            } else {
-                delete dongleNotInitTimestamps[id];
-                delete dongleRestartedOnce[id];
-            }
+            const id = (dev.ID || '').toLowerCase();
+            if (!id || !id.startsWith('dongle')) continue;
+            activeDongleIds.add(id);
+
+            const rawState = String(dev.State || 'Unknown').trim();
+            const number = String(dev.Number || '').trim();
+            const imsi = String(dev.IMSI || '').trim();
+            const imei = String(dev.IMEI || '').trim();
+
+            recordDongleStateLog(id, rawState, number || null, imsi || null, imei || null);
+
+            delete dongleNotInitTimestamps[id];
+            delete dongleRestartedOnce[id];
         }
+
+        try {
+            const configuredDongles = parseDongleConfGain().dongles;
+            for (const dName of Object.keys(configuredDongles)) {
+                const safeName = dName.toLowerCase();
+                if (!activeDongleIds.has(safeName)) {
+                    recordDongleStateLog(safeName, 'Not connected');
+                }
+            }
+        } catch (_) {}
     });
 }
 setInterval(autoHealDongles, 3000);
@@ -3424,6 +3512,76 @@ app.post('/api/hijack', (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 });
+// POST /api/intercom/call - Originate instant intercom meeting call to selected available extensions
+app.post('/api/intercom/call', requireAuth, async (req, res) => {
+    try {
+        const { callerExtension, targetExtensions } = req.body;
+        const caller = String(callerExtension || '').trim();
+        const rawTargets = Array.isArray(targetExtensions) ? targetExtensions : [];
+
+        if (!caller || !/^\d{2,5}$/.test(caller)) {
+            return res.status(400).json({ success: false, error: 'Valid caller extension is required.' });
+        }
+        if (rawTargets.length === 0) {
+            return res.status(400).json({ success: false, error: 'At least one target extension must be selected.' });
+        }
+
+        // Filter targets: must be online, NOT in active call, NOT ringing
+        const validTargets = [];
+        for (const tExt of rawTargets) {
+            const extStr = String(tExt || '').trim();
+            if (!/^\d{2,5}$/.test(extStr)) continue;
+            if (extStr === caller) continue;
+
+            const isOnline = Boolean(peerStatus[extStr]);
+            const liveCall = activeCalls[extStr];
+            const isBusy = liveCall && (liveCall.state === 'In Call' || liveCall.state === 'Ringing');
+
+            if (isOnline && !isBusy) {
+                validTargets.push(extStr);
+            }
+        }
+
+        if (validTargets.length === 0) {
+            return res.status(400).json({ success: false, error: 'No available target extensions selected (must be online and not in call/ringing).' });
+        }
+
+        // Generate dynamic 8-digit numeric room ID (matches _X. in from-intercom-conf)
+        const roomId = '88' + String(Date.now()).slice(-6);
+
+        // Originate Host Caller to join conference room
+        const hostChan = `Local/${caller}@from-intercom-autoanswer`;
+        if (amiClient) {
+            amiClient.write(`Action: Originate\r\nChannel: ${hostChan}\r\nContext: from-intercom-conf\r\nExten: ${roomId}\r\nPriority: 1\r\nVariable: INTERCOM_CALLER=${caller}\r\nCallerID: "Intercom Host" <${caller}>\r\nAsync: true\r\n\r\n`);
+        } else {
+            exec(`${ASTERISK_BIN} -rx "channel originate ${hostChan} extension ${roomId}@from-intercom-conf"`, () => {});
+        }
+
+        // Originate each target extension to join conference room
+        const originatedList = [];
+        for (const targetExt of validTargets) {
+            const targetChan = `Local/${targetExt}@from-intercom-autoanswer`;
+            if (amiClient) {
+                amiClient.write(`Action: Originate\r\nChannel: ${targetChan}\r\nContext: from-intercom-conf\r\nExten: ${roomId}\r\nPriority: 1\r\nVariable: INTERCOM_CALLER=${caller}\r\nCallerID: "Intercom ${caller}" <${caller}>\r\nAsync: true\r\n\r\n`);
+            } else {
+                exec(`${ASTERISK_BIN} -rx "channel originate ${targetChan} extension ${roomId}@from-intercom-conf"`, () => {});
+            }
+            originatedList.push(targetExt);
+        }
+
+        res.json({
+            success: true,
+            roomId: roomId,
+            caller: caller,
+            invitedCount: originatedList.length,
+            targets: originatedList,
+            message: `Intercom meeting started in room ${roomId} with ${originatedList.length} extension(s).`
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 
 // --- ROUTE 3: DEDICATED LIVE OPERATOR PANEL VIEW ---
 app.get('/operator', (req, res) => {
@@ -3842,8 +4000,6 @@ function startUssdLogMonitor() {
     });
 }
 
-// Import spawn from child_process
-const { spawn } = require('child_process');
 startUssdLogMonitor();
 
 function normalizeMsisdn(raw) {
@@ -8254,6 +8410,174 @@ app.post('/api/config/dongle-mappings/:dongleName/toggle', requireAuth, async (r
     }
 });
 
+// GET /api/config/modem/reports - Detailed Dongle & SIM state duration reports
+app.get('/api/config/modem/reports', async (req, res) => {
+    try {
+        const startStr = req.query.startDate ? moment(req.query.startDate).format('YYYY-MM-DD HH:mm:ss') : moment().startOf('day').format('YYYY-MM-DD HH:mm:ss');
+        const endStr = req.query.endDate ? moment(req.query.endDate).format('YYYY-MM-DD HH:mm:ss') : moment().endOf('day').format('YYYY-MM-DD HH:mm:ss');
+        const filterDongle = (req.query.dongleId && req.query.dongleId !== 'ALL') ? String(req.query.dongleId).trim().toLowerCase() : null;
+        const filterSim = (req.query.simNumber && req.query.simNumber !== 'ALL') ? String(req.query.simNumber).trim() : null;
+
+        const winStartMs = moment(startStr).valueOf();
+        const winEndMs = moment(endStr).valueOf();
+        const totalWinSec = Math.max(1, Math.floor((winEndMs - winStartMs) / 1000));
+
+        let sql = `
+            SELECT dongle_name, sim_number, imsi, imei, state,
+                   started_at, COALESCE(ended_at, NOW()) as ended_at
+            FROM \`asterisk\`.\`dongle_state_logs\`
+            WHERE started_at <= ? AND (ended_at IS NULL OR ended_at >= ?)
+        `;
+        const queryParams = [endStr, startStr];
+
+        if (filterDongle) {
+            sql += ` AND LOWER(dongle_name) = ?`;
+            queryParams.push(filterDongle);
+        }
+        if (filterSim) {
+            sql += ` AND (sim_number = ? OR imsi = ? OR imei = ?)`;
+            queryParams.push(filterSim, filterSim, filterSim);
+        }
+
+        sql += ` ORDER BY started_at ASC`;
+        const [logs] = await pool.query(sql, queryParams);
+
+        // Fetch CDR statistics for dongles in timeframe
+        const [cdrRows] = await pool.query(`
+            SELECT channel, dstchannel, billsec, disposition, calldate
+            FROM ${tables.cdr}
+            WHERE calldate BETWEEN ? AND ?
+              AND (channel LIKE 'Dongle/%' OR dstchannel LIKE 'Dongle/%')
+        `, [startStr, endStr]);
+
+        const dongleCdrMap = {};
+        cdrRows.forEach(row => {
+            const mSrc = (row.channel || '').match(/dongle\/(dongle\d+)/i);
+            const mDst = (row.dstchannel || '').match(/dongle\/(dongle\d+)/i);
+            const dId = (mSrc && mSrc[1] ? mSrc[1] : (mDst && mDst[1] ? mDst[1] : '')).toLowerCase();
+            if (dId) {
+                dongleCdrMap[dId] = dongleCdrMap[dId] || { totalCalls: 0, answeredCalls: 0, talkSec: 0 };
+                dongleCdrMap[dId].totalCalls++;
+                if (row.disposition === 'ANSWERED') {
+                    dongleCdrMap[dId].answeredCalls++;
+                    dongleCdrMap[dId].talkSec += (parseInt(row.billsec) || 0);
+                }
+            }
+        });
+
+        // Group State Durations by Dongle & SIM
+        const dongleStats = {};
+        const simStats = {};
+        const globalStateSec = { Free: 0, Busy: 0, 'Not Initialized': 0, 'Not connected': 0, Other: 0 };
+
+        logs.forEach(log => {
+            const dName = (log.dongle_name || 'unknown').toLowerCase();
+            const simNum = log.sim_number || log.imsi || 'Unknown SIM';
+            const stateRaw = String(log.state || 'Unknown').trim();
+
+            let stateKey = 'Other';
+            if (/free|ready|idle/i.test(stateRaw)) stateKey = 'Free';
+            else if (/busy|dial|ring|active|held|call/i.test(stateRaw)) stateKey = 'Busy';
+            else if (/not init|init|error/i.test(stateRaw)) stateKey = 'Not Initialized';
+            else if (/not conn|disconnect|removed/i.test(stateRaw)) stateKey = 'Not connected';
+
+            const logStartMs = Math.max(winStartMs, moment(log.started_at).valueOf());
+            const logEndMs = Math.min(winEndMs, moment(log.ended_at).valueOf());
+            const durSec = Math.max(0, Math.floor((logEndMs - logStartMs) / 1000));
+
+            globalStateSec[stateKey] = (globalStateSec[stateKey] || 0) + durSec;
+
+            if (!dongleStats[dName]) {
+                dongleStats[dName] = {
+                    dongle_name: dName,
+                    sim_number: log.sim_number || 'Unknown',
+                    imsi: log.imsi || '',
+                    imei: log.imei || '',
+                    statesSec: { Free: 0, Busy: 0, 'Not Initialized': 0, 'Not connected': 0, Other: 0 },
+                    totalLoggedSec: 0
+                };
+            }
+            if (log.sim_number && dongleStats[dName].sim_number === 'Unknown') {
+                dongleStats[dName].sim_number = log.sim_number;
+            }
+            if (log.imsi && !dongleStats[dName].imsi) dongleStats[dName].imsi = log.imsi;
+            if (log.imei && !dongleStats[dName].imei) dongleStats[dName].imei = log.imei;
+
+            dongleStats[dName].statesSec[stateKey] = (dongleStats[dName].statesSec[stateKey] || 0) + durSec;
+            dongleStats[dName].totalLoggedSec += durSec;
+
+            if (!simStats[simNum]) {
+                simStats[simNum] = {
+                    sim_number: simNum,
+                    dongle_name: dName,
+                    imsi: log.imsi || '',
+                    statesSec: { Free: 0, Busy: 0, 'Not Initialized': 0, 'Not connected': 0, Other: 0 },
+                    totalLoggedSec: 0
+                };
+            }
+            simStats[simNum].statesSec[stateKey] = (simStats[simNum].statesSec[stateKey] || 0) + durSec;
+            simStats[simNum].totalLoggedSec += durSec;
+        });
+
+        const formatDuration = (sec) => {
+            if (!sec || sec <= 0) return '0s';
+            const h = Math.floor(sec / 3600);
+            const m = Math.floor((sec % 3600) / 60);
+            const s = sec % 60;
+            const parts = [];
+            if (h > 0) parts.push(`${h}h`);
+            if (m > 0 || h > 0) parts.push(`${m}m`);
+            parts.push(`${s}s`);
+            return parts.join(' ');
+        };
+
+        const formatReportList = (mapObj, isDongle = true) => {
+            return Object.values(mapObj).map(item => {
+                const totalSec = Math.max(1, item.totalLoggedSec || totalWinSec);
+                const cdr = isDongle ? (dongleCdrMap[item.dongle_name] || { totalCalls: 0, answeredCalls: 0, talkSec: 0 }) : { totalCalls: 0, answeredCalls: 0, talkSec: 0 };
+                const statesFormatted = {};
+                for (const [sKey, sSec] of Object.entries(item.statesSec)) {
+                    statesFormatted[sKey] = {
+                        sec: sSec,
+                        formatted: formatDuration(sSec),
+                        pct: Math.round((sSec / totalSec) * 1000) / 10
+                    };
+                }
+                const readySec = (item.statesSec.Free || 0) + (item.statesSec.Busy || 0);
+                const uptimePct = Math.round((readySec / totalSec) * 1000) / 10;
+                return {
+                    ...item,
+                    states: statesFormatted,
+                    totalCalls: cdr.totalCalls,
+                    answeredCalls: cdr.answeredCalls,
+                    talkSec: cdr.talkSec,
+                    talkMin: Math.round(cdr.talkSec / 60),
+                    uptimePct
+                };
+            });
+        };
+
+        const dongleReportsList = formatReportList(dongleStats, true);
+        const simReportsList = formatReportList(simStats, false);
+
+        res.json({
+            success: true,
+            timeframe: { startDate: startStr, endDate: endStr, totalWindowSec: totalWinSec, formattedWindow: formatDuration(totalWinSec) },
+            globalSummary: {
+                Free: { sec: globalStateSec.Free, formatted: formatDuration(globalStateSec.Free), pct: Math.round((globalStateSec.Free / (totalWinSec * Math.max(1, Object.keys(dongleStats).length))) * 1000) / 10 },
+                Busy: { sec: globalStateSec.Busy, formatted: formatDuration(globalStateSec.Busy), pct: Math.round((globalStateSec.Busy / (totalWinSec * Math.max(1, Object.keys(dongleStats).length))) * 1000) / 10 },
+                'Not Initialized': { sec: globalStateSec['Not Initialized'], formatted: formatDuration(globalStateSec['Not Initialized']), pct: Math.round((globalStateSec['Not Initialized'] / (totalWinSec * Math.max(1, Object.keys(dongleStats).length))) * 1000) / 10 },
+                'Not connected': { sec: globalStateSec['Not connected'], formatted: formatDuration(globalStateSec['Not connected']), pct: Math.round((globalStateSec['Not connected'] / (totalWinSec * Math.max(1, Object.keys(dongleStats).length))) * 1000) / 10 }
+            },
+            dongleReports: dongleReportsList,
+            simReports: simReportsList
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+
 const csvUpload = multer({
     dest: UPLOAD_TMP,
     limits: { fileSize: 10 * 1024 * 1024 }
@@ -8317,6 +8641,198 @@ app.post('/api/contacts/csv-import', csvUpload.single('file'), async (req, res) 
         res.status(500).json({ success: false, error: err.message });
     }
 });
+
+// --- INBOUND BLACKLIST API ENDPOINTS & ASTDB SYNC ---
+
+async function syncBlacklistEntryToAstDB(phone, enabled) {
+    const cleanPhone = String(phone || '').replace(/[^\d+*#]/g, '').trim();
+    if (!cleanPhone) return;
+    const variants = getPhoneVariants(cleanPhone);
+    const allKeys = new Set([cleanPhone, ...variants].filter(Boolean));
+
+    for (const key of allKeys) {
+        try {
+            if (enabled) {
+                await execPromise(`${ASTERISK_BIN} -rx "database put blacklist ${key} 1"`);
+            } else {
+                await execPromise(`${ASTERISK_BIN} -rx "database del blacklist ${key}"`);
+            }
+        } catch (err) {
+            console.error(`AstDB blacklist sync error for ${key}:`, err.message);
+        }
+    }
+}
+
+async function fullSyncBlacklistToAstDB() {
+    try {
+        const [rows] = await pool.query('SELECT phone_number, enabled FROM `asterisk`.`dashboard_inbound_blacklist`');
+        let syncedCount = 0;
+        for (const row of rows) {
+            await syncBlacklistEntryToAstDB(row.phone_number, row.enabled === 1);
+            if (row.enabled === 1) syncedCount++;
+        }
+        return { success: true, total: rows.length, active: syncedCount };
+    } catch (err) {
+        console.error('Full AstDB blacklist sync error:', err.message);
+        throw err;
+    }
+}
+
+// GET /api/blacklist — List all blocked numbers
+app.get('/api/blacklist', requireAuth, async (req, res) => {
+    try {
+        const [blacklist] = await pool.query('SELECT * FROM `asterisk`.`dashboard_inbound_blacklist` ORDER BY created_at DESC');
+        res.json({ success: true, blacklist });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// POST /api/blacklist — Add a number to inbound blacklist
+app.post('/api/blacklist', async (req, res) => {
+    if (!isSuperAdmin(req)) {
+        return res.status(403).json({ success: false, error: 'Unauthorized' });
+    }
+    try {
+        const { phone_number, description, action, enabled } = req.body;
+        if (!phone_number || !phone_number.trim()) {
+            return res.status(400).json({ success: false, error: 'Phone number is required' });
+        }
+        const cleanPhone = String(phone_number).trim();
+        const blAction = ['zapateller', 'hangup', 'congestion'].includes(action) ? action : 'zapateller';
+        const isEnabled = enabled !== false && enabled !== '0' && enabled !== 0 ? 1 : 0;
+
+        await pool.query(`
+            INSERT INTO \`asterisk\`.\`dashboard_inbound_blacklist\` (phone_number, description, action, enabled, created_at)
+            VALUES (?, ?, ?, ?, NOW())
+            ON DUPLICATE KEY UPDATE description = VALUES(description), action = VALUES(action), enabled = VALUES(enabled)
+        `, [cleanPhone, description || null, blAction, isEnabled]);
+
+        await syncBlacklistEntryToAstDB(cleanPhone, isEnabled === 1);
+
+        res.json({ success: true, message: `Phone number ${cleanPhone} added to inbound blacklist` });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// PUT /api/blacklist/:id — Edit or toggle an inbound blacklist entry
+app.put('/api/blacklist/:id', async (req, res) => {
+    if (!isSuperAdmin(req)) {
+        return res.status(403).json({ success: false, error: 'Unauthorized' });
+    }
+    try {
+        const id = parseInt(req.params.id, 10);
+        if (!id) return res.status(400).json({ success: false, error: 'Invalid entry ID' });
+
+        const { phone_number, description, action, enabled } = req.body;
+        const [existing] = await pool.query('SELECT * FROM `asterisk`.`dashboard_inbound_blacklist` WHERE id = ?', [id]);
+        if (existing.length === 0) {
+            return res.status(404).json({ success: false, error: 'Blacklist entry not found' });
+        }
+
+        const oldPhone = existing[0].phone_number;
+        const newPhone = phone_number ? String(phone_number).trim() : oldPhone;
+        const blAction = ['zapateller', 'hangup', 'congestion'].includes(action) ? action : existing[0].action;
+        const isEnabled = enabled !== undefined ? (enabled ? 1 : 0) : existing[0].enabled;
+
+        await pool.query(`
+            UPDATE \`asterisk\`.\`dashboard_inbound_blacklist\`
+            SET phone_number = ?, description = ?, action = ?, enabled = ?
+            WHERE id = ?
+        `, [newPhone, description !== undefined ? (description || null) : existing[0].description, blAction, isEnabled, id]);
+
+        if (oldPhone !== newPhone) {
+            await syncBlacklistEntryToAstDB(oldPhone, false);
+        }
+        await syncBlacklistEntryToAstDB(newPhone, isEnabled === 1);
+
+        res.json({ success: true, message: 'Blacklist entry updated successfully' });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// DELETE /api/blacklist/:id — Delete an inbound blacklist entry
+app.delete('/api/blacklist/:id', async (req, res) => {
+    if (!isSuperAdmin(req)) {
+        return res.status(403).json({ success: false, error: 'Unauthorized' });
+    }
+    try {
+        const id = parseInt(req.params.id, 10);
+        if (!id) return res.status(400).json({ success: false, error: 'Invalid entry ID' });
+
+        const [existing] = await pool.query('SELECT phone_number FROM `asterisk`.`dashboard_inbound_blacklist` WHERE id = ?', [id]);
+        if (existing.length > 0) {
+            const phone = existing[0].phone_number;
+            await pool.query('DELETE FROM `asterisk`.`dashboard_inbound_blacklist` WHERE id = ?', [id]);
+            await syncBlacklistEntryToAstDB(phone, false);
+        }
+
+        res.json({ success: true, message: 'Blacklist entry deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// POST /api/blacklist/sync — Force full sync from MySQL to AstDB
+app.post('/api/blacklist/sync', async (req, res) => {
+    if (!isSuperAdmin(req)) {
+        return res.status(403).json({ success: false, error: 'Unauthorized' });
+    }
+    try {
+        const result = await fullSyncBlacklistToAstDB();
+        res.json({ success: true, message: `AstDB sync complete. ${result.active} active rule(s) synced to Asterisk.`, result });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// POST /api/blacklist/import — CSV upload for importing multiple blocked numbers
+app.post('/api/blacklist/import', csvUpload.single('file'), async (req, res) => {
+    if (!isSuperAdmin(req)) {
+        if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+        return res.status(403).json({ success: false, error: 'Unauthorized' });
+    }
+    try {
+        if (!req.file) return res.status(400).json({ success: false, error: 'No CSV file uploaded' });
+
+        const csvContent = fs.readFileSync(req.file.path, 'utf8');
+        fs.unlinkSync(req.file.path);
+
+        const lines = csvContent.split(/\r?\n/);
+        let imported = 0;
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+            const parts = line.split(',').map(p => p.trim().replace(/^"|"$/g, ''));
+            const firstCell = parts[0] || '';
+            if (i === 0 && (firstCell.toLowerCase().includes('phone') || firstCell.toLowerCase().includes('number'))) {
+                continue;
+            }
+            const phone = firstCell.replace(/[\s\-\(\)\.]/g, '');
+            if (!phone || phone.length < 3) continue;
+
+            const desc = parts[1] || 'CSV Import';
+            const action = parts[2] && ['zapateller', 'hangup', 'congestion'].includes(parts[2].toLowerCase()) ? parts[2].toLowerCase() : 'zapateller';
+
+            await pool.query(`
+                INSERT INTO \`asterisk\`.\`dashboard_inbound_blacklist\` (phone_number, description, action, enabled, created_at)
+                VALUES (?, ?, ?, 1, NOW())
+                ON DUPLICATE KEY UPDATE description = VALUES(description), action = VALUES(action), enabled = 1
+            `, [phone, desc, action]);
+
+            await syncBlacklistEntryToAstDB(phone, true);
+            imported++;
+        }
+
+        res.json({ success: true, message: `Successfully imported ${imported} number(s) into inbound blacklist.` });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 
 
 // --- RECORDING UPLOAD ---

@@ -22,21 +22,25 @@ To ensure maximum performance and stability on CentOS 7 / Asterisk 11, the follo
 
 ---
 
-## 🚀 Quick Install
+## 🚀 Quick Install (One-Liner)
 
 Run as root on a fresh Issabel 4 server:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Ahmed-Emad02/sokrat-voip-issabel4/main/install.sh -o /tmp/sokrat-install.sh
-bash /tmp/sokrat-install.sh
+curl -fsSL https://raw.githubusercontent.com/Ahmed-Emad02/sokrat-voip-issabel4/main/install.sh | bash
 ```
 
-For non-interactive GSM dongle count selection:
+Or using bash process substitution:
 
 ```bash
-NUM_DONGLES=20 bash /tmp/sokrat-install.sh
+bash <(curl -fsSL https://raw.githubusercontent.com/Ahmed-Emad02/sokrat-voip-issabel4/main/install.sh)
 ```
 
+For automated / non-interactive installation with a pre-set GSM dongle count (e.g. 20 dongles):
+
+```bash
+NUM_DONGLES=20 bash <(curl -fsSL https://raw.githubusercontent.com/Ahmed-Emad02/sokrat-voip-issabel4/main/install.sh)
+```
 ---
 
 ## ✨ Features Included

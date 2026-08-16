@@ -18,7 +18,7 @@ const sidebarWords = {
         vmGreetingResetConfirm: "Reset to default Asterisk voicemail prompts?",
         vmGreetingChangeMode: "Changing mode will save a new greeting. Continue?",
         vmSelectAll: "Select All",
-        dashLink: "Dashboard", cdrLink: "Call History", vmLink: "Voicemails", empLink: "Employee Metrics", extLink: "Employees", opLink: "Live Panel", dongleLink: "GSM Dongles", softphoneLink: "Phone", configLink: "Configuration", dialerLink: "Auto-Dialer", contactsLink: "Address Book", usersLink: "Users", storageLink: "Backups", liveClock: "System Clock", themeLabel: "Theme", langLabel: "Language", settingsTitle: "Settings", rowsLabel: "Rows per page", addRec: "Add a Recording", smtpSettings: "Setup Password Reset Email", netInfo: "Show Network Info", logoutLabel: "Sign Out",
+        dashLink: "Dashboard", cdrLink: "Call History", vmLink: "Voicemails", empLink: "Employee Metrics", extLink: "Employees", opLink: "Live Panel", dongleLink: "GSM Dongles", softphoneLink: "Phone", configLink: "Configuration", dialerLink: "Auto-Dialer", contactsLink: "Address Book", usersLink: "Users", storageLink: "Backups", liveClock: "System Clock", themeLabel: "Theme", langLabel: "Language", settingsTitle: "Settings", rowsLabel: "Rows per page", addRec: "Add a Recording", smtpSettings: "Setup Password Reset Email", netInfo: "Show Network Info", logoutLabel: "Sign Out", collapseLink: "Collapse Sidebar", expandLink: "Expand Sidebar", userLabel: "USER:", versionLabel: "VERSION:",
         settingsSubtitle: "Preferences and system controls", preferencesLabel: "Preferences", systemLabel: "System", appearanceLabel: "Appearance", darkModeLabel: "Dark mode", lightModeLabel: "Light mode",
         recTitle: "Add a Recording", recName: "Recording Name", recPlaceholder: "e.g. welcome_greeting", recFile: "Audio File", recNote: "Accepted: MP3, M4A, WAV, OGG, FLAC, AAC, MPEG (max 50MB)", recUploadStatus: "Uploading...", recCancel: "Cancel", recUpload: "Upload", recComplete: "Complete!", recFailed: "Failed", recSelectFileErr: "Please select a file", recNameErr: "Please enter a recording name",
         timeSettings: "Time Settings", timeModalTitle: "Time & Timezone", currentTime: "Current Time", timezone: "Timezone", searchTimezone: "Search timezone...", ntpSync: "NTP Synchronization", setManually: "Set Manually", dateLabel: "Date", timeLabel: "Time", saveSettings: "Save Settings", saving: "Saving...", savedSuccess: "Time settings saved successfully", saveFailed: "Failed to save time settings", timezoneChanged: "Timezone changed", ntpToggled: "NTP toggled", timeSetManually: "Time set manually", loadingTimezone: "Loading..."
@@ -41,7 +41,7 @@ const sidebarWords = {
         vmGreetingResetConfirm: "إعادة تعيين ترحيب البريد الصوتي للافتراضي؟",
         vmGreetingChangeMode: "تغيير الوضع سيحفظ ترحيباً جديداً. هل تريد المتابعة؟",
         vmSelectAll: "اختر الكل",
-        dashLink: "لوحة التحكم", cdrLink: "سجل المكالمات", vmLink: "البريد الصوتي", empLink: "مقاييس الموظفين", extLink: "الموظفين", opLink: "لوحه المراقبه", dongleLink: "شرائح GSM", softphoneLink: "الهاتف", configLink: "الإعدادات", dialerLink: "المتصل الآلي", contactsLink: "دفتر العناوين", usersLink: "المستخدمين", storageLink: "النسخ الاحتياطي", liveClock: "ساعة النظام", themeLabel: "المظهر", langLabel: "اللغة", settingsTitle: "الإعدادات", rowsLabel: "عدد الصفوف", addRec: "إضافة تسجيل صوتي", smtpSettings: "إعداد البريد لإعادة تعيين كلمة المرور", netInfo: "معلومات الشبكة", logoutLabel: "تسجيل الخروج",
+        dashLink: "لوحة التحكم", cdrLink: "سجل المكالمات", vmLink: "البريد الصوتي", empLink: "مقاييس الموظفين", extLink: "الموظفين", opLink: "لوحه المراقبه", dongleLink: "شرائح GSM", softphoneLink: "الهاتف", configLink: "الإعدادات", dialerLink: "المتصل الآلي", contactsLink: "دفتر العناوين", usersLink: "المستخدمين", storageLink: "النسخ الاحتياطي", liveClock: "ساعة النظام", themeLabel: "المظهر", langLabel: "اللغة", settingsTitle: "الإعدادات", rowsLabel: "عدد الصفوف", addRec: "إضافة تسجيل صوتي", smtpSettings: "إعداد البريد لإعادة تعيين كلمة المرور", netInfo: "معلومات الشبكة", logoutLabel: "تسجيل الخروج", collapseLink: "تصغير القائمة", expandLink: "توسيع القائمة", userLabel: "المستخدم:", versionLabel: "الإصدار:",
         settingsSubtitle: "التفضيلات وعناصر تحكم النظام", preferencesLabel: "التفضيلات", systemLabel: "النظام", appearanceLabel: "المظهر", darkModeLabel: "الوضع الداكن", lightModeLabel: "الوضع الفاتح",
         recTitle: "إضافة تسجيل صوتي", recName: "اسم التسجيل", recPlaceholder: "مثال: welcome_greeting", recFile: "ملف الصوت", recNote: "المرفقات المقبولة: MP3, M4A, WAV, OGG, FLAC, AAC, MPEG (الحد الأقصى 50 ميجابايت)", recUploadStatus: "جاري الرفع...", recCancel: "إلغاء", recUpload: "رفع", recComplete: "اكتمل الرفع!", recFailed: "فشل الرفع", recSelectFileErr: "يرجى اختيار ملف", recNameErr: "يرجى إدخال اسم التسجيل",
         timeSettings: "إعدادات الوقت", timeModalTitle: "الوقت والمنطقة الزمنية", currentTime: "الوقت الحالي", timezone: "المنطقة الزمنية", searchTimezone: "ابحث عن المنطقة الزمنية...", ntpSync: "مزامنة NTP", setManually: "ضبط يدوي", dateLabel: "التاريخ", timeLabel: "الوقت", saveSettings: "حفظ الإعدادات", saving: "جاري الحفظ...", savedSuccess: "تم حفظ إعدادات الوقت بنجاح", saveFailed: "فشل حفظ إعدادات الوقت", timezoneChanged: "تم تغيير المنطقة الزمنية", ntpToggled: "تم تبديل NTP", timeSetManually: "تم ضبط الوقت يدوياً", loadingTimezone: "جارٍ التحميل..."
@@ -51,6 +51,7 @@ const sbT = sidebarWords[currentLang] || sidebarWords['en'];
 const isRtl = currentLang === 'ar';
 const allowed = typeof allowedTabs !== 'undefined' ? allowedTabs : [];
 const isSuper = (typeof isSuperAdmin !== 'undefined' && isSuperAdmin) || (typeof currentUser !== 'undefined' && (currentUser === 'admin' || currentUser === 'root'));
+const isRoot = (typeof isRootUser !== 'undefined' && isRootUser) || (typeof currentUser !== 'undefined' && currentUser === 'root');
 function can(tab) { return isSuper || allowed.includes(tab); }
 %>
 
@@ -100,22 +101,32 @@ function can(tab) { return isSuper || allowed.includes(tab); }
         }
     })();
 
-    function dismissLoadingOverlay() {
-        const overlay = document.getElementById('theme-loading-overlay');
-        if (!overlay) return;
-        overlay.style.opacity = '0';
-        overlay.style.pointerEvents = 'none';
-        overlay.style.transform = 'translateY(-100%)';
-        setTimeout(() => { if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 300);
-    }
+    const overlayStartTime = Date.now();
+    let overlayDismissed = false;
 
-    if (document.readyState === 'complete' || document.readyState === 'interactive') {
-        setTimeout(dismissLoadingOverlay, 50);
+    window.dismissLoadingOverlay = function() {
+        if (overlayDismissed) return;
+        overlayDismissed = true;
+        const elapsed = Date.now() - overlayStartTime;
+        const remaining = Math.max(0, 250 - elapsed);
+        setTimeout(() => {
+            const overlay = document.getElementById('theme-loading-overlay');
+            if (!overlay) return;
+            overlay.style.opacity = '0';
+            overlay.style.pointerEvents = 'none';
+            overlay.style.transform = 'translateY(-100%)';
+            setTimeout(() => { if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 300);
+        }, remaining);
+    };
+
+    if (document.readyState === 'complete') {
+        window.dismissLoadingOverlay();
     } else {
-        document.addEventListener('DOMContentLoaded', dismissLoadingOverlay);
+        window.addEventListener('load', window.dismissLoadingOverlay);
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(window.dismissLoadingOverlay, 300);
+        });
     }
-    window.addEventListener('load', dismissLoadingOverlay);
-    setTimeout(dismissLoadingOverlay, 200);
 </script>
 <!-- Google Fonts Import for Plus Jakarta Sans & Cairo -->
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -266,6 +277,19 @@ function can(tab) { return isSuper || allowed.includes(tab); }
     .light-theme .text-slate-100 {
         color: #000000 !important;
     }
+    .light-theme .text-zinc-200 {
+        color: #111827 !important;
+    }
+    .light-theme .bg-\[\#09090b\] {
+        background-color: var(--bg-primary) !important;
+        border-color: var(--border-primary) !important;
+        color: var(--text-primary) !important;
+    }
+    .light-theme .bg-black\/40 {
+        background-color: var(--bg-card) !important;
+        border-color: var(--border-primary) !important;
+        color: var(--text-muted) !important;
+    }
     .light-theme .text-zinc-300 {
         color: #1a202c !important;
     }
@@ -279,7 +303,10 @@ function can(tab) { return isSuper || allowed.includes(tab); }
         color: #4a5568 !important;
     }
     .light-theme .nav-item {
-        color: #4a5568 !important;
+        color: #111827 !important;
+    }
+    .light-theme .nav-item:not(.bg-\[var\(--accent-color\)\]) * {
+        color: inherit !important;
     }
     .light-theme .nav-item:hover {
         color: var(--accent-color) !important;
@@ -367,55 +394,232 @@ function can(tab) { return isSuper || allowed.includes(tab); }
         border-color: rgba(239, 68, 68, 0.3) !important;
         box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.15), 0 16px 40px -10px rgba(239, 68, 68, 0.18) !important;
     }
+    /* ==========================================================================
+       GPU HARDWARE ACCELERATION & COMPONENT LAYOUT CONTAINMENT
+       ========================================================================== */
+    .app-sidebar,
+    .config-sub-sidebar,
+    .panel-surface,
+    .config-card,
+    .ext-card,
+    .dongle-device-card {
+        backface-visibility: hidden !important;
+        -webkit-backface-visibility: hidden !important;
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+    }
+
+    .ext-card,
+    .dongle-device-card,
+    .cdr-row {
+        contain: layout style paint;
+    }
+
+    /* ==========================================================================
+       HOVER.CSS SHUTTER-IN-HORIZONTAL — All Buttons & Nav Items
+       Button bg = HOVER color (revealed). ::before = RESTING color (covers).
+       On hover, ::before scales to scaleX(0) from center → reveals hover bg.
+       isolation:isolate on parent creates a stacking context so ::before
+       at z-index:-1 sits below ALL content (incl. raw text nodes) but
+       still above the parent's own background.
+       ========================================================================== */
+
+    /* --- Base: EVERY button and nav-item gets the shutter scaffold ---
+       position/border-radius are NON-important so Tailwind utilities
+       (.absolute, .rounded-full, ...) keep winning on buttons that need them. */
+    button, a.btn-link, .nav-item {
+        position: relative;
+        overflow: hidden !important;
+        isolation: isolate !important;
+        border-radius: 0.5rem;
+    }
+
+    /* --- The shutter cover pseudo-element (all buttons) --- */
+    button::before, a.btn-link::before, .nav-item::before {
+        content: "" !important;
+        position: absolute !important;
+        z-index: -1 !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        transform: scaleX(1) !important;
+        transform-origin: 50% !important;
+        transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    /* --- On hover/focus: shutter opens (shrinks to center) --- */
+    button:hover::before, a.btn-link:hover::before, .nav-item:hover::before,
+    button:focus-visible::before, a.btn-link:focus-visible::before, .nav-item:focus-visible::before {
+        transform: scaleX(0) !important;
+    }
+
+    /* --- Default cover for buttons without unified styling: red-tinted
+           overlay so the shutter is VISIBLE on any background; sliding it
+           open reveals the button's own (semantic) color. --- */
+    button:not(.btn-primary):not(.config-btn-primary):not(.config-btn-secondary):not(.btn-ghost):not(.config-action-btn):not(.config-tab-btn):not(.nav-item)::before,
+    a.btn-link::before {
+        background: rgba(185, 28, 28, 0.30) !important;
+    }
+
+    /* =============================================
+       1. PRIMARY BUTTONS  (solid red)
+       ============================================= */
     .btn-primary, .config-btn-primary {
-        background: linear-gradient(180deg, #991b1b 0%, #7f1d1d 50%, #450a0a 100%) !important;
+        /* Hover bg (revealed): brighter red */
+        background: #b91c1c !important;
         border: 1px solid rgba(239, 68, 68, 0.4) !important;
-        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.25), 0 4px 14px rgba(153, 27, 27, 0.45) !important;
         color: #ffffff !important;
         font-weight: 800 !important;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
-        border-radius: 0.5rem !important;
-        transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1), background 180ms ease, box-shadow 180ms ease, border-color 180ms ease !important;
-        position: relative !important;
-        overflow: hidden !important;
+        box-shadow: 0 4px 14px rgba(153, 27, 27, 0.45) !important;
+    }
+    .btn-primary::before, .config-btn-primary::before {
+        /* Resting cover: darker red */
+        background: #991b1b !important;
     }
     .btn-primary:hover, .config-btn-primary:hover {
-        background: linear-gradient(180deg, #b91c1c 0%, #991b1b 50%, #7f1d1d 100%) !important;
         border-color: rgba(255, 255, 255, 0.35) !important;
-        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.45), 0 8px 24px rgba(220, 38, 38, 0.55) !important;
-        transform: translateY(-2px) scale(1.01) !important;
+        box-shadow: 0 8px 24px rgba(220, 38, 38, 0.55) !important;
     }
     .btn-primary:active, .config-btn-primary:active {
-        background: linear-gradient(180deg, #450a0a 0%, #360707 100%) !important;
-        transform: translateY(1px) scale(0.98) !important;
         box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6) !important;
     }
-    .nav-item.bg-\[var\(--accent-color\)\],
-    .light-theme .nav-item.bg-\[var\(--accent-color\)\] {
-        background: linear-gradient(90deg, #b91c1c 0%, #7f1d1d 100%) !important;
+    .btn-primary:active::before, .config-btn-primary:active::before {
+        background: #7f1d1d !important;
+        transform: scaleX(1) !important;
+    }
+
+    /* =============================================
+       2. SECONDARY / GHOST BUTTONS
+       ============================================= */
+    .config-btn-secondary, .btn-ghost {
+        /* Hover bg (revealed): subtle warm red tint */
+        background: rgba(185, 28, 28, 0.15) !important;
+        border: none !important;
+        color: #ffffff !important;
+        border-radius: 0.5rem !important;
+    }
+    .config-btn-secondary::before, .btn-ghost::before {
+        /* Resting cover: red tint (visible at rest, reveals tint on hover) */
+        background: rgba(185, 28, 28, 0.40) !important;
+    }
+    .config-btn-secondary:hover, .btn-ghost:hover {
+        color: #ffffff !important;
+    }
+    /* =============================================
+       3. CONFIG ACTION BUTTONS (inherit their variant colors)
+       ============================================= */
+    .config-action-btn:not(.config-action-btn--primary):not(.config-action-btn--positive):not(.config-action-btn--danger):not(.config-action-btn--state-on):not(.config-action-btn--state-off) {
+        /* Hover bg (revealed): subtle warm highlight */
+        background: rgba(185, 28, 28, 0.15) !important;
+    }
+    .config-action-btn:not(.config-action-btn--primary):not(.config-action-btn--positive):not(.config-action-btn--danger):not(.config-action-btn--state-on):not(.config-action-btn--state-off)::before {
+        background: rgba(185, 28, 28, 0.40) !important;
+    }
+
+    .config-action-btn--primary {
+        background: #b91c1c !important;
+        color: #ffffff !important;
+    }
+    .config-action-btn--primary::before {
+        background: #991b1b !important;
+    }
+
+    .config-action-btn--positive {
+        background: rgba(16, 185, 129, 0.20) !important;
+        color: #34d399 !important;
+    }
+    .config-action-btn--positive::before {
+        background: rgba(16, 185, 129, 0.35) !important;
+    }
+
+    .config-action-btn--danger, .config-action-btn--state-off {
+        background: rgba(239, 68, 68, 0.18) !important;
+        color: #f87171 !important;
+    }
+    .config-action-btn--danger::before, .config-action-btn--state-off::before {
+        background: rgba(239, 68, 68, 0.35) !important;
+    }
+
+    .config-action-btn--state-on {
+        background: rgba(16, 185, 129, 0.18) !important;
+        color: #34d399 !important;
+    }
+    .config-action-btn--state-on::before {
+        background: rgba(16, 185, 129, 0.35) !important;
+    }
+
+    /* =============================================
+       4. CONFIG SIDEBAR TAB BUTTONS
+       ============================================= */
+    .config-tab-btn.config-tab-active {
+        /* Hover bg (revealed): brighter red */
+        background: #b91c1c !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(239, 68, 68, 0.4) !important;
+        box-shadow: 0 4px 14px rgba(127, 29, 29, 0.3) !important;
+    }
+    .config-tab-btn.config-tab-active::before {
+        /* Resting cover: darker red */
+        background: #991b1b !important;
+    }
+
+    .config-tab-btn.config-tab-inactive {
+        /* Hover bg (revealed): subtle red tint */
+        background-color: rgba(185, 28, 28, 0.15) !important;
+        color: #ffffff !important;
+        border: none !important;
+    }
+    .config-tab-btn.config-tab-inactive::before {
+        /* Resting cover: red tint */
+        background-color: rgba(185, 28, 28, 0.40) !important;
+    }
+    .config-tab-btn.config-tab-inactive:hover {
+        color: #ffffff !important;
+    }
+
+    /* =============================================
+       5. SIDEBAR NAV ITEMS
+       ============================================= */
+    /* Active nav item */
+    .nav-item.bg-\[var\(--accent-color\)\] {
+        /* Hover bg (revealed): brighter red */
+        background: #b91c1c !important;
         border: 1px solid #991b1b !important;
         border-left: 4px solid #ef4444 !important;
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 5px 16px rgba(127, 29, 29, 0.3) !important;
         color: #ffffff !important;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35) !important;
     }
+    .nav-item.bg-\[var\(--accent-color\)\]::before {
+        /* Resting cover: darker red */
+        background: #991b1b !important;
+    }
     .nav-item.bg-\[var\(--accent-color\)\] *,
     .light-theme .nav-item.bg-\[var\(--accent-color\)\] * {
         color: #ffffff !important;
         stroke: currentColor;
     }
-    .config-btn-secondary, .btn-ghost {
-        background: rgba(255, 255, 255, 0.04) !important;
-        border: 1px solid rgba(255, 255, 255, 0.09) !important;
-        color: #f4f4f5 !important;
-        font-weight: 700 !important;
-        border-radius: 0.5rem !important;
-        transition: all 180ms ease !important;
+
+    /* Inactive nav items */
+    .nav-item:not(.bg-\[var\(--accent-color\)\]) {
+        /* Hover bg (revealed): subtle warm highlight */
+        background: var(--bg-hover) !important;
     }
-    .config-btn-secondary:hover, .btn-ghost:hover {
-        background: rgba(255, 255, 255, 0.09) !important;
-        border-color: rgba(255, 255, 255, 0.18) !important;
-        color: #ffffff !important;
+    .nav-item:not(.bg-\[var\(--accent-color\)\])::before {
+        /* Resting cover: red tint */
+        background: rgba(185, 28, 28, 0.40) !important;
+    }
+
+    /* Light theme active nav item */
+    .light-theme .nav-item.bg-\[var\(--accent-color\)\] {
+        background: #b91c1c !important;
+        border: 1px solid #991b1b !important;
+        border-left: 4px solid #ef4444 !important;
+    }
+    .light-theme .nav-item.bg-\[var\(--accent-color\)\]::before {
+        background: #991b1b !important;
     }
 
     /* Shared surfaces must follow the active theme, not hard-coded dark colors. */
@@ -441,11 +645,16 @@ function can(tab) { return isSuper || allowed.includes(tab); }
         border-color: rgba(185, 28, 28, 0.35) !important;
         box-shadow: 0 2px 8px rgba(127, 29, 29, 0.12) !important;
     }
+
     .light-theme .config-btn-secondary,
     .light-theme .btn-ghost {
-        background: #ffffff !important;
-        border-color: #d1d5db !important;
-        color: #374151 !important;
+        background: rgba(185, 28, 28, 0.10) !important;
+        border: none !important;
+        color: #000000 !important;
+    }
+    .light-theme .config-btn-secondary::before,
+    .light-theme .btn-ghost::before {
+        background: rgba(185, 28, 28, 0.22) !important;
     }
     .light-theme .config-btn-secondary *,
     .light-theme .btn-ghost * {
@@ -453,9 +662,68 @@ function can(tab) { return isSuper || allowed.includes(tab); }
     }
     .light-theme .config-btn-secondary:hover,
     .light-theme .btn-ghost:hover {
-        background: #f3f4f6 !important;
-        border-color: #9ca3af !important;
-        color: #111827 !important;
+        color: #000000 !important;
+    }
+
+    /* Light theme: inactive nav items */
+    .light-theme .nav-item:not(.bg-\[var\(--accent-color\)\]) {
+        background: rgba(185, 28, 28, 0.08) !important;
+    }
+    .light-theme .nav-item:not(.bg-\[var\(--accent-color\)\])::before {
+        background: rgba(185, 28, 28, 0.22) !important;
+    }
+
+    /* Light theme: config tab inactive */
+    .light-theme .config-tab-btn.config-tab-inactive {
+        background-color: rgba(185, 28, 28, 0.10) !important;
+        color: #000000 !important;
+        border: none !important;
+    }
+    .light-theme .config-tab-btn.config-tab-inactive::before {
+        background-color: rgba(185, 28, 28, 0.22) !important;
+    }
+    .light-theme .config-tab-btn.config-tab-inactive:hover {
+        color: #000000 !important;
+    }
+
+    /* Light theme: config tab active — shutter reveals brighter red */
+    .light-theme .config-tab-btn.config-tab-active {
+        background: #b91c1c !important;
+        color: #ffffff !important;
+    }
+    .light-theme .config-tab-btn.config-tab-active::before {
+        background: #991b1b !important;
+    }
+
+    /* Light theme: primary buttons — dark cover over bright red, strong contrast */
+    .light-theme .btn-primary,
+    .light-theme .config-btn-primary,
+    .light-theme .config-action-btn--primary {
+        background: #dc2626 !important;
+    }
+    .light-theme .btn-primary::before,
+    .light-theme .config-btn-primary::before,
+    .light-theme .config-action-btn--primary::before {
+        background: #7f1d1d !important;
+    }
+
+    /* Light theme: pastel action chips — tinted covers so the shutter reads */
+    .light-theme .config-action-btn:not(.config-action-btn--primary):not(.config-action-btn--positive):not(.config-action-btn--danger):not(.config-action-btn--state-on):not(.config-action-btn--state-off)::before {
+        background: rgba(185, 28, 28, 0.22) !important;
+    }
+    .light-theme .config-action-btn--positive::before,
+    .light-theme .config-action-btn--state-on::before {
+        background: rgba(16, 185, 129, 0.30) !important;
+    }
+    .light-theme .config-action-btn--danger::before,
+    .light-theme .config-action-btn--state-off::before {
+        background: rgba(239, 68, 68, 0.30) !important;
+    }
+
+    /* Light theme: default cover — red tint over any bg */
+    .light-theme button:not(.btn-primary):not(.config-btn-primary):not(.config-btn-secondary):not(.btn-ghost):not(.config-action-btn):not(.config-tab-btn):not(.nav-item)::before,
+    .light-theme a.btn-link::before {
+        background: rgba(185, 28, 28, 0.20) !important;
     }
 
     /* Semantic utility colors with WCAG-AA contrast on light surfaces. */
@@ -828,11 +1096,10 @@ function can(tab) { return isSuper || allowed.includes(tab); }
         }
         html.sidebar-collapsed #appSidebar #toggleSidebarCollapseBtn,
         #appSidebar.sidebar-collapsed #toggleSidebarCollapseBtn {
-            position: relative !important;
-            top: auto !important;
-            right: auto !important;
-            left: auto !important;
-            margin: 0 auto !important;
+            width: 100% !important;
+            justify-content: center !important;
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
         }
         html.sidebar-collapsed #appSidebar #brandLogo,
         #appSidebar.sidebar-collapsed #brandLogo {
@@ -1284,95 +1551,223 @@ function can(tab) { return isSuper || allowed.includes(tab); }
             animation: none !important;
         }
     }
-    /* Flatpickr Calendar styling to match our OLED dark / Light theme */
+    /* Flatpickr Calendar — unified theme using CSS variables */
     .flatpickr-calendar {
         background: var(--bg-secondary) !important;
         border: 1px solid var(--border-primary) !important;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
-        border-radius: 0.75rem !important;
+        border-radius: 1rem !important;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
         font-family: inherit !important;
+        padding: 0.5rem !important;
+        width: 310px !important;
     }
-    .flatpickr-calendar.light-theme,
     .light-theme .flatpickr-calendar {
-        background: #ffffff !important;
-        border: 1px solid #e5e7eb !important;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1) !important;
     }
-    .flatpickr-day.selected, 
-    .flatpickr-day.startRange, 
-    .flatpickr-day.endRange, 
-    .flatpickr-day.selected.inRange, 
-    .flatpickr-day.startRange.inRange, 
-    .flatpickr-day.endRange.inRange, 
-    .flatpickr-day.selected:focus, 
-    .flatpickr-day.startRange:focus, 
-    .flatpickr-day.endRange:focus, 
-    .flatpickr-day.selected:hover, 
-    .flatpickr-day.startRange:hover, 
-    .flatpickr-day.endRange:hover, 
-    .flatpickr-day.prevMonthDay.selected, 
-    .flatpickr-day.nextMonthDay.selected {
-        background: var(--accent-color) !important;
-        border-color: var(--accent-color) !important;
-        color: #ffffff !important;
+    .flatpickr-calendar.arrowTop:before,
+    .flatpickr-calendar.arrowTop:after,
+    .flatpickr-calendar.arrowBottom:before,
+    .flatpickr-calendar.arrowBottom:after {
+        display: none !important;
     }
-    .flatpickr-day:hover,
+    .flatpickr-months {
+        align-items: center !important;
+        padding: 0.25rem 0.5rem !important;
+    }
+    .flatpickr-months .flatpickr-month {
+        color: var(--text-primary) !important;
+        fill: var(--text-primary) !important;
+        font-weight: 800 !important;
+        font-size: 1.1rem !important;
+    }
+    .flatpickr-months .flatpickr-prev-month,
+    .flatpickr-months .flatpickr-next-month {
+        color: var(--accent-color) !important;
+        fill: var(--accent-color) !important;
+        padding: 0.5rem !important;
+    }
+    .flatpickr-months .flatpickr-prev-month:hover svg,
+    .flatpickr-months .flatpickr-next-month:hover svg {
+        fill: var(--accent-hover) !important;
+    }
+    .flatpickr-current-month select.flatpickr-monthDropdown-months {
+        background: var(--bg-card) !important;
+        border: 1px solid var(--border-accent) !important;
+        border-radius: 0.35rem !important;
+        color: var(--text-primary) !important;
+        font-weight: 800 !important;
+        font-size: 0.9rem !important;
+        padding: 1px 4px !important;
+        cursor: pointer !important;
+        appearance: auto !important;
+        -webkit-appearance: menulist !important;
+        max-width: 120px !important;
+    }
+    .flatpickr-current-month .flatpickr-monthDropdown-months option {
+        background-color: var(--bg-secondary) !important;
+        color: var(--text-primary) !important;
+        font-weight: 700 !important;
+    }
+    .flatpickr-current-month .numInputWrapper input.cur-year {
+        color: var(--text-primary) !important;
+        font-weight: 700 !important;
+        font-size: 0.9rem !important;
+    }
+    .flatpickr-weekdays {
+        margin-top: 0.5rem !important;
+        margin-bottom: 0.25rem !important;
+    }
+    span.flatpickr-weekday {
+        color: var(--text-muted) !important;
+        font-weight: 700 !important;
+        font-size: 0.75rem !important;
+    }
+    .flatpickr-day {
+        color: var(--text-primary) !important;
+        border-radius: 50% !important;
+        font-weight: 600 !important;
+        font-size: 0.9rem !important;
+        height: 38px !important;
+        line-height: 38px !important;
+    }
+    .flatpickr-day.prevMonthDay,
+    .flatpickr-day.nextMonthDay {
+        color: var(--text-muted) !important;
+        opacity: 0.4 !important;
+    }
     .flatpickr-day.prevMonthDay:hover,
-    .flatpickr-day.nextMonthDay:hover,
-    .flatpickr-day.today:hover,
-    .flatpickr-day.prevMonthDay.today:hover,
-    .flatpickr-day.nextMonthDay.today:hover {
+    .flatpickr-day.nextMonthDay:hover {
+        background: var(--bg-hover) !important;
+        color: var(--text-secondary) !important;
+    }
+    .flatpickr-day:hover {
         background: var(--bg-hover) !important;
         border-color: transparent !important;
-        color: var(--text-primary) !important;
     }
     .flatpickr-day.today {
         border-color: var(--accent-color) !important;
         color: var(--text-primary) !important;
     }
-    .flatpickr-months .flatpickr-month {
-        color: var(--text-primary) !important;
+    .flatpickr-day.selected,
+    .flatpickr-day.startRange,
+    .flatpickr-day.endRange,
+    .flatpickr-day.selected.inRange,
+    .flatpickr-day.startRange.inRange,
+    .flatpickr-day.endRange.inRange,
+    .flatpickr-day.selected:focus,
+    .flatpickr-day.startRange:focus,
+    .flatpickr-day.endRange:focus,
+    .flatpickr-day.selected:hover,
+    .flatpickr-day.startRange:hover,
+    .flatpickr-day.endRange:hover,
+    .flatpickr-day.prevMonthDay.selected,
+    .flatpickr-day.nextMonthDay.selected {
+        background: var(--accent-color) !important;
+        border-color: var(--accent-color) !important;
+        color: #ffffff !important;
+        font-weight: 800 !important;
+        box-shadow: 0 4px 14px rgba(229, 62, 62, 0.4) !important;
     }
-    .flatpickr-months .flatpickr-prev-month, 
-    .flatpickr-months .flatpickr-next-month {
-        color: var(--text-secondary) !important;
-        fill: var(--text-secondary) !important;
+    .light-theme .flatpickr-day.selected,
+    .light-theme .flatpickr-day.startRange,
+    .light-theme .flatpickr-day.endRange,
+    .light-theme .flatpickr-day.selected:hover,
+    .light-theme .flatpickr-day.startRange:hover,
+    .light-theme .flatpickr-day.endRange:hover {
+        box-shadow: 0 4px 14px rgba(185, 28, 28, 0.3) !important;
     }
-    .flatpickr-months .flatpickr-prev-month:hover, 
-    .flatpickr-months .flatpickr-next-month:hover {
-        color: var(--accent-color) !important;
-        fill: var(--accent-color) !important;
-    }
-    span.flatpickr-weekday {
-        color: var(--text-muted) !important;
-    }
-    .flatpickr-day {
-        color: var(--text-primary) !important;
-    }
-    .flatpickr-day.flatpickr-disabled, 
+    .flatpickr-day.flatpickr-disabled,
     .flatpickr-day.flatpickr-disabled:hover {
         color: var(--text-muted) !important;
         opacity: 0.3 !important;
     }
     .flatpickr-time {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
         border-top: 1px solid var(--border-primary) !important;
+        margin-top: 0.5rem !important;
+        padding: 6px 10px !important;
+        background: var(--bg-primary) !important;
+        border-radius: 0.75rem !important;
+        height: 48px !important;
+        max-height: 48px !important;
+        overflow: hidden !important;
+        box-sizing: border-box !important;
     }
-    .flatpickr-time input {
+    .flatpickr-time .numInputWrapper {
+        flex: 0 0 54px !important;
+        height: 36px !important;
+        position: relative !important;
+    }
+    .flatpickr-time .numInputWrapper input.numInput {
+        background: var(--bg-card) !important;
+        border: 1px solid var(--border-primary) !important;
+        border-radius: 0.5rem !important;
         color: var(--text-primary) !important;
-        background: transparent !important;
+        font-family: 'JetBrains Mono', monospace !important;
+        font-weight: 800 !important;
+        font-size: 0.95rem !important;
+        text-align: center !important;
+        height: 36px !important;
+        line-height: normal !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
     }
-    .flatpickr-time input:hover, 
-    .flatpickr-time .flatpickr-am-pm:hover, 
-    .flatpickr-time input:focus, 
-    .flatpickr-time .flatpickr-am-pm:focus {
+    .flatpickr-time .numInputWrapper input.numInput:focus {
+        border-color: var(--accent-color) !important;
+        outline: none !important;
         background: var(--bg-hover) !important;
     }
-    .flatpickr-time .flatpickr-time-separator, 
-    .flatpickr-time .flatpickr-am-pm {
+    .flatpickr-time .flatpickr-time-separator {
         color: var(--text-primary) !important;
+        font-weight: 900 !important;
+        font-size: 1.2rem !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        height: 36px !important;
+        width: 12px !important;
     }
-    
-    /* Add custom calendar icon to datetime inputs */
+    .flatpickr-time .flatpickr-am-pm {
+        background: var(--bg-card) !important;
+        border: 1px solid var(--border-primary) !important;
+        border-radius: 0.5rem !important;
+        color: var(--text-primary) !important;
+        font-weight: 800 !important;
+        font-size: 0.85rem !important;
+        height: 36px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 54px !important;
+        cursor: pointer !important;
+        box-sizing: border-box !important;
+    }
+    .flatpickr-time .flatpickr-am-pm:hover {
+        background: var(--bg-hover) !important;
+        border-color: var(--accent-color) !important;
+        color: var(--accent-color) !important;
+    }
+    .flatpickr-time .numInputWrapper span.arrowUp,
+    .flatpickr-time .numInputWrapper span.arrowDown {
+        display: none !important;
+    }
+    .flatpickr-input[readonly], .flatpickr-input.flatpickr-mobile {
+        background-color: var(--bg-primary) !important;
+        border: 1px solid var(--border-primary) !important;
+        border-radius: 0.5rem !important;
+        color: var(--text-primary) !important;
+        font-family: 'JetBrains Mono', monospace !important;
+        font-weight: 700 !important;
+        font-size: 0.875rem !important;
+        padding: 0.5rem 0.75rem !important;
+    }
+
+    /* Custom calendar icon for datetime inputs */
     .flatpickr-input,
     input[type="datetime-local"] {
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a949e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E") !important;
@@ -1592,7 +1987,10 @@ function can(tab) { return isSuper || allowed.includes(tab); }
             const btn = document.getElementById('toggleSidebarCollapseBtn');
             if (!icon || !btn) return;
             const isRtl = document.documentElement.dir === 'rtl';
-            btn.setAttribute('title', isCollapsed ? (isRtl ? 'توسيع القائمة' : 'Maximize Sidebar') : (isRtl ? 'تصغير القائمة' : 'Minimize Sidebar'));
+            const expandText = <%- JSON.stringify(sbT.expandLink || 'Expand Sidebar') %>;
+            const collapseText = <%- JSON.stringify(sbT.collapseLink || 'Collapse Sidebar') %>;
+            const text = isCollapsed ? expandText : collapseText;
+            btn.setAttribute('title', text);
             if (isCollapsed) {
                 icon.style.transform = 'rotate(180deg)';
             } else {
@@ -1693,12 +2091,6 @@ document.addEventListener('DOMContentLoaded', function() { updateClock(); setInt
     <div class="flex flex-col gap-4 overflow-y-auto no-scrollbar flex-1">
         <!-- Brand Header inside Sidebar -->
         <div class="sidebar-header-box relative flex flex-col items-center justify-center py-2.5 border-b border-[var(--border-primary)] pb-4">
-            <!-- Minimize / Maximize Sidebar Button for Desktop -->
-            <button id="toggleSidebarCollapseBtn" type="button" onclick="toggleSidebarCollapse()" class="hidden md:flex absolute top-2 <%= isRtl ? 'left-2' : 'right-2' %> p-1.5 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-primary)] text-[var(--text-muted)] hover:text-white hover:border-[var(--accent-color)] transition-all cursor-pointer z-10" title="<%= isRtl ? 'تصغير/توسيع القائمة' : 'Toggle Sidebar' %>">
-                <svg id="collapseIcon" class="w-3.5 h-3.5 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="<%= isRtl ? 'M13 5l-7 7 7 7M19 5l-7 7 7 7' : 'M11 19l-7-7 7-7m8 14l-7-7 7-7' %>" />
-                </svg>
-            </button>
 
             <div class="flex flex-col items-center gap-2.5">
                 <img id="brandLogo" src="/logo_light_text.png" alt="Sokrat VOIP" class="w-28 h-28 object-contain rounded-xl shadow-lg transition-all duration-300">
@@ -1722,26 +2114,65 @@ document.addEventListener('DOMContentLoaded', function() { updateClock(); setInt
 
         <!-- Sidebar Menu Navigation -->
         <nav class="flex flex-col gap-1">
+            <!-- 1. Dashboard -->
             <a href="/?lang=<%= currentLang %>" title="<%= sbT.dashLink %>"
                class="nav-item flex items-center px-4 py-3 rounded-lg transition-all duration-150 text-sm font-semibold relative
-               <%= currentPage === '/' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-red-600 hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
+               <%= currentPage === '/' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-[var(--text-primary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
                 <svg class="w-4 h-4 me-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 <span class="sidebar-text"><%= sbT.dashLink %></span>
             </a>
 
+            <!-- 2. Call History -->
             <% if (can('cdr')) { %>
             <a href="/cdr?lang=<%= currentLang %>" title="<%= sbT.cdrLink %>"
                class="nav-item flex items-center px-4 py-3 rounded-lg transition-all duration-150 text-sm font-semibold relative
-               <%= currentPage === '/cdr' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-red-600 hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
+               <%= currentPage === '/cdr' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-[var(--text-primary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
                 <svg class="w-4 h-4 me-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
                 <span class="sidebar-text"><%= sbT.cdrLink %></span>
             </a>
             <% } %>
 
+            <!-- 3. Live Panel -->
+            <% if (can('operator')) { %>
+            <a href="/operator?lang=<%= currentLang %>" title="<%= sbT.opLink %>"
+               class="nav-item flex items-center px-4 py-3 rounded-lg transition-all duration-150 text-sm font-semibold relative
+               <%= currentPage === '/operator' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-[var(--text-primary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
+                <svg class="w-4 h-4 me-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                    <line x1="8" y1="21" x2="16" y2="21"/>
+                    <line x1="12" y1="17" x2="12" y2="21"/>
+                </svg>
+                <span class="sidebar-text"><%= sbT.opLink %></span>
+            </a>
+            <% } %>
+
+            <!-- 4. Employees -->
+            <% if (can('ext-stats')) { %>
+            <a href="/ext-stats?lang=<%= currentLang %>" title="<%= sbT.extLink %>"
+               class="nav-item flex items-center px-4 py-3 rounded-lg transition-all duration-150 text-sm font-semibold relative
+               <%= currentPage === '/ext-stats' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-[var(--text-primary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
+                <svg class="w-4 h-4 me-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
+                <span class="sidebar-text"><%= sbT.extLink %></span>
+            </a>
+            <% } %>
+
+            <!-- 5. Address Book -->
+            <a href="/contacts?lang=<%= currentLang %>" title="<%= sbT.contactsLink %>"
+               class="nav-item flex items-center px-4 py-3 rounded-lg transition-all duration-150 text-sm font-semibold relative
+               <%= currentPage === '/contacts' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-[var(--text-primary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
+                <svg class="w-4 h-4 me-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                    <path d="M8 16c0-2 4-3 4-3s4 1 4 3"/>
+                </svg>
+                <span class="sidebar-text"><%= sbT.contactsLink %></span>
+            </a>
+
+            <!-- 6. Voice Mail -->
             <% if (can('voicemails')) { %>
             <a href="/voicemails?lang=<%= currentLang %>" title="<%= sbT.vmLink %>"
                class="nav-item flex items-center px-4 py-3 rounded-lg transition-all duration-150 text-sm font-semibold relative
-               <%= currentPage === '/voicemails' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-red-600 hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
+               <%= currentPage === '/voicemails' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-[var(--text-primary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
                 <svg class="w-4 h-4 me-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 2a3 3 0 0 0-3 3v4a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
                     <path d="M19 10v1a7 7 0 0 1-14 0v-1"/>
@@ -1751,32 +2182,11 @@ document.addEventListener('DOMContentLoaded', function() { updateClock(); setInt
             </a>
             <% } %>
 
-            <% if (can('ext-stats')) { %>
-            <a href="/ext-stats?lang=<%= currentLang %>" title="<%= sbT.extLink %>"
-               class="nav-item flex items-center px-4 py-3 rounded-lg transition-all duration-150 text-sm font-semibold relative
-               <%= currentPage === '/ext-stats' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-red-600 hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
-                <svg class="w-4 h-4 me-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
-                <span class="sidebar-text"><%= sbT.extLink %></span>
-            </a>
-            <% } %>
-
-            <% if (can('operator')) { %>
-            <a href="/operator?lang=<%= currentLang %>" title="<%= sbT.opLink %>"
-               class="nav-item flex items-center px-4 py-3 rounded-lg transition-all duration-150 text-sm font-semibold relative
-               <%= currentPage === '/operator' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-red-600 hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
-                <svg class="w-4 h-4 me-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-                    <line x1="8" y1="21" x2="16" y2="21"/>
-                    <line x1="12" y1="17" x2="12" y2="21"/>
-                </svg>
-                <span class="sidebar-text"><%= sbT.opLink %></span>
-            </a>
-            <% } %>
-            
+            <!-- 7. GSM Dongles -->
             <% if (can('gsm-dongles')) { %>
             <a href="/gsm-dongles?lang=<%= currentLang %>" title="<%= sbT.dongleLink %>"
                class="nav-item flex items-center px-4 py-3 rounded-lg transition-all duration-150 text-sm font-semibold relative
-               <%= currentPage === '/gsm-dongles' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-red-600 hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
+               <%= currentPage === '/gsm-dongles' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-[var(--text-primary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
                 <svg class="w-4 h-4 me-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="10" y="2" width="4" height="5" rx="0.5" />
                     <rect x="7" y="7" width="10" height="14" rx="2" />
@@ -1787,39 +2197,21 @@ document.addEventListener('DOMContentLoaded', function() { updateClock(); setInt
                 <span class="sidebar-text"><%= sbT.dongleLink %></span>
             </a>
             <% } %>
-            <% if (can('config') || allowed.some(function(p) { return p.startsWith('config-'); })) { %>
-            <a href="/config?lang=<%= currentLang %>" title="<%= sbT.configLink %>"
-               class="nav-item flex items-center px-4 py-3 rounded-lg transition-all duration-150 text-sm font-semibold relative
-               <%= currentPage === '/config' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-red-600 hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
-                <svg class="w-4 h-4 me-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
-                    <circle cx="12" cy="12" r="3"/>
-                </svg>
-                <span class="sidebar-text"><%= sbT.configLink %></span>
-            </a>
-            <% } %>
-            <a href="/contacts?lang=<%= currentLang %>" title="<%= sbT.contactsLink %>"
-               class="nav-item flex items-center px-4 py-3 rounded-lg transition-all duration-150 text-sm font-semibold relative
-               <%= currentPage === '/contacts' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-red-600 hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
-                <svg class="w-4 h-4 me-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                    <circle cx="12" cy="10" r="3"/>
-                    <path d="M8 16c0-2 4-3 4-3s4 1 4 3"/>
-                </svg>
-                <span class="sidebar-text"><%= sbT.contactsLink %></span>
-            </a>
 
+            <!-- 8. Users -->
             <% if (isSuper) { %>
             <a href="/users?lang=<%= currentLang %>" title="<%= sbT.usersLink %>"
                class="nav-item flex items-center px-4 py-3 rounded-lg transition-all duration-150 text-sm font-semibold relative
-               <%= currentPage === '/users' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-red-600 hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
+               <%= currentPage === '/users' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-[var(--text-primary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
                 <svg class="w-4 h-4 me-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 <span class="sidebar-text"><%= sbT.usersLink %></span>
             </a>
             <% } %>
+
+            <!-- 9. Back up -->
             <a href="/storage?lang=<%= currentLang %>" title="<%= sbT.storageLink %>"
                class="nav-item flex items-center px-4 py-3 rounded-lg transition-all duration-150 text-sm font-semibold relative
-               <%= currentPage === '/storage' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-red-600 hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
+               <%= currentPage === '/storage' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-[var(--text-primary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
                 <svg class="w-4 h-4 me-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                     <polyline points="7 10 12 15 17 10"/>
@@ -1827,11 +2219,31 @@ document.addEventListener('DOMContentLoaded', function() { updateClock(); setInt
                 </svg>
                 <span class="sidebar-text"><%= sbT.storageLink %></span>
             </a>
+
+            <!-- 10. Configuration -->
+            <% if (can('config') || allowed.some(function(p) { return p.startsWith('config-'); })) { %>
+            <a href="/config?lang=<%= currentLang %>" title="<%= sbT.configLink %>"
+               class="nav-item flex items-center px-4 py-3 rounded-lg transition-all duration-150 text-sm font-semibold relative
+               <%= currentPage === '/config' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-[var(--accent-color)]/15 border border-[var(--accent-color)]/20' : 'text-[var(--text-primary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]' %>">
+                <svg class="w-4 h-4 me-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <span class="sidebar-text"><%= sbT.configLink %></span>
+            </a>
+            <% } %>
         </nav>
     </div>
 
     <!-- Sidebar Footer Action Panel -->
     <div class="flex flex-col gap-4 border-t border-[var(--border-primary)] pt-4 mt-auto">
+        <!-- Collapse / Expand Sidebar Button for Desktop (right above system clock) -->
+        <button id="toggleSidebarCollapseBtn" type="button" onclick="toggleSidebarCollapse()" class="hidden md:flex items-center justify-center w-full py-2 px-3 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-primary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--accent-color)] hover:bg-[var(--bg-hover)] transition-all cursor-pointer" title="<%= isRtl ? sbT.collapseLink : 'Collapse Sidebar' %>">
+            <svg id="collapseIcon" class="w-4 h-4 shrink-0 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="<%= isRtl ? 'M13 5l-7 7 7 7M19 5l-7 7 7 7' : 'M11 19l-7-7 7-7m8 14l-7-7 7-7' %>" />
+            </svg>
+        </button>
+
         <!-- System Clock & User info -->
         <div class="sidebar-info-row flex flex-col gap-1 px-1">
             <div class="flex items-center justify-between text-xs font-semibold text-[var(--text-secondary)]">
@@ -1839,8 +2251,12 @@ document.addEventListener('DOMContentLoaded', function() { updateClock(); setInt
                 <span id="digitalClock" class="font-mono text-sm tracking-tight text-[var(--accent-color)]">00:00:00</span>
             </div>
             <div class="flex items-center justify-between text-[11px] font-semibold text-[var(--text-muted)] mt-1">
-                <span>USER:</span>
+                <span><%= sbT.userLabel %></span>
                 <span class="text-[var(--text-primary)]"><%= typeof currentUser !== 'undefined' ? currentUser : '' %></span>
+            </div>
+            <div class="flex items-center justify-between text-[11px] font-semibold text-[var(--text-muted)] mt-1">
+                <span><%= sbT.versionLabel %></span>
+                <span class="text-[var(--text-secondary)] font-mono">v1.0.0</span>
             </div>
         </div>
 
@@ -1963,9 +2379,10 @@ document.addEventListener('DOMContentLoaded', function() { updateClock(); setInt
                 <span class="settings-action-label"><%= sbT.timeSettings %></span>
                 <svg class="settings-action-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
             </button>
-            <button type="button" onclick="triggerDashboardUpdate()" id="updateDashboardBtn" class="settings-action cursor-pointer text-emerald-400 hover:text-emerald-300">
+            
+            <button type="button" onclick="triggerDashboardUpdate()" id="updateDashboardBtn" class="settings-action cursor-pointer">
                 <span class="settings-action-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg></span>
-                <span class="settings-action-label"><%= currentLang === 'ar' ? 'تحديث النظام (Update Dashboard)' : 'Update Dashboard' %></span>
+                <span class="settings-action-label"><%= currentLang === 'ar' ? 'تحديث النظام (Update Sokrat VoIP)' : 'Update Sokrat VoIP' %></span>
                 <svg class="settings-action-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
             </button>
             <% } %>
@@ -2157,12 +2574,12 @@ function showToast(msg, type) {
 }
 
 const recWords = {
-    uploading: "<%= sbT.recUploadStatus %>",
-    complete: "<%= sbT.recComplete %>",
-    failed: "<%= sbT.recFailed %>",
-    selectFileErr: "<%= sbT.recSelectFileErr %>",
-    nameErr: "<%= sbT.recNameErr %>",
-    uploadBtn: "<%= sbT.recUpload %>"
+    uploading: <%- JSON.stringify(sbT.recUploadStatus || 'Uploading...') %>,
+    complete: <%- JSON.stringify(sbT.recComplete || 'Complete!') %>,
+    failed: <%- JSON.stringify(sbT.recFailed || 'Failed') %>,
+    selectFileErr: <%- JSON.stringify(sbT.recSelectFileErr || 'Select file') %>,
+    nameErr: <%- JSON.stringify(sbT.recNameErr || 'Name required') %>,
+    uploadBtn: <%- JSON.stringify(sbT.recUpload || 'Upload') %>
 };
 
 async function submitRecording(event) {
@@ -2399,7 +2816,7 @@ function onNtpToggle() {
 async function saveTimeSettings() {
     var btn = document.getElementById('timeSaveBtn');
     var origText = btn.textContent;
-    btn.textContent = '<%= sbT.saving %>';
+    btn.textContent = <%- JSON.stringify(sbT.saving || 'Saving...') %>;
     btn.disabled = true;
 
     var body = {};
@@ -2440,15 +2857,15 @@ async function saveTimeSettings() {
         btn.textContent = origText;
         btn.disabled = false;
         if (data.success) {
-            if (typeof window.showToast === 'function') window.showToast('<%= sbT.savedSuccess %>', 'success');
+            if (typeof window.showToast === 'function') window.showToast(<%- JSON.stringify(sbT.savedSuccess || 'Saved successfully') %>, 'success');
             closeTimeModal();
         } else {
-            if (typeof window.showToast === 'function') window.showToast(data.error || '<%= sbT.saveFailed %>', 'error');
+            if (typeof window.showToast === 'function') window.showToast(data.error || <%- JSON.stringify(sbT.saveFailed || 'Failed to save') %>, 'error');
         }
     } catch (e) {
         btn.textContent = origText;
         btn.disabled = false;
-        if (typeof window.showToast === 'function') window.showToast('<%= sbT.saveFailed %>', 'error');
+        if (typeof window.showToast === 'function') window.showToast(<%- JSON.stringify(sbT.saveFailed || 'Failed to save') %>, 'error');
     }
 }
 
@@ -2564,29 +2981,60 @@ function closeNetworkModal() {
     document.getElementById('networkModal').style.pointerEvents = 'none';
 }
 function triggerDashboardUpdate() {
-    if (!confirm('<%= currentLang === "ar" ? "هل أنت متأكد من تحديث النظام لأحدث إصدار؟" : "Are you sure you want to update Sokrat VoIP to the latest version?" %>')) return;
+    if (!confirm(<%- JSON.stringify(currentLang === 'ar' ? 'هل أنت متأكد من تحديث Sokrat VoIP لأحدث إصدار؟' : 'Are you sure you want to update Sokrat VoIP to the latest version?') %>)) return;
     
     document.getElementById('settingsMenu').classList.remove('visible', 'opacity-100', 'scale-100');
     document.getElementById('settingsMenu').classList.add('invisible', 'opacity-0', 'scale-95');
     document.getElementById('settingsMenu').style.pointerEvents = 'none';
 
+    let overlay = document.getElementById('updateOverlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'updateOverlay';
+        overlay.className = 'fixed inset-0 bg-black/85 backdrop-blur-md z-[99999] flex flex-col items-center justify-center p-6 text-white font-sans text-center transition-opacity duration-300';
+        overlay.innerHTML = `
+            <div class="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+            <h3 class="text-xl font-bold mb-2"><%= currentLang === 'ar' ? 'جاري تحديث Sokrat VoIP...' : 'Updating Sokrat VoIP...' %></h3>
+            <p class="text-sm text-zinc-400 max-w-md"><%= currentLang === 'ar' ? 'جاري سحب التحديثات وإعادة تشغيل الخدمات. يرجى الانتظار...' : 'Pulling latest version and restarting services. Please wait...' %></p>
+        `;
+        document.body.appendChild(overlay);
+    }
+
+    const pollAndReload = () => {
+        let attempts = 0;
+        const maxAttempts = 35;
+        setTimeout(() => {
+            const interval = setInterval(async () => {
+                attempts++;
+                try {
+                    const res = await fetch('/api/network-info', { cache: 'no-store' });
+                    if (res.ok) {
+                        clearInterval(interval);
+                        window.location.reload();
+                    }
+                } catch (e) {
+                    // Server restarting
+                }
+                if (attempts >= maxAttempts) {
+                    clearInterval(interval);
+                    window.location.reload();
+                }
+            }, 2000);
+        }, 3000);
+    };
+
     fetch('/api/system/update', { method: 'POST' })
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                alert(data.message || 'Update initiated successfully. Reloading page in 5 seconds...');
-                setTimeout(() => {
-                    window.location.reload();
-                }, 5000);
+                pollAndReload();
             } else {
+                if (overlay) overlay.remove();
                 alert(data.error || 'Failed to trigger update');
             }
         })
         .catch(err => {
-            alert('Update started. Reloading page in 5 seconds...');
-            setTimeout(() => {
-                window.location.reload();
-            }, 5000);
+            pollAndReload();
         });
 }
 
@@ -2702,7 +3150,7 @@ function pruneDetachedDropdownMenus() {
 }
 
 function enhanceSelectElements() {
-    document.querySelectorAll('select:not(.enhanced-select):not(.no-enhance):not(.flatpickr-monthDropdown-months)').forEach(select => {
+    document.querySelectorAll('select:not([multiple]):not(.enhanced-select):not(.no-enhance):not(.flatpickr-monthDropdown-months)').forEach(select => {
         if (!select.parentNode) return;
         select.classList.add('enhanced-select');
 

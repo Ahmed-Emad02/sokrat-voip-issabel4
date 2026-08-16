@@ -80,6 +80,35 @@ CREATE TABLE IF NOT EXISTS `storage_settings` (
   `last_backup_at` DATETIME DEFAULT NULL,
   `last_backup_status` VARCHAR(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `dashboard_inbound_blacklist` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `phone_number` VARCHAR(50) NOT NULL UNIQUE,
+  `description` VARCHAR(255) DEFAULT NULL,
+  `action` VARCHAR(30) DEFAULT 'zapateller',
+  `enabled` TINYINT(1) DEFAULT 1,
+  `blocked_count` INT DEFAULT 0,
+  `last_blocked_at` DATETIME DEFAULT NULL,
+  `created_at` DATETIME DEFAULT NULL,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY `idx_phone` (`phone_number`),
+  KEY `idx_enabled` (`enabled`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `dongle_state_logs` (
+  `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+  `dongle_name` VARCHAR(50) NOT NULL,
+  `sim_number` VARCHAR(50) DEFAULT NULL,
+  `imsi` VARCHAR(30) DEFAULT NULL,
+  `imei` VARCHAR(30) DEFAULT NULL,
+  `state` VARCHAR(50) NOT NULL,
+  `started_at` DATETIME NOT NULL,
+  `ended_at` DATETIME DEFAULT NULL,
+  `duration_sec` INT DEFAULT 0,
+  KEY `idx_dongle_start` (`dongle_name`, `started_at`),
+  KEY `idx_sim_start` (`sim_number`, `started_at`),
+  KEY `idx_state` (`state`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 -- Prioritize HD Voice / Wideband Codecs (G.722 / Opus) for high-quality extension-to-extension calls
 UPDATE `asterisk`.`sipsettings` SET `data` = '1', `seq` = 0 WHERE `keyword` = 'g722';
 UPDATE `asterisk`.`sipsettings` SET `data` = '2', `seq` = 1 WHERE `keyword` = 'opus';

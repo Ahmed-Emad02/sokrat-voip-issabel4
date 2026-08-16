@@ -100,3 +100,19 @@ same => n,Hangup()
 ## 🔒 Security & Boundaries
 
 This repository (`sokrat-voip-issabel4`) is dedicated strictly to Issabel 4 / Asterisk 11 setups. The source repository `sokrat-voip-dev` remains untouched as a read-only reference for Issabel 5 / Asterisk 18 installations.
+
+---
+
+## 🔄 Uninstallation (One-Liner)
+
+To remove Sokrat VoIP and restore Issabel to its default web GUI without affecting the database:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Ahmed-Emad02/sokrat-voip-issabel4/main/uninstall.sh | bash
+```
+
+Or run locally:
+
+```bash
+bash /opt/sokrat-voip/uninstall.sh
+```

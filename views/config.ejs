@@ -30,9 +30,9 @@ function isTabAllowed(tabName) {
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css" />
-    <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
+    <link rel="stylesheet" href="/css/xterm.css" />
+    <script src="/js/xterm.js"></script>
+    <script src="/js/xterm-addon-fit.js"></script>
     <style>
         :root {
             --bg-primary: #09090b;
@@ -9520,7 +9520,10 @@ function isTabAllowed(tabName) {
 
         function initTtyTerminal() {
             if (isTtyInitialized) {
-                if (ttyFitAddon) try { ttyFitAddon.fit(); } catch(_) {}
+                setTimeout(() => {
+                    if (ttyFitAddon) try { ttyFitAddon.fit(); } catch(_) {}
+                    if (ttyXterm) try { ttyXterm.focus(); } catch(_) {}
+                }, 50);
                 return;
             }
             isTtyInitialized = true;
@@ -9539,6 +9542,7 @@ function isTabAllowed(tabName) {
             if (typeof window.Terminal !== 'undefined') {
                 ttyXterm = new window.Terminal({
                     cursorStyle: 'block',
+                    cursorBlink: true,
                     convertEol: true,
                     fontFamily: '"JetBrains Mono", "Courier New", monospace',
                     fontSize: 13,
@@ -9567,8 +9571,14 @@ function isTabAllowed(tabName) {
                 setTimeout(() => {
                     if (ttyFitAddon) try { ttyFitAddon.fit(); } catch(_) {}
                     if (ttyXterm) try { ttyXterm.focus(); } catch(_) {}
-                }, 50);
+                }, 100);
 
+                const wrapper = document.getElementById('ttyTerminalWrapper');
+                if (wrapper) {
+                    wrapper.addEventListener('click', () => {
+                        if (ttyXterm) ttyXterm.focus();
+                    });
+                }
                 container.addEventListener('click', () => {
                     if (ttyXterm) ttyXterm.focus();
                 });
@@ -9590,6 +9600,7 @@ function isTabAllowed(tabName) {
                     }
                     return true;
                 });
+
                 ttyXterm.onSelectionChange(() => {
                     const text = ttyXterm.getSelection();
                     if (text && navigator.clipboard && navigator.clipboard.writeText) {
@@ -9600,6 +9611,7 @@ function isTabAllowed(tabName) {
                 ttyXterm.onData(data => {
                     if (ttySocket) ttySocket.emit('tty_input', data);
                 });
+
                 window.addEventListener('resize', () => {
                     if (ttyFitAddon && ttyXterm) {
                         try {
@@ -9632,6 +9644,7 @@ function isTabAllowed(tabName) {
             if (ttyXterm && ttyXterm.element) {
                 ttyXterm.element.addEventListener('paste', handlePasteEvent);
             }
+
             ttySocket.on('tty_output', (data) => {
                 if (ttyXterm) {
                     ttyXterm.write(data);
@@ -9652,9 +9665,17 @@ function isTabAllowed(tabName) {
                 }
             });
 
-            const cols = ttyXterm ? ttyXterm.cols : 100;
-            const rows = ttyXterm ? ttyXterm.rows : 30;
-            ttySocket.emit('tty_init', { cols, rows });
+            function sendTtyInit() {
+                const cols = (ttyXterm && ttyXterm.cols) ? ttyXterm.cols : 100;
+                const rows = (ttyXterm && ttyXterm.rows) ? ttyXterm.rows : 30;
+                ttySocket.emit('tty_init', { cols, rows });
+            }
+
+            if (ttySocket.connected) {
+                sendTtyInit();
+            } else {
+                ttySocket.on('connect', sendTtyInit);
+            }
         }
 
         function updateTtyStatus(connected, text) {

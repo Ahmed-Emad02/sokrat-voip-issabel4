@@ -1626,8 +1626,8 @@ function isTabAllowed(tabName) {
                 </div>
 
                 <!-- Terminal Container Window -->
-                <div id="ttyTerminalWrapper" class="relative w-full border border-[var(--border-primary)] rounded-xl bg-[#09090b] p-3 overflow-hidden cursor-text" style="height: calc(100vh - 280px); min-height: 550px;" onclick="if(window.ttyXterm) window.ttyXterm.focus()">
-                    <div id="terminalContainer" class="w-full h-full font-mono text-xs text-emerald-400 overflow-auto focus:outline-none select-text"></div>
+                <div id="ttyTerminalWrapper" class="relative w-full border border-[var(--border-primary)] rounded-xl bg-[#09090b] p-3 overflow-hidden cursor-text" style="height: calc(100vh - 280px); min-height: 550px;" onclick="if(window.ttyXterm) window.ttyXterm.focus()" onmousedown="if(window.ttyXterm) window.ttyXterm.focus()">
+                    <div id="terminalContainer" class="w-full h-full font-mono text-xs text-emerald-400 overflow-hidden focus:outline-none select-text" onclick="if(window.ttyXterm) window.ttyXterm.focus()"></div>
                 </div>
             </div>
         </div>
@@ -1638,9 +1638,6 @@ function isTabAllowed(tabName) {
             <!-- Header -->
             <div class="flex items-center justify-between px-6 py-4 border-b border-[var(--border-primary)] bg-[var(--bg-primary)]/40 shrink-0">
                 <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 font-bold">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                    </div>
                     <div>
                         <h3 id="extModalTitle" class="text-base font-extrabold text-[var(--text-primary)]"><%= isRtl ? 'إضافة تحويلة' : 'Add Extension' %></h3>
                         <p class="text-[11px] text-[var(--text-muted)]"><%= isRtl ? 'تكوين بيانات التحويلة والتقنية وملف الموظف' : 'Configure extension credentials, device technology, and employee profile' %></p>
@@ -9575,32 +9572,47 @@ function isTabAllowed(tabName) {
                 setTimeout(() => {
                     if (ttyFitAddon) try { ttyFitAddon.fit(); } catch(_) {}
                     if (ttyXterm) try { ttyXterm.focus(); } catch(_) {}
-                }, 100);
+                }, 80);
+
+                const focusTerminal = () => {
+                    if (ttyXterm) {
+                        ttyXterm.focus();
+                        if (ttyXterm.textarea) ttyXterm.textarea.focus();
+                    }
+                };
 
                 const wrapper = document.getElementById('ttyTerminalWrapper');
                 if (wrapper) {
-                    wrapper.addEventListener('click', () => { if (ttyXterm) ttyXterm.focus(); });
-                    wrapper.addEventListener('mousedown', () => { if (ttyXterm) ttyXterm.focus(); });
+                    wrapper.addEventListener('click', focusTerminal);
+                    wrapper.addEventListener('mousedown', focusTerminal);
                 }
-                container.addEventListener('click', () => { if (ttyXterm) ttyXterm.focus(); });
-                container.addEventListener('mousedown', () => { if (ttyXterm) ttyXterm.focus(); });
+                container.addEventListener('click', focusTerminal);
+                container.addEventListener('mousedown', focusTerminal);
 
-                ttyXterm.attachCustomKeyEventHandler((arg) => {
-                    // Only intercept Ctrl+C when there is active text selection in terminal
-                    if ((arg.ctrlKey || arg.metaKey) && (arg.code === 'KeyC' || arg.key === 'c' || arg.key === 'C') && arg.type === 'keydown') {
-                        if (ttyXterm.hasSelection()) {
-                            const selected = ttyXterm.getSelection();
-                            if (navigator.clipboard && navigator.clipboard.writeText) {
-                                navigator.clipboard.writeText(selected);
-                                showToast(isRtl ? 'تم نسخ النص إلى الحافظة' : 'Copied selected text to clipboard', 'success');
+                window.addEventListener('keydown', (e) => {
+                    const sec = document.getElementById('section-terminal');
+                    if (!sec || sec.classList.contains('hidden')) return;
+                    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT')) return;
+                    if (e.target && e.target.tagName === 'TEXTAREA' && !e.target.classList.contains('xterm-helper-textarea')) return;
+                    focusTerminal();
+                });
+
+                ttyXterm.attachCustomKeyEventHandler((e) => {
+                    if ((e.ctrlKey || e.metaKey) && e.type === 'keydown') {
+                        if (e.key === 'c' || e.key === 'C' || e.code === 'KeyC') {
+                            if (ttyXterm.hasSelection()) {
+                                const sel = ttyXterm.getSelection();
+                                if (navigator.clipboard && navigator.clipboard.writeText) {
+                                    navigator.clipboard.writeText(sel);
+                                    showToast(isRtl ? 'تم نسخ النص إلى الحافظة' : 'Copied selected text to clipboard', 'success');
+                                }
+                                return false;
                             }
+                        }
+                        if (e.key === 'v' || e.key === 'V' || e.code === 'KeyV') {
+                            pasteClipboardToTerminal();
                             return false;
                         }
-                    }
-                    // Only intercept Ctrl+V on keydown
-                    if ((arg.ctrlKey || arg.metaKey) && (arg.code === 'KeyV' || arg.key === 'v' || arg.key === 'V') && arg.type === 'keydown') {
-                        pasteClipboardToTerminal();
-                        return false;
                     }
                     return true;
                 });

@@ -2537,19 +2537,27 @@ app.get('/', async (req, res) => {
         const trendMap = {};
         const dispCounts = {};
         const hourlyMap = {};
+        const durationCounts = { short: 0, medium: 0, long: 0 };
         rows.forEach(row => {
             const day = moment(row.calldate).format('YYYY-MM-DD');
-            trendMap[day] = trendMap[day] || { total: 0, inbound: 0, outbound: 0 };
+            trendMap[day] = trendMap[day] || { total: 0, inbound: 0, outbound: 0, internal: 0 };
             trendMap[day].total++;
-            const isOutbound = isOutboundCdr(row);
-            if (isOutbound) trendMap[day].outbound++;
-            else trendMap[day].inbound++;
-
+            const callClass = classifyCdr(row);
+            if (callClass.direction === 'OUTBOUND') trendMap[day].outbound++;
+            else if (callClass.direction === 'INBOUND') trendMap[day].inbound++;
+            else trendMap[day].internal = (trendMap[day].internal || 0) + 1;
             const disp = row.disposition || 'UNKNOWN';
             dispCounts[disp] = (dispCounts[disp] || 0) + 1;
 
             const hour = moment(row.calldate).format('H');
             hourlyMap[hour] = (hourlyMap[hour] || 0) + 1;
+
+            if (row.disposition === 'ANSWERED') {
+                const sec = parseInt(row.billsec) || 0;
+                if (sec < 30) durationCounts.short++;
+                else if (sec <= 180) durationCounts.medium++;
+                else durationCounts.long++;
+            }
         });
 
         const trendData = Object.entries(trendMap)
@@ -2568,6 +2576,17 @@ app.get('/', async (req, res) => {
             .slice(0, 10)
             .map(e => ({ name: e.name + ' (' + e.extension + ')', talkSec: e.totalTalkSec, calls: e.totalCalls }));
 
+        const durationData = [
+            { name: 'Short (<30s)', value: durationCounts.short },
+            { name: 'Medium (30s-3m)', value: durationCounts.medium },
+            { name: 'Long (>3m)', value: durationCounts.long }
+        ];
+
+        const scopeData = [
+            { name: 'Internal', value: stats.internalCount },
+            { name: 'External', value: stats.externalCount }
+        ];
+
         res.render('dashboard', {
             stats,
             filters: { startDate, endDate, targetExtension: selectedExtension, statusFilter, searchSrc, searchDst, searchDid, searchUniqueId, directionFilter, callScopeFilter },
@@ -2575,7 +2594,9 @@ app.get('/', async (req, res) => {
             trendData: JSON.stringify(trendData),
             dispositionData: JSON.stringify(dispositionData),
             hourlyData: JSON.stringify(hourlyData),
-            topTalkers: JSON.stringify(topTalkers)
+            topTalkers: JSON.stringify(topTalkers),
+            durationData: JSON.stringify(durationData),
+            scopeData: JSON.stringify(scopeData)
         });
     } catch (error) { res.status(500).send("Dashboard Error: " + error.message); }
 });

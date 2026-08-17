@@ -109,6 +109,19 @@ CREATE TABLE IF NOT EXISTS `dongle_state_logs` (
   KEY `idx_sim_start` (`sim_number`, `started_at`),
   KEY `idx_state` (`state`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `voicemail_storage_settings` (
+  `id` INT PRIMARY KEY DEFAULT 1,
+  `max_messages` INT DEFAULT 1000,
+  `max_duration_sec` INT DEFAULT 300,
+  `retention_days` INT DEFAULT 90,
+  `auto_purge_enabled` TINYINT(1) DEFAULT 0,
+  `last_purged_at` DATETIME DEFAULT NULL,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT IGNORE INTO `voicemail_storage_settings` (`id`, `max_messages`, `max_duration_sec`, `retention_days`, `auto_purge_enabled`)
+VALUES (1, 1000, 300, 90, 0);
 -- Prioritize HD Voice / Wideband Codecs (G.722 / Opus) for high-quality extension-to-extension calls
 UPDATE `asterisk`.`sipsettings` SET `data` = '1', `seq` = 0 WHERE `keyword` = 'g722';
 UPDATE `asterisk`.`sipsettings` SET `data` = '2', `seq` = 1 WHERE `keyword` = 'opus';

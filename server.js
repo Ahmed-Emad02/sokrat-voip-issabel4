@@ -119,8 +119,50 @@ function isInternalChannel(channel) {
     return value.startsWith('SIP/') || value.startsWith('PJSIP/') || value.startsWith('IAX2/');
 }
 
+function isTrunkChannel(channel) {
+    const value = String(channel || '').toUpperCase();
+    return value.startsWith('DONGLE/') || value.startsWith('DAHDI/');
+}
+
+function isExternalPhoneNumber(dst) {
+    const clean = String(dst || '').trim();
+    if (!clean) return false;
+    if (clean.startsWith('*')) return false; // Feature codes like *80, *97, *43
+    return (clean.startsWith('0') || clean.startsWith('+')) && clean.replace(/\D/g, '').length >= 7;
+}
+
+function classifyCdr(row) {
+    const ch = String(row.channel || '');
+    const dstCh = String(row.dstchannel || '');
+    const lastData = String(row.lastdata || '');
+    const dcontext = String(row.dcontext || '');
+    const did = String(row.did || '').trim();
+    const dst = String(row.dst || '').trim();
+
+    // 1. Inbound calls: from trunk / dongle / DID
+    if (isTrunkChannel(ch) || dcontext.startsWith('from-dongle') || dcontext.startsWith('from-trunk') || dcontext.startsWith('from-pstn') || did) {
+        return { direction: 'INBOUND', call_scope: 'EXTERNAL' };
+    }
+
+    // 2. Outbound calls: internal caller dialing external number via trunk
+    if (isTrunkChannel(dstCh) || lastData.toLowerCase().startsWith('dongle/') || lastData.toLowerCase().startsWith('dahdi/') || isExternalPhoneNumber(dst)) {
+        return { direction: 'OUTBOUND', call_scope: 'EXTERNAL' };
+    }
+
+    // 3. Otherwise, Internal
+    return { direction: 'INTERNAL', call_scope: 'INTERNAL' };
+}
+
 function isOutboundCdr(row) {
-    return isInternalChannel(row.channel) && !isInternalChannel(row.dstchannel);
+    return classifyCdr(row).direction === 'OUTBOUND';
+}
+
+function isInboundCdr(row) {
+    return classifyCdr(row).direction === 'INBOUND';
+}
+
+function isInternalCdr(row) {
+    return classifyCdr(row).direction === 'INTERNAL';
 }
 
 app.set('view engine', 'ejs');
@@ -291,6 +333,25 @@ async function initAuthDb() {
             KEY idx_state (state)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8
     `);
+
+    await conn.execute(`
+        CREATE TABLE IF NOT EXISTS voicemail_storage_settings (
+            id INT PRIMARY KEY DEFAULT 1,
+            max_messages INT DEFAULT 1000,
+            max_duration_sec INT DEFAULT 300,
+            retention_days INT DEFAULT 90,
+            auto_purge_enabled TINYINT(1) DEFAULT 0,
+            last_purged_at DATETIME DEFAULT NULL,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+    `);
+    await conn.execute('INSERT IGNORE INTO voicemail_storage_settings (id, max_messages, max_duration_sec, retention_days, auto_purge_enabled) VALUES (1, 1000, 300, 90, 0)');
+    try {
+        const [vmRows] = await conn.execute('SELECT * FROM `asterisk`.`voicemail_storage_settings` WHERE id = 1');
+        if (vmRows && vmRows.length > 0) {
+            syncVoicemailLimits(vmRows[0].max_messages || 1000, vmRows[0].max_duration_sec || 300);
+        }
+    } catch (_) {}
     // Migrate columns for existing partial tables
     try { await conn.execute('ALTER TABLE storage_settings ADD COLUMN auto_purge_days INT DEFAULT 90'); } catch (_) {}
     try { await conn.execute('ALTER TABLE storage_settings ADD COLUMN gdrive_enabled TINYINT(1) DEFAULT 0'); } catch (_) {}
@@ -2377,8 +2438,8 @@ app.get('/', async (req, res) => {
     } catch (error) { res.status(500).send("Dashboard Error: " + error.message); }
 });
 
-// Helper to format Destination field for inbound/USSD calls
-function formatDestination(row) {
+// Helper to format Destination field for inbound/USSD/Ring Groups calls
+function formatDestination(row, ringGroupSet = new Set()) {
     let dst = String(row.dst || '').trim();
     if (dst === 's' || dst.toLowerCase() === 'ussd') {
         if (row.channel && row.channel.toLowerCase().startsWith('dongle/')) {
@@ -2399,6 +2460,26 @@ function formatDestination(row) {
         }
         return 'System (s)';
     }
+
+    const isHuntOrGroup = (ringGroupSet && ringGroupSet.has(dst)) 
+                       || (row.dcontext && (row.dcontext.startsWith('ext-group') || row.dcontext.startsWith('ext-queues')))
+                       || (row.lastdata && (row.lastdata.includes('auto-blkvm') || row.lastdata.includes('from-queue')));
+
+    if (isHuntOrGroup) {
+        let pickedUpExt = null;
+        if (row.dstchannel) {
+            pickedUpExt = getExtensionFromChannel(row.dstchannel);
+        }
+        if (!pickedUpExt && row.lastdata) {
+            const m = String(row.lastdata).match(/(?:SIP|PJSIP|IAX2|Local)\/(\d{2,5})(?:[-@:;,]|$)/i);
+            if (m) pickedUpExt = m[1];
+        }
+        if (pickedUpExt) {
+            return `${dst} (Group -> ${pickedUpExt})`;
+        }
+        return `${dst} (Ring Group)`;
+    }
+
     return dst;
 }
 
@@ -2495,10 +2576,16 @@ app.get('/cdr', async (req, res) => {
         const [rows] = await pool.query(query, queryParams);
         const totalPages = Math.ceil(total / perPage) || 1;
 
+        let ringGroupSet = new Set();
+        try {
+            const [rgRows] = await pool.query('SELECT grpnum FROM `asterisk`.`ringgroups`');
+            rgRows.forEach(r => ringGroupSet.add(String(r.grpnum)));
+        } catch (_) {}
+
         const formattedRows = rows.map(row => {
             return {
                 ...row,
-                dst: formatDestination(row)
+                dst: formatDestination(row, ringGroupSet)
             };
         });
 
@@ -2581,6 +2668,12 @@ app.get('/cdr/export', async (req, res) => {
 
         const [rows] = await pool.query(query, queryParams);
 
+        let ringGroupSet = new Set();
+        try {
+            const [rgRows] = await pool.query('SELECT grpnum FROM `asterisk`.`ringgroups`');
+            rgRows.forEach(r => ringGroupSet.add(String(r.grpnum)));
+        } catch (_) {}
+
         // Build CSV string
         const csvHeaders = ["Date/Time", "Source", "Source Name", "Destination", "DID", "Duration (Sec)", "Billsec (Sec)", "Disposition", "Direction", "Channel", "Destination Channel", "Unique ID"];
         
@@ -2588,7 +2681,7 @@ app.get('/cdr/export', async (req, res) => {
         csvContent += csvHeaders.map(h => `"${h.replace(/"/g, '""')}"`).join(",") + "\n";
 
         for (const row of rows) {
-            const formattedDst = formatDestination(row);
+            const formattedDst = formatDestination(row, ringGroupSet);
             const rowData = [
                 `"${moment(row.calldate).format('YYYY-MM-DD HH:mm:ss')}"`,
                 /^\+?\d+$/.test(String(row.src || '')) ? `="` + String(row.src || '').trim() + `"` : `"${String(row.src || '').replace(/"/g, '""')}"`,
@@ -2721,6 +2814,259 @@ function scanVoicemails() {
     messages.sort((a, b) => b.origtime - a.origtime);
     return messages;
 }
+
+// --- VOICEMAIL STORAGE & RETENTION HELPERS ---
+function syncVoicemailLimits(maxmsg = 1000, maxsecs = 300) {
+    const maxMsgNum = Math.min(9999, Math.max(10, parseInt(maxmsg, 10) || 1000));
+    const maxSecsNum = Math.min(1800, Math.max(10, parseInt(maxsecs, 10) || 300));
+    
+    // 1. Update /etc/asterisk/vm_general.inc
+    const vmInc = '/etc/asterisk/vm_general.inc';
+    try {
+        if (fs.existsSync(vmInc)) {
+            let content = fs.readFileSync(vmInc, 'utf8');
+            let lines = content.split('\n').filter(l => !l.trim().startsWith('maxmsg=') && !l.trim().startsWith('maxsecs=') && !l.trim().startsWith('minsecs='));
+            lines.push(`maxmsg=${maxMsgNum}`);
+            lines.push(`maxsecs=${maxSecsNum}`);
+            lines.push('minsecs=3');
+            fs.writeFileSync(vmInc, lines.join('\n'), 'utf8');
+        }
+    } catch (e) {
+        console.error('Error updating vm_general.inc:', e.message);
+    }
+
+    // 2. Update /etc/asterisk/voicemail.conf [general] section
+    const vmFile = '/etc/asterisk/voicemail.conf';
+    try {
+        if (fs.existsSync(vmFile)) {
+            let content = fs.readFileSync(vmFile, 'utf8');
+            let lines = content.split('\n').filter(l => !l.trim().startsWith('maxmsg=') && !l.trim().startsWith('maxsecs=') && !l.trim().startsWith('minsecs='));
+            const genIdx = lines.findIndex(l => l.trim() === '[general]');
+            if (genIdx !== -1) {
+                lines.splice(genIdx + 1, 0, `maxmsg=${maxMsgNum}`, `maxsecs=${maxSecsNum}`, 'minsecs=3');
+            }
+            fs.writeFileSync(vmFile, lines.join('\n'), 'utf8');
+        }
+    } catch (e) {
+        console.error('Error updating voicemail.conf:', e.message);
+    }
+
+    // 3. Reload Asterisk voicemail module
+    exec(`${ASTERISK_BIN} -rx 'voicemail reload'`, (err) => {
+        if (err) console.error('Voicemail reload error:', err.message);
+    });
+}
+
+function getVoicemailStorageStats() {
+    let totalMessages = 0;
+    let totalBytes = 0;
+    const mailboxes = new Set();
+    let oldestTime = null;
+    let newestTime = null;
+
+    try {
+        if (fs.existsSync(VM_ROOT)) {
+            const extDirs = fs.readdirSync(VM_ROOT, { withFileTypes: true }).filter(d => d.isDirectory());
+            for (const ext of extDirs) {
+                const mailboxPath = path.join(VM_ROOT, ext.name);
+                const subfolders = ['INBOX', 'Old', 'Work', 'Family', 'Friends', 'Cust1', 'Cust2', 'Cust3', 'Cust4', 'Cust5'];
+                for (const sf of subfolders) {
+                    const sfPath = path.join(mailboxPath, sf);
+                    if (!fs.existsSync(sfPath)) continue;
+                    const dirents = fs.readdirSync(sfPath, { withFileTypes: true });
+                    for (const dirent of dirents) {
+                        if (!dirent.isFile()) continue;
+                        const fPath = path.join(sfPath, dirent.name);
+                        try {
+                            const stat = fs.statSync(fPath);
+                            totalBytes += stat.size;
+                            if (dirent.name.endsWith('.txt')) {
+                                totalMessages++;
+                                mailboxes.add(ext.name);
+                                const meta = parseVmTxt(fPath);
+                                const t = meta && meta.origtime ? parseInt(meta.origtime) * 1000 : stat.mtimeMs;
+                                if (t) {
+                                    if (!oldestTime || t < oldestTime) oldestTime = t;
+                                    if (!newestTime || t > newestTime) newestTime = t;
+                                }
+                            }
+                        } catch {}
+                    }
+                }
+            }
+        }
+    } catch (err) {
+        console.error('Error calculating voicemail storage stats:', err);
+    }
+
+    const totalSizeMB = (totalBytes / (1024 * 1024)).toFixed(2);
+    let totalSizeFormatted = totalBytes < 1024 * 1024
+        ? (totalBytes / 1024).toFixed(1) + ' KB'
+        : (totalBytes < 1024 * 1024 * 1024
+            ? (totalBytes / (1024 * 1024)).toFixed(2) + ' MB'
+            : (totalBytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB');
+
+    return {
+        totalMessages,
+        totalBytes,
+        totalSizeMB: parseFloat(totalSizeMB),
+        totalSizeFormatted,
+        mailboxesCount: mailboxes.size,
+        oldestTime,
+        newestTime
+    };
+}
+
+function purgeOldVoicemails(days = 90) {
+    const daysNum = Math.max(1, parseInt(days, 10) || 90);
+    const thresholdMs = Date.now() - (daysNum * 24 * 60 * 60 * 1000);
+    let purgedCount = 0;
+    let freedBytes = 0;
+
+    try {
+        if (fs.existsSync(VM_ROOT)) {
+            const extDirs = fs.readdirSync(VM_ROOT, { withFileTypes: true }).filter(d => d.isDirectory());
+            for (const ext of extDirs) {
+                const mailboxPath = path.join(VM_ROOT, ext.name);
+                const subfolders = ['INBOX', 'Old', 'Work', 'Family', 'Friends', 'Cust1', 'Cust2', 'Cust3', 'Cust4', 'Cust5'];
+                for (const sf of subfolders) {
+                    const sfPath = path.join(mailboxPath, sf);
+                    if (!fs.existsSync(sfPath)) continue;
+                    const files = fs.readdirSync(sfPath);
+                    const txtFiles = files.filter(f => f.endsWith('.txt'));
+                    for (const txt of txtFiles) {
+                        const txtPath = path.join(sfPath, txt);
+                        try {
+                            const stat = fs.statSync(txtPath);
+                            const meta = parseVmTxt(txtPath);
+                            const msgTime = meta && meta.origtime ? parseInt(meta.origtime) * 1000 : stat.mtimeMs;
+                            if (msgTime && msgTime < thresholdMs) {
+                                const baseName = txt.replace(/\.txt$/, '');
+                                const related = files.filter(f => f.startsWith(baseName));
+                                for (const rf of related) {
+                                    const rfPath = path.join(sfPath, rf);
+                                    try {
+                                        const rfStat = fs.statSync(rfPath);
+                                        freedBytes += rfStat.size;
+                                        fs.unlinkSync(rfPath);
+                                    } catch {}
+                                }
+                                purgedCount++;
+                            }
+                        } catch {}
+                    }
+                }
+            }
+        }
+    } catch (err) {
+        console.error('Error purging old voicemails:', err);
+    }
+
+    let freedFormatted = freedBytes < 1024 * 1024
+        ? (freedBytes / 1024).toFixed(1) + ' KB'
+        : (freedBytes < 1024 * 1024 * 1024
+            ? (freedBytes / (1024 * 1024)).toFixed(2) + ' MB'
+            : (freedBytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB');
+
+    return {
+        purgedCount,
+        freedBytes,
+        freedFormatted
+    };
+}
+
+// Schedule daily voicemail auto-purge check
+setInterval(async () => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM `asterisk`.`voicemail_storage_settings` WHERE id = 1');
+        if (rows && rows.length > 0) {
+            const s = rows[0];
+            if (s.auto_purge_enabled && s.retention_days > 0) {
+                const res = purgeOldVoicemails(s.retention_days);
+                if (res.purgedCount > 0) {
+                    console.log(`[Auto-Purge] Purged ${res.purgedCount} old voicemails (> ${s.retention_days} days), freed ${res.freedFormatted}`);
+                }
+                await pool.query('UPDATE `asterisk`.`voicemail_storage_settings` SET last_purged_at = NOW() WHERE id = 1');
+            }
+        }
+    } catch (err) {
+        console.error('Voicemail auto-purge timer error:', err.message);
+    }
+}, 24 * 60 * 60 * 1000).unref();
+
+// --- VOICEMAIL STORAGE & RETENTION APIs ---
+app.get('/api/voicemail-storage/settings', requireAuth, async (req, res) => {
+    try {
+        let settings = { max_messages: 1000, max_duration_sec: 300, retention_days: 90, auto_purge_enabled: 0, last_purged_at: null };
+        try {
+            const [rows] = await pool.query('SELECT * FROM `asterisk`.`voicemail_storage_settings` WHERE id = 1');
+            if (rows && rows.length > 0) settings = rows[0];
+        } catch (_) {}
+
+        const stats = getVoicemailStorageStats();
+        res.json({ success: true, settings, stats });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+app.post('/api/voicemail-storage/settings', requireAuth, async (req, res) => {
+    try {
+        const max_messages = Math.min(9999, Math.max(10, parseInt(req.body.max_messages, 10) || 1000));
+        const max_duration_sec = Math.min(1800, Math.max(10, parseInt(req.body.max_duration_sec, 10) || 300));
+        const retention_days = Math.min(3650, Math.max(1, parseInt(req.body.retention_days, 10) || 90));
+        const auto_purge_enabled = (req.body.auto_purge_enabled === 1 || req.body.auto_purge_enabled === '1' || req.body.auto_purge_enabled === true) ? 1 : 0;
+
+        await pool.query(`
+            INSERT INTO \`asterisk\`.\`voicemail_storage_settings\` (id, max_messages, max_duration_sec, retention_days, auto_purge_enabled)
+            VALUES (1, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE
+                max_messages = VALUES(max_messages),
+                max_duration_sec = VALUES(max_duration_sec),
+                retention_days = VALUES(retention_days),
+                auto_purge_enabled = VALUES(auto_purge_enabled)
+        `, [max_messages, max_duration_sec, retention_days, auto_purge_enabled]);
+
+        syncVoicemailLimits(max_messages, max_duration_sec);
+
+        const stats = getVoicemailStorageStats();
+        res.json({
+            success: true,
+            message: `Voicemail storage settings updated (Limit: ${max_messages} msgs/box, Duration: ${max_duration_sec}s, Retention: ${retention_days} days).`,
+            settings: { max_messages, max_duration_sec, retention_days, auto_purge_enabled },
+            stats
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+app.post('/api/voicemail-storage/purge', requireAuth, async (req, res) => {
+    try {
+        let days = parseInt(req.body.retention_days, 10);
+        if (!days || isNaN(days)) {
+            try {
+                const [rows] = await pool.query('SELECT retention_days FROM `asterisk`.`voicemail_storage_settings` WHERE id = 1');
+                if (rows && rows.length > 0) days = rows[0].retention_days;
+            } catch (_) {}
+        }
+        days = Math.max(1, days || 90);
+
+        const result = purgeOldVoicemails(days);
+        try {
+            await pool.query('UPDATE `asterisk`.`voicemail_storage_settings` SET last_purged_at = NOW() WHERE id = 1');
+        } catch (_) {}
+
+        res.json({
+            success: true,
+            message: `Cleanup completed: ${result.purgedCount} voicemails older than ${days} days were purged (${result.freedFormatted} freed).`,
+            purgedCount: result.purgedCount,
+            freedFormatted: result.freedFormatted
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
 
 app.get('/voicemails', (req, res) => {
     const allMsgs = scanVoicemails();

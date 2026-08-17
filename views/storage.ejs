@@ -155,193 +155,6 @@ const isRtl = currentLang === 'ar';
         }
         body { font-family: 'Roboto', 'IBM Plex Sans Arabic', sans-serif; background-color: var(--bg-primary); color: var(--text-primary); }
         .panel-surface { background-color: var(--bg-secondary); border: 1px solid var(--border-primary); }
-        /* Custom Sokrat VoIP Flatpickr Dark Theme (Matches user's image) */
-        .flatpickr-calendar {
-            background: #0c0c0e !important;
-            border: 1px solid #27272a !important;
-            border-radius: 1rem !important;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85) !important;
-            font-family: 'Roboto', 'IBM Plex Sans Arabic', sans-serif !important;
-            padding: 0.5rem !important;
-            width: 310px !important;
-        }
-        .flatpickr-calendar.arrowTop:before,
-        .flatpickr-calendar.arrowTop:after,
-        .flatpickr-calendar.arrowBottom:before,
-        .flatpickr-calendar.arrowBottom:after {
-            display: none !important;
-        }
-        .flatpickr-months {
-            align-items: center !important;
-            padding: 0.25rem 0.5rem !important;
-        }
-        .flatpickr-months .flatpickr-month {
-            color: #ffffff !important;
-            fill: #ffffff !important;
-            font-weight: 800 !important;
-            font-size: 1.1rem !important;
-        }
-        .flatpickr-months .flatpickr-prev-month,
-        .flatpickr-months .flatpickr-next-month {
-            color: #e53e3e !important;
-            fill: #e53e3e !important;
-            padding: 0.5rem !important;
-        }
-        .flatpickr-months .flatpickr-prev-month:hover svg,
-        .flatpickr-months .flatpickr-next-month:hover svg {
-            fill: #fc8181 !important;
-        }
-        .flatpickr-current-month select.flatpickr-monthDropdown-months {
-            background: #18181b !important;
-            border: 1px solid #3f3f46 !important;
-            border-radius: 0.35rem !important;
-            color: #ffffff !important;
-            font-weight: 800 !important;
-            font-size: 0.9rem !important;
-            padding: 1px 4px !important;
-            cursor: pointer !important;
-            appearance: auto !important;
-            -webkit-appearance: menulist !important;
-            max-width: 120px !important;
-        }
-        .flatpickr-current-month .flatpickr-monthDropdown-months option {
-            background-color: #121215 !important;
-            color: #ffffff !important;
-            font-weight: 700 !important;
-        }
-        .flatpickr-current-month .numInputWrapper input.cur-year {
-            color: #ffffff !important;
-            font-weight: 700 !important;
-            font-size: 0.9rem !important;
-        }
-        .flatpickr-weekdays {
-            margin-top: 0.5rem !important;
-            margin-bottom: 0.25rem !important;
-        }
-        span.flatpickr-weekday {
-            color: #a1a1aa !important;
-            font-weight: 700 !important;
-            font-size: 0.75rem !important;
-        }
-        .flatpickr-day {
-            color: #f4f4f5 !important;
-            border-radius: 50% !important;
-            font-weight: 600 !important;
-            font-size: 0.9rem !important;
-            height: 38px !important;
-            line-height: 38px !important;
-        }
-        .flatpickr-day.prevMonthDay,
-        .flatpickr-day.nextMonthDay {
-            color: #52525b !important;
-            opacity: 0.4 !important;
-        }
-        .flatpickr-day.prevMonthDay:hover,
-        .flatpickr-day.nextMonthDay:hover {
-            background: #1e1e24 !important;
-            color: #a1a1aa !important;
-        }
-        .flatpickr-day:hover {
-            background: #1e1e24 !important;
-            border-color: transparent !important;
-        }
-        .flatpickr-day.today {
-            border-color: #e53e3e !important;
-            color: #ffffff !important;
-        }
-        .flatpickr-day.selected,
-        .flatpickr-day.selected:hover {
-            background: #e53e3e !important;
-            border-color: #e53e3e !important;
-            color: #ffffff !important;
-            font-weight: 800 !important;
-            box-shadow: 0 4px 14px rgba(229, 62, 62, 0.4) !important;
-        }
-        .flatpickr-time {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            gap: 6px !important;
-            border-top: 1px solid #27272a !important;
-            margin-top: 0.5rem !important;
-            padding: 6px 10px !important;
-            background: #09090b !important;
-            border-radius: 0.75rem !important;
-            height: 48px !important;
-            max-height: 48px !important;
-            overflow: hidden !important;
-            box-sizing: border-box !important;
-        }
-        .flatpickr-time .numInputWrapper {
-            flex: 0 0 54px !important;
-            height: 36px !important;
-            position: relative !important;
-        }
-        .flatpickr-time .numInputWrapper input.numInput {
-            background: #18181b !important;
-            border: 1px solid #27272a !important;
-            border-radius: 0.5rem !important;
-            color: #ffffff !important;
-            font-family: 'JetBrains Mono', monospace !important;
-            font-weight: 800 !important;
-            font-size: 0.95rem !important;
-            text-align: center !important;
-            height: 36px !important;
-            line-height: normal !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            box-sizing: border-box !important;
-            width: 100% !important;
-        }
-        .flatpickr-time .numInputWrapper input.numInput:focus {
-            border-color: #e53e3e !important;
-            outline: none !important;
-            background: #27272a !important;
-        }
-        .flatpickr-time .flatpickr-time-separator {
-            color: #ffffff !important;
-            font-weight: 900 !important;
-            font-size: 1.2rem !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            height: 36px !important;
-            width: 12px !important;
-        }
-        .flatpickr-time .flatpickr-am-pm {
-            background: #18181b !important;
-            border: 1px solid #27272a !important;
-            border-radius: 0.5rem !important;
-            color: #ffffff !important;
-            font-weight: 800 !important;
-            font-size: 0.85rem !important;
-            height: 36px !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            width: 54px !important;
-            cursor: pointer !important;
-            box-sizing: border-box !important;
-        }
-        .flatpickr-time .flatpickr-am-pm:hover {
-            background: #27272a !important;
-            border-color: #e53e3e !important;
-            color: #e53e3e !important;
-        }
-        .flatpickr-time .numInputWrapper span.arrowUp,
-        .flatpickr-time .numInputWrapper span.arrowDown {
-            display: none !important;
-        }
-        .flatpickr-input[readonly], .flatpickr-input.flatpickr-mobile {
-            background-color: #09090b !important;
-            border: 1px solid #27272a !important;
-            border-radius: 0.5rem !important;
-            color: #ffffff !important;
-            font-family: 'JetBrains Mono', monospace !important;
-            font-weight: 700 !important;
-            font-size: 0.875rem !important;
-            padding: 0.5rem 0.75rem !important;
-        }
     </style>
 </head>
 <body class="flex flex-col md:flex-row min-h-screen m-0 p-0">
@@ -353,11 +166,10 @@ const isRtl = currentLang === 'ar';
         <div class="mb-6 shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
                 <h2 class="text-3xl font-extrabold text-white tracking-tight"><%= t.title %> <span class="text-[var(--accent-color)]"><%= t.subtitle %></span></h2>
-                <p class="text-xs text-[var(--text-muted)] mt-1"><%= isRtl ? 'إدارة مساحة التخزين والنسخ الاحتياطي إلى الكمبيوتر أو Google Drive' : 'Monitor server storage, purge old recordings, and export call data to PC or Google Drive' %></p>
             </div>
             
             <div class="flex items-center gap-3">
-                <button onclick="fetchStorageInfo()" class="panel-surface hover:bg-[var(--bg-hover)] text-white border border-[var(--border-primary)] rounded-xl px-4 py-2 text-xs font-bold flex items-center gap-2 cursor-pointer transition shadow-sm">
+                <button onclick="fetchStorageInfo()" class="panel-surface hover:bg-[var(--bg-hover)] text-white border border-[var(--border-primary)] rounded-xl px-4 py-2 text-xs font-bold flex items-center gap-2 cursor-pointer transition">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
                     <%= isRtl ? 'تحديث البيانات' : 'Refresh Metrics' %>
                 </button>
@@ -478,7 +290,7 @@ const isRtl = currentLang === 'ar';
                         </div>
 
                         <div class="pt-4 border-t border-[var(--border-primary)]/50 mt-2">
-                            <button type="submit" id="downloadZipBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-xl py-3 px-4 text-xs flex items-center justify-center gap-2 cursor-pointer transition shadow-md shadow-emerald-950/40">
+                            <button type="submit" id="downloadZipBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-xl py-3 px-4 text-xs flex items-center justify-center gap-2 cursor-pointer transition">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                                 <span><%= t.downloadZipBtn %></span>
                             </button>
@@ -533,7 +345,7 @@ const isRtl = currentLang === 'ar';
                             <button type="submit" id="saveGdriveBtn" class="bg-zinc-800 hover:bg-zinc-700 text-white font-bold rounded-xl py-2.5 px-3 text-xs flex items-center justify-center gap-2 cursor-pointer transition">
                                 <span><%= t.saveGdriveBtn %></span>
                             </button>
-                            <button type="button" onclick="syncGdriveNow()" id="syncGdriveBtn" class="bg-blue-600 hover:bg-blue-500 text-white font-extrabold rounded-xl py-2.5 px-3 text-xs flex items-center justify-center gap-2 cursor-pointer transition shadow-md shadow-blue-950/40">
+                            <button type="button" onclick="syncGdriveNow()" id="syncGdriveBtn" class="bg-blue-600 hover:bg-blue-500 text-white font-extrabold rounded-xl py-2.5 px-3 text-xs flex items-center justify-center gap-2 cursor-pointer transition">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
                                 <span><%= t.syncGdriveBtn %></span>
                             </button>
@@ -560,7 +372,7 @@ const isRtl = currentLang === 'ar';
                     <button onclick="savePurgePolicy()" id="savePurgeBtn" class="bg-zinc-800 hover:bg-zinc-700 text-white font-bold rounded-xl px-4 py-2 text-xs cursor-pointer transition">
                         <%= t.savePurgeBtn %>
                     </button>
-                    <button onclick="runPurgeNow()" id="runPurgeBtn" class="bg-amber-600 hover:bg-amber-500 text-white font-extrabold rounded-xl px-4 py-2 text-xs flex items-center gap-2 cursor-pointer transition shadow-md shadow-amber-950/40">
+                    <button onclick="runPurgeNow()" id="runPurgeBtn" class="bg-amber-600 hover:bg-amber-500 text-white font-extrabold rounded-xl px-4 py-2 text-xs flex items-center gap-2 cursor-pointer transition">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
                         <%= t.runPurgeBtn %>
                     </button>
@@ -576,7 +388,12 @@ const isRtl = currentLang === 'ar';
                     <input type="range" id="purgeDaysSlider" min="7" max="365" step="1" value="90" oninput="document.getElementById('purge-days-val').textContent = this.value + ' Days'" class="w-full cursor-pointer accent-amber-500">
                 </div>
                 <div class="p-3.5 rounded-xl bg-black/20 border border-[var(--border-primary)] text-xs text-[var(--text-muted)] space-y-1">
-                    <div class="font-bold text-[var(--text-primary)]">⚠️ Purge Safety Notice:</div>
+                    <div class="font-bold text-[var(--text-primary)] flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        <span><%= isRtl ? 'تنبيه أمان الحذف:' : 'Purge Safety Notice:' %></span>
+                    </div>
                     <p>Audio recording files (`.wav`, `.gsm`, `.mp3`) older than the selected threshold will be permanently deleted from `/var/spool/asterisk/monitor/`. CDR database call logs remain untouched.</p>
                 </div>
             </div>

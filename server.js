@@ -1494,19 +1494,24 @@ io.on('connection', async (socket) => {
     socket.emit('peerIPs', peerIPs);
     socket.emit('initialTrunks', await getTrunkStatusMap());
 
-    let ttyProcess = null;
+    socket.ttyProcess = null;
+    let ttyDisconnectTimer = null;
 
     function startTtyProcess(data) {
-        if (ttyProcess) {
-            try { ttyProcess.kill('SIGKILL'); } catch (_) {}
-            ttyProcess = null;
+        if (socket.ttyProcess) {
+            try { socket.ttyProcess.kill('SIGKILL'); } catch (_) {}
+            socket.ttyProcess = null;
+        }
+        if (ttyDisconnectTimer) {
+            clearTimeout(ttyDisconnectTimer);
+            ttyDisconnectTimer = null;
         }
 
         const cols = (data && Number.isInteger(data.cols) && data.cols > 10) ? data.cols : 100;
         const rows = (data && Number.isInteger(data.rows) && data.rows > 5) ? data.rows : 30;
 
         try {
-            ttyProcess = spawn('script', ['-q', '-c', 'bash -i', '/dev/null'], {
+            socket.ttyProcess = spawn('script', ['-q', '-c', 'bash -i', '/dev/null'], {
                 cwd: process.env.HOME || '/root',
                 env: {
                     ...process.env,
@@ -1517,26 +1522,26 @@ io.on('connection', async (socket) => {
                 }
             });
 
-            socket.emit('tty_status', { connected: true, pid: ttyProcess.pid });
+            socket.emit('tty_status', { connected: true, pid: socket.ttyProcess.pid });
 
-            ttyProcess.stdout.on('data', (chunk) => {
+            socket.ttyProcess.stdout.on('data', (chunk) => {
                 socket.emit('tty_output', chunk.toString('utf8'));
             });
 
-            ttyProcess.stderr.on('data', (chunk) => {
+            socket.ttyProcess.stderr.on('data', (chunk) => {
                 socket.emit('tty_output', chunk.toString('utf8'));
             });
 
-            ttyProcess.on('exit', (code) => {
+            socket.ttyProcess.on('exit', (code) => {
                 socket.emit('tty_output', `\r\n\x1b[33m[TTY Shell process exited with code ${code}]\x1b[0m\r\n`);
                 socket.emit('tty_status', { connected: false });
-                ttyProcess = null;
+                socket.ttyProcess = null;
             });
 
-            ttyProcess.on('error', (err) => {
+            socket.ttyProcess.on('error', (err) => {
                 socket.emit('tty_output', `\r\n\x1b[31m[TTY Shell spawn error: ${err.message}]\x1b[0m\r\n`);
                 socket.emit('tty_status', { connected: false });
-                ttyProcess = null;
+                socket.ttyProcess = null;
             });
         } catch (err) {
             socket.emit('tty_output', `\r\n\x1b[31m[Failed to launch TTY Shell: ${err.message}]\x1b[0m\r\n`);
@@ -1554,18 +1559,26 @@ io.on('connection', async (socket) => {
         }
         startTtyProcess(data);
     });
+
     socket.on('tty_input', (inputData) => {
-        if (ttyProcess && ttyProcess.stdin && ttyProcess.stdin.writable) {
-            try {
-                ttyProcess.stdin.write(String(inputData));
-            } catch (_) {}
+        if (!socket.ttyProcess || !socket.ttyProcess.stdin || !socket.ttyProcess.stdin.writable) {
+            startTtyProcess();
+            setTimeout(() => {
+                if (socket.ttyProcess && socket.ttyProcess.stdin && socket.ttyProcess.stdin.writable) {
+                    try { socket.ttyProcess.stdin.write(String(inputData)); } catch (_) {}
+                }
+            }, 100);
+            return;
         }
+        try {
+            socket.ttyProcess.stdin.write(String(inputData));
+        } catch (_) {}
     });
 
     socket.on('tty_resize', (dim) => {
-        if (ttyProcess && ttyProcess.stdin && ttyProcess.stdin.writable && dim && dim.cols && dim.rows) {
+        if (socket.ttyProcess && socket.ttyProcess.stdin && socket.ttyProcess.stdin.writable && dim && dim.cols && dim.rows) {
             try {
-                ttyProcess.stdin.write(` stty cols ${dim.cols} rows ${dim.rows} >/dev/null 2>&1\n`);
+                socket.ttyProcess.stdin.write(` stty cols ${dim.cols} rows ${dim.rows} >/dev/null 2>&1\n`);
             } catch (_) {}
         }
     });
@@ -1578,11 +1591,15 @@ io.on('connection', async (socket) => {
         socket.emit('tty_output', '\r\n\x1b[36m[Restarting TTY Shell...]\x1b[0m\r\n');
         startTtyProcess(data);
     });
-    socket.on('disconnect', () => {
-        if (ttyProcess) {
-            try { ttyProcess.kill('SIGKILL'); } catch (_) {}
-            ttyProcess = null;
-        }
+
+    socket.on('disconnect', (reason) => {
+        // Grace delay before tearing down process to allow transport upgrades without kill
+        ttyDisconnectTimer = setTimeout(() => {
+            if (socket.ttyProcess) {
+                try { socket.ttyProcess.kill('SIGKILL'); } catch (_) {}
+                socket.ttyProcess = null;
+            }
+        }, 6000);
     });
 });
 

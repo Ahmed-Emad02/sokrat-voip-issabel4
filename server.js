@@ -3766,6 +3766,7 @@ function removeDongleSlotFromConf(dongleName) {
     fs.writeFileSync(confPath, newLines.join('\n'), 'utf8');
 }
 const SOKRAT_MANAGED_CONTEXTS = ['from-dongle-custom', 'macro-dialout-trunk-predial-hook', 'macro-dialout-one-predial-hook'];
+const SOKRAT_JB_LINE = 'same => n,Set(JITTERBUFFER(adaptive)=default)';
 
 function getDialplanJitterBufferStatus() {
     const filePath = '/etc/asterisk/extensions_custom.conf';
@@ -7286,8 +7287,8 @@ app.post('/api/config/ivrs', async (req, res) => {
 
         const [insertRes] = await pool.query(`
             INSERT INTO \`asterisk\`.\`ivr_details\`
-            (name, description, announcement, directdial, timeout_time, timeout_loops, timeout_retry_recording, timeout_destination, invalid_loops, invalid_retry_recording, invalid_destination, timeout_enabled)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '1')
+            (name, description, announcement, directdial, timeout_time, timeout_loops, timeout_retry_recording, timeout_destination, invalid_loops, invalid_retry_recording, invalid_destination)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, [
             ivrName, ivrDesc, announceId, dirDial,
             timeoutSec, timeoutRetry, timeoutRec, timeoutDest,

@@ -1511,7 +1511,7 @@ io.on('connection', async (socket) => {
         const rows = (data && Number.isInteger(data.rows) && data.rows > 5) ? data.rows : 30;
 
         try {
-            socket.ttyProcess = spawn('script', ['-q', '-c', 'bash -i', '/dev/null'], {
+            socket.ttyProcess = spawn('script', ['-q', '-f', '-c', 'stty echo icanon 2>/dev/null; exec bash -i', '/dev/null'], {
                 cwd: process.env.HOME || '/root',
                 env: {
                     ...process.env,

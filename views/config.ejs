@@ -9575,16 +9575,15 @@ function isTabAllowed(tabName) {
 
                 const wrapper = document.getElementById('ttyTerminalWrapper');
                 if (wrapper) {
-                    wrapper.addEventListener('click', () => {
-                        if (ttyXterm) ttyXterm.focus();
-                    });
+                    wrapper.addEventListener('click', () => { if (ttyXterm) ttyXterm.focus(); });
+                    wrapper.addEventListener('mousedown', () => { if (ttyXterm) ttyXterm.focus(); });
                 }
-                container.addEventListener('click', () => {
-                    if (ttyXterm) ttyXterm.focus();
-                });
+                container.addEventListener('click', () => { if (ttyXterm) ttyXterm.focus(); });
+                container.addEventListener('mousedown', () => { if (ttyXterm) ttyXterm.focus(); });
 
                 ttyXterm.attachCustomKeyEventHandler((arg) => {
-                    if ((arg.ctrlKey || arg.metaKey) && arg.code === 'KeyC' && arg.type === 'keydown') {
+                    // Only intercept Ctrl+C when there is active text selection in terminal
+                    if ((arg.ctrlKey || arg.metaKey) && (arg.code === 'KeyC' || arg.key === 'c' || arg.key === 'C') && arg.type === 'keydown') {
                         if (ttyXterm.hasSelection()) {
                             const selected = ttyXterm.getSelection();
                             if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -9594,7 +9593,8 @@ function isTabAllowed(tabName) {
                             return false;
                         }
                     }
-                    if ((arg.ctrlKey || arg.metaKey) && arg.code === 'KeyV' && arg.type === 'keydown') {
+                    // Only intercept Ctrl+V on keydown
+                    if ((arg.ctrlKey || arg.metaKey) && (arg.code === 'KeyV' || arg.key === 'v' || arg.key === 'V') && arg.type === 'keydown') {
                         pasteClipboardToTerminal();
                         return false;
                     }

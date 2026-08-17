@@ -1555,24 +1555,11 @@ io.on('connection', async (socket) => {
         startTtyProcess(data);
     });
     socket.on('tty_input', (inputData) => {
-        const req = socket.request;
-        const session = req ? req.session : null;
-        const isRootUser = Boolean(session && (session.isRoot || session.username === 'root'));
-        if (!session || !isRootUser) return;
-
-        if (!ttyProcess || !ttyProcess.stdin || !ttyProcess.stdin.writable) {
-            startTtyProcess();
-            setTimeout(() => {
-                if (ttyProcess && ttyProcess.stdin && ttyProcess.stdin.writable) {
-                    try { ttyProcess.stdin.write(String(inputData)); } catch (_) {}
-                }
-            }, 100);
-            return;
+        if (ttyProcess && ttyProcess.stdin && ttyProcess.stdin.writable) {
+            try {
+                ttyProcess.stdin.write(String(inputData));
+            } catch (_) {}
         }
-
-        try {
-            ttyProcess.stdin.write(String(inputData));
-        } catch (_) {}
     });
 
     socket.on('tty_resize', (dim) => {

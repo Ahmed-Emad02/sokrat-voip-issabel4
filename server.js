@@ -3468,7 +3468,9 @@ app.get('/api/ext-stats/:extension', async (req, res) => {
             totalTalkSec: 0, avgTalkSec: 0,
             uniqueContacts: new Set(),
             dispositionCounts: {},
-            dailyBreakdown: {}
+            dailyBreakdown: {},
+            hourlyBreakdown: {},
+            durationCounts: { short: 0, medium: 0, long: 0 }
         };
 
         rows.forEach(row => {
@@ -3513,6 +3515,15 @@ app.get('/api/ext-stats/:extension', async (req, res) => {
             if (row.disposition === 'ANSWERED') stats.dailyBreakdown[day].answered++;
             if (callDirection === 'inbound') stats.dailyBreakdown[day].inbound++;
             if (callDirection === 'outbound') stats.dailyBreakdown[day].outbound++;
+
+            const hour = moment(row.calldate).format('HH');
+            stats.hourlyBreakdown[hour] = (stats.hourlyBreakdown[hour] || 0) + 1;
+
+            if (row.disposition === 'ANSWERED') {
+                if (sec < 30) stats.durationCounts.short++;
+                else if (sec <= 180) stats.durationCounts.medium++;
+                else stats.durationCounts.long++;
+            }
         });
 
         stats.totalTalkSec = stats.inboundTalkSec + stats.outboundTalkSec;
@@ -3524,6 +3535,16 @@ app.get('/api/ext-stats/:extension', async (req, res) => {
             .sort(([a], [b]) => a.localeCompare(b))
             .map(([date, data]) => ({ date, ...data }));
 
+        stats.hourlyData = Array.from({ length: 24 }, (_, i) => {
+            const h = String(i).padStart(2, '0');
+            return { hour: `${h}:00`, count: stats.hourlyBreakdown[h] || 0 };
+        });
+
+        stats.durationData = [
+            { name: 'Short (<30s)', value: stats.durationCounts.short },
+            { name: 'Medium (30s-3m)', value: stats.durationCounts.medium },
+            { name: 'Long (>3m)', value: stats.durationCounts.long }
+        ];
         stats.recentCalls = [];
         for (const row of rows) {
             const sec = parseInt(row.billsec) || 0;

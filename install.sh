@@ -397,18 +397,18 @@ exten => _223X.,1,NoOp(Spying on extension ${EXTEN:3} in Whisper mode)
 exten => _223X.,n,Answer()
 exten => _223X.,n,Set(spyee_dial=${DB(DEVICE/${EXTEN:3}/dial)})
 exten => _223X.,n,GotoIf($["${spyee_dial}" = ""]?fallback)
-exten => _223X.,n,ChanSpy(${spyee_dial},qw)
+exten => _223X.,n,SokratChanSpy(${spyee_dial},qw)
 exten => _223X.,n,Hangup()
-exten => _223X.,n(fallback),ChanSpy(SIP/${EXTEN:3},qw)
+exten => _223X.,n(fallback),SokratChanSpy(SIP/${EXTEN:3},qw)
 exten => _223X.,n,Hangup()
 
 exten => _224X.,1,NoOp(Spying on extension ${EXTEN:3} in Barge mode)
 exten => _224X.,n,Answer()
 exten => _224X.,n,Set(spyee_dial=${DB(DEVICE/${EXTEN:3}/dial)})
 exten => _224X.,n,GotoIf($["${spyee_dial}" = ""]?fallback)
-exten => _224X.,n,ChanSpy(${spyee_dial},qB)
+exten => _224X.,n,SokratChanSpy(${spyee_dial},qB)
 exten => _224X.,n,Hangup()
-exten => _224X.,n(fallback),ChanSpy(SIP/${EXTEN:3},qB)
+exten => _224X.,n(fallback),SokratChanSpy(SIP/${EXTEN:3},qB)
 exten => _224X.,n,Hangup()
 
 exten => _225X.,1,NoOp(--- Instant AGI Hijack Call for Extension ${EXTEN:3} ---)
@@ -569,6 +569,29 @@ echo "[10/14] Setting up GSM dongles & chan_dongle..."
 echo "  [10a] Installing build dependencies..."
 yum -y install gcc gcc-c++ make automake autoconf libtool sqlite-devel usbutils usb_modeswitch minicom
 yum -y install asterisk-devel asterisk11-devel 2>/dev/null || yum -y install asterisk-devel || true
+
+# 10a2 — Compile and install the Asterisk 11 reliable ChanSpy wrapper
+echo "  [10a2] Installing reliable whisper/barge media support..."
+if [ -d /usr/lib64/asterisk/modules ]; then
+    ASTERISK_MODULE_DIR=/usr/lib64/asterisk/modules
+else
+    ASTERISK_MODULE_DIR=/usr/lib/asterisk/modules
+fi
+gcc -Wall -Wextra -Werror -fPIC -shared \
+    -DAST_MODULE=\"app_sokrat_chanspy\" \
+    -I/usr/include \
+    -o /tmp/app_sokrat_chanspy.so \
+    "$INSTALL_DIR/asterisk-modules/app_sokrat_chanspy.c"
+install -o root -g root -m 0755 \
+    /tmp/app_sokrat_chanspy.so \
+    "$ASTERISK_MODULE_DIR/app_sokrat_chanspy.so"
+rm -f /tmp/app_sokrat_chanspy.so
+if ! grep -q '^load => app_sokrat_chanspy\.so$' "$MODULES_CUSTOM"; then
+    echo 'load => app_sokrat_chanspy.so' >> "$MODULES_CUSTOM"
+fi
+asterisk -rx "module unload app_sokrat_chanspy.so" 2>/dev/null || true
+asterisk -rx "module load app_sokrat_chanspy.so" 2>/dev/null || true
+echo "  Reliable whisper/barge media support installed"
 
 # 10b — Compile and Install chan_dongle
 echo "  [10b] Compiling chan_dongle..."

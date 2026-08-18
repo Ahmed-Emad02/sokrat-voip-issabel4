@@ -1,62 +1,125 @@
 #!/usr/bin/env python3
-import sys
+import re
 import subprocess
+import sys
 
-def agi_cmd(cmd):
-    sys.stdout.write(cmd + "\n")
+
+SAFE_EXTENSION = re.compile(r'^\d{2,10}$')
+SAFE_CHANNEL = re.compile(r'^[A-Za-z0-9_@/;:.\-]+$')
+
+
+def agi_cmd(command):
+    sys.stdout.write(command + '\n')
     sys.stdout.flush()
     return sys.stdin.readline()
 
-# Read AGI env headers until blank line
-agi_env = {}
-while True:
-    line = sys.stdin.readline().strip()
-    if not line:
-        break
-    if ':' in line:
-        k, v = line.split(':', 1)
-        agi_env[k.strip()] = v.strip()
 
-target_ext = sys.argv[1].strip() if len(sys.argv) > 1 else ''
-supervisor_chan = agi_env.get('agi_channel', '')
-
-if not target_ext:
-    sys.exit(0)
-
-try:
-    out = subprocess.check_output(['/usr/sbin/asterisk', '-rx', 'core show channels concise']).decode('utf-8', errors='ignore')
-except Exception:
-    sys.exit(0)
-
-emp_chan = ''
-bridge_id = ''
-peer_chan = ''
-
-for line in out.splitlines():
-    parts = line.split('!')
-    if len(parts) >= 11:
-        chan = parts[0].strip()
-        bid = parts[10].strip()
-        cid = parts[7].strip()
-        if (f'/{target_ext}-' in chan or cid == target_ext or f'PJSIP/{target_ext}' in chan or f'SIP/{target_ext}' in chan) and chan != supervisor_chan:
-            emp_chan = chan
-            bridge_id = bid
-            break
-
-if bridge_id:
-    for line in out.splitlines():
+def parse_concise_channels(output):
+    channels = []
+    for line in output.splitlines():
         parts = line.split('!')
-        if len(parts) >= 11:
-            chan = parts[0].strip()
-            bid = parts[10].strip()
-            if bid == bridge_id and chan != emp_chan and chan != supervisor_chan:
-                peer_chan = chan
-                break
+        if len(parts) < 13:
+            continue
+        channels.append({
+            'channel': parts[0].strip(),
+            'state': parts[4].strip(),
+            'caller_id': parts[7].strip(),
+            'bridged_channel': parts[12].strip(),
+        })
+    return channels
 
-# 1. FIRST: Bridge Supervisor active channel to Client channel while trunk is alive!
-if peer_chan:
-    agi_cmd(f'EXEC Bridge "{peer_chan},p"')
 
-# 2. SECOND: Hangup Employee channel to kick employee out of call
-if emp_chan:
-    agi_cmd(f'EXEC SoftHangup "{emp_chan}"')
+def resolve_hijack_channels(output, target_extension, supervisor_channel):
+    channels = parse_concise_channels(output)
+    known_channels = {item['channel'] for item in channels}
+    technology_prefixes = (
+        'SIP/{}-'.format(target_extension),
+        'PJSIP/{}-'.format(target_extension),
+        'IAX2/{}-'.format(target_extension),
+    )
+
+    candidates = []
+    for item in channels:
+        channel = item['channel']
+        if channel == supervisor_channel:
+            continue
+        exact_device = channel.startswith(technology_prefixes)
+        caller_match = item['caller_id'] == target_extension
+        if not exact_device and not caller_match:
+            continue
+        peer = item['bridged_channel']
+        has_live_peer = peer in known_channels and peer not in (channel, supervisor_channel)
+        candidates.append((
+            int(has_live_peer),
+            int(item['state'].lower() == 'up'),
+            int(exact_device),
+            item,
+        ))
+
+    if not candidates:
+        return '', ''
+
+    candidates.sort(key=lambda candidate: candidate[:3], reverse=True)
+    employee = candidates[0][3]
+    peer_channel = employee['bridged_channel']
+    if peer_channel not in known_channels or peer_channel in (employee['channel'], supervisor_channel):
+        peer_channel = ''
+
+    return employee['channel'], peer_channel
+
+
+def read_agi_environment():
+    environment = {}
+    while True:
+        line = sys.stdin.readline().strip()
+        if not line:
+            return environment
+        if ':' in line:
+            key, value = line.split(':', 1)
+            environment[key.strip()] = value.strip()
+
+
+def main():
+    agi_environment = read_agi_environment()
+    target_extension = sys.argv[1].strip() if len(sys.argv) > 1 else ''
+    supervisor_channel = agi_environment.get('agi_channel', '')
+
+    if not SAFE_EXTENSION.fullmatch(target_extension):
+        agi_cmd('VERBOSE "Hijack rejected: invalid target extension" 2')
+        return
+
+    try:
+        output = subprocess.check_output(
+            ['/usr/sbin/asterisk', '-rx', 'core show channels concise'],
+            stderr=subprocess.DEVNULL,
+        ).decode('utf-8', errors='ignore')
+    except (OSError, subprocess.CalledProcessError):
+        agi_cmd('VERBOSE "Hijack failed: unable to inspect active channels" 2')
+        return
+
+    employee_channel, peer_channel = resolve_hijack_channels(
+        output,
+        target_extension,
+        supervisor_channel,
+    )
+    if not employee_channel:
+        agi_cmd('VERBOSE "Hijack failed: target extension has no active channel" 2')
+        return
+    if not peer_channel:
+        agi_cmd('VERBOSE "Hijack failed: target channel has no bridged peer" 2')
+        return
+    if not SAFE_CHANNEL.fullmatch(employee_channel) or not SAFE_CHANNEL.fullmatch(peer_channel):
+        agi_cmd('VERBOSE "Hijack failed: unsafe channel name returned by Asterisk" 2')
+        return
+
+    agi_cmd('VERBOSE "Hijacking {} from {} to {}" 2'.format(
+        peer_channel,
+        employee_channel,
+        supervisor_channel,
+    ))
+    agi_cmd('EXEC Bridge "{},p"'.format(peer_channel))
+    agi_cmd('EXEC SoftHangup "{}"'.format(employee_channel))
+
+
+if __name__ == '__main__':
+    main()

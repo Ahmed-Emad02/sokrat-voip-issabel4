@@ -3578,8 +3578,8 @@ async function resolveDeviceChannel(ext) {
     try {
         const [rows] = await pool.query('SELECT dial, tech FROM `asterisk`.`devices` WHERE id = ?', [ext]);
         if (rows.length && rows[0].dial) return rows[0].dial;
-    } catch (e) { /* fall back to PJSIP/ */ }
-    return `PJSIP/${ext}`;
+    } catch (e) { /* fall back to chan_sip on Issabel 4 / Asterisk 11 */ }
+    return `SIP/${ext}`;
 }
 
 // Helper functions for dongle.conf gain management (Modem Conf)
@@ -3985,17 +3985,14 @@ app.post('/api/spy', async (req, res) => {
 });
 
 // POST /api/hijack - Hijack call (Transfer client to supervisor and kick out employee)
-app.post('/api/hijack', (req, res) => {
+app.post('/api/hijack', async (req, res) => {
     try {
         const { targetExtension, supervisorExtension } = req.body;
         const target = String(targetExtension || '').trim();
         const supervisor = String(supervisorExtension || '').trim();
 
-        if (!target) {
-            return res.status(400).json({ success: false, error: 'Target extension is required.' });
-        }
-        if (!supervisor) {
-            return res.status(400).json({ success: false, error: 'Supervisor extension is required.' });
+        if (!target || !supervisor) {
+            return res.status(400).json({ success: false, error: 'Target and Supervisor extensions are required.' });
         }
         if (!/^\d{2,5}$/.test(target) || !/^\d{2,5}$/.test(supervisor)) {
             return res.status(400).json({ success: false, error: 'Invalid extension format.' });
@@ -4006,35 +4003,33 @@ app.post('/api/hijack', (req, res) => {
             return res.status(404).json({ success: false, error: `No active call found for extension ${target}.` });
         }
 
-        const empChan = call.channel;
+        const supervisorChan = await resolveDeviceChannel(supervisor);
+        const hijackExten = `225${target}`;
+        const successMessage = `Calling supervisor extension ${supervisor} to take over the active call on ${target}.`;
 
-        // Query Asterisk channel details to find the client/peer channel
-        exec(`${ASTERISK_BIN} -rx "core show channel ${empChan}"`, (err, stdout, stderr) => {
-            let peerChan = null;
+        if (amiClient) {
+            amiClient.write(
+                `Action: Originate\r\n` +
+                `Channel: ${supervisorChan}\r\n` +
+                `Context: from-internal\r\n` +
+                `Exten: ${hijackExten}\r\n` +
+                `Priority: 1\r\n` +
+                `CallerID: "Call Hijack" <${hijackExten}>\r\n` +
+                `Async: true\r\n\r\n`
+            );
+            return res.json({ success: true, message: successMessage });
+        }
 
-            if (stdout) {
-                const match = stdout.match(/Bridgepeer:\s*([^\s\r\n]+)/i) || 
-                              stdout.match(/BRIDGED_TO\s*=\s*([^\s\r\n]+)/i);
-                if (match) {
-                    peerChan = match[1];
+        execFile(
+            ASTERISK_BIN,
+            ['-rx', `channel originate ${supervisorChan} extension ${hijackExten}@from-internal`],
+            (error) => {
+                if (error) {
+                    return res.status(500).json({ success: false, error: error.message });
                 }
+                res.json({ success: true, message: successMessage });
             }
-
-            if (peerChan) {
-                // Redirect client to supervisor and disconnect employee
-                exec(`${ASTERISK_BIN} -rx "channel redirect ${peerChan} from-internal,${supervisor},1"`, () => {
-                    exec(`${ASTERISK_BIN} -rx "channel request hangup ${empChan}"`, () => {});
-                });
-            } else {
-                // Redirect employee channel directly to supervisor
-                exec(`${ASTERISK_BIN} -rx "channel redirect ${empChan} from-internal,${supervisor},1"`, () => {});
-            }
-
-            res.json({ 
-                success: true, 
-                message: `Call hijacked: Client redirected to extension ${supervisor}, employee ${target} disconnected.` 
-            });
-        });
+        );
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }

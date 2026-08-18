@@ -47,7 +47,7 @@
             background-color: var(--bg-secondary);
             border: 1px solid var(--border-primary);
             border-radius: 1.5rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+
         }
         input {
             background-color: var(--bg-card);
@@ -145,9 +145,9 @@
                         <div class="flex flex-wrap gap-4">
                             <% var visibleTabs = allTabs.filter(function(t) { return t !== 'dashboard'; }); %>
                             <% visibleTabs.forEach(function(tab) { %>
-                                <label class="flex items-center gap-2 cursor-pointer">
+                                <label class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-primary)] hover:border-red-500/30 transition text-xs font-semibold cursor-pointer select-none">
                                     <input type="checkbox" name="tabs" value="<%= tab %>" class="tab-checkbox" <%= g.permissions.includes(tab) ? 'checked' : '' %>>
-                                    <span class="text-sm capitalize"><%= tab.replace(/-/g, ' ') %></span>
+                                    <span class="capitalize"><%= tab.replace(/-/g, ' ') %></span>
                                 </label>
                             <% }); %>
                             <span class="text-xs text-[var(--text-muted)] self-center ml-2">Dashboard is accessible to all users</span>

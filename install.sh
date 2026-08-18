@@ -119,7 +119,7 @@ else
 fi
 
 # ──────────────────────────────────────────────
-# Step 2 — Install Node.js 22
+# Step 2 — Install Node.js 16 (CentOS 7 Compatible)
 # ──────────────────────────────────────────────
 echo "[2/14] Installing Node.js 16 (CentOS 7 / Issabel 4 compatible)..."
 if ! command -v node &>/dev/null; then
@@ -181,8 +181,20 @@ if [ -f "$INSTALL_DIR/.env" ]; then
     echo "  .env already exists, updating AMI credentials..."
     sed -i "s/^AMI_USER=.*/AMI_USER=${AMPMGR_USER}/" "$INSTALL_DIR/.env"
     sed -i "s/^AMI_PASS=.*/AMI_PASS=${AMPMGR_PASS}/" "$INSTALL_DIR/.env"
+    if ! grep -q '^ROOT_PASSWORD_HASH=' "$INSTALL_DIR/.env"; then
+        GEN_ROOT_PASS="Admin@123"
+        GEN_ROOT_HASH=$(node -e "console.log(require('bcryptjs').hashSync('$GEN_ROOT_PASS', 10))" 2>/dev/null || echo '')
+        if [ -n "$GEN_ROOT_HASH" ]; then
+            echo "ROOT_PASSWORD_HASH=${GEN_ROOT_HASH}" >> "$INSTALL_DIR/.env"
+        fi
+        echo "ROOT_USER=root" > /etc/sokrat-root-credential.txt
+        echo "ROOT_PASSWORD=${GEN_ROOT_PASS}" >> /etc/sokrat-root-credential.txt
+        chmod 600 /etc/sokrat-root-credential.txt
+    fi
     echo "  .env AMI credentials updated ($AMPMGR_USER)"
 else
+    GEN_ROOT_PASS="Admin@123"
+    GEN_ROOT_HASH=$(node -e "console.log(require('bcryptjs').hashSync('$GEN_ROOT_PASS', 10))" 2>/dev/null || echo '')
     cat > "$INSTALL_DIR/.env" << EOF
 PORT=8080
 DB_HOST=localhost
@@ -197,11 +209,15 @@ AMI_PASS=${AMPMGR_PASS}
 RECORDING_ROOT=/var/spool/asterisk/monitor
 SESSION_SECRET=$(openssl rand -hex 32)
 ENCRYPTION_KEY=$(openssl rand -hex 32)
+ROOT_PASSWORD_HASH=${GEN_ROOT_HASH}
 SMTP_HOST=localhost
 SMTP_PORT=25
 SMTP_FROM=noreply@sokrat-voip.local
 EOF
-    echo "  .env created"
+    echo "ROOT_USER=root" > /etc/sokrat-root-credential.txt
+    echo "ROOT_PASSWORD=${GEN_ROOT_PASS}" >> /etc/sokrat-root-credential.txt
+    chmod 600 /etc/sokrat-root-credential.txt
+    echo "  .env created and root credentials initialized"
 fi
 
 # ──────────────────────────────────────────────

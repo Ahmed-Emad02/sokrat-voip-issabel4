@@ -499,7 +499,6 @@ same => n,ExecIf($["${EXTEN}" != "+1234567890" & ${DIALPLAN_EXISTS(from-trunk,${
 same => n,Goto(s,process)
 
 exten => s,1,Set(DONGLE_TARGET=${DONGLENAME})
-same => n,Set(CHANNEL(hangup_handler_push)=dongle-hangup-cleanup,s,1)
 same => n,ExecIf($["${MY_SIM_NUMBER}" = "" | "${MY_SIM_NUMBER}" = "+1234567890"]?Set(MY_SIM_NUMBER=))
 same => n(process),NoOp(--- Incoming call from Dongle ${DONGLENAME} (EXTEN: ${EXTEN}) ---)
 same => n,ExecIf($["${DB(DONGLE_SETTINGS/${DONGLENAME})}" != "1"]?Goto(skip_dynamic))
@@ -546,18 +545,7 @@ same => n,Set(JITTERBUFFER(adaptive)=default)
 same => n,Set(RAW_TARGET=${CUT(OUT_${DIAL_TRUNK},/,2)})
 same => n,Set(DONGLE_TARGET=${DB(DONGLE_DEVICE_MAP/${RAW_TARGET})})
 same => n,ExecIf($["${DONGLE_TARGET}"=""]?Set(DONGLE_TARGET=${RAW_TARGET}))
-same => n,Set(CHANNEL(hangup_handler_push)=dongle-hangup-cleanup,s,1)
 same => n,MacroExit()
-
-[dongle-hangup-cleanup]
-exten => s,1,NoOp(--- Pure Dialplan Dongle Hangup Cleanup ---)
-same => n,ExecIf($["${DONGLE_TARGET}"=""]?Set(DONGLE_TARGET=${CUT(CHANNEL,-,1)}))
-same => n,ExecIf($["${DONGLE_TARGET:0:7}"="Dongle/"]?Set(DONGLE_TARGET=${DONGLE_TARGET:7}))
-same => n,ExecIf($["${DB_EXISTS(DONGLE_DEVICE_MAP/${DONGLE_TARGET})}"="1"]?Set(DONGLE_TARGET=${DB(DONGLE_DEVICE_MAP/${DONGLE_TARGET})}))
-same => n,GotoIf($["${DONGLE_TARGET}"="" | "${DONGLE_TARGET:0:6}"!="dongle"]?done)
-same => n,Verbose(1, [DONGLE-DIALPLAN-CLEANUP] Resetting dongle ${DONGLE_TARGET} via dialplan System call (Cause: ${HANGUPCAUSE}, DialStatus: ${DIALSTATUS}))
-same => n,System(/usr/sbin/asterisk -rx "dongle restart now ${DONGLE_TARGET}" &)
-same => n(done),Return()
 MACRO
 # Strip old [macro-dialout-one-predial-hook] before appending
 echo "  Stripping old [macro-dialout-one-predial-hook]..."

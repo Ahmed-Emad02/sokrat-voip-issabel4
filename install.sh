@@ -413,7 +413,16 @@ exten => _224X.,n,Hangup()
 
 exten => _225X.,1,NoOp(--- Instant AGI Hijack Call for Extension ${EXTEN:3} ---)
 same => n,Answer()
-same => n,AGI(hijack_call.py,${EXTEN:3})
+same => n,Set(HIJACK_ROOM=89${RAND(100000,999999)})
+same => n,AGI(hijack_call.py,${EXTEN:3},${HIJACK_ROOM})
+same => n,GotoIf($["${HIJACK_STATUS}" != "SUCCESS"]?failed)
+same => n,Set(CONFBRIDGE(user,marked)=yes)
+same => n,Set(CONFBRIDGE(user,admin)=yes)
+same => n,Set(CONFBRIDGE(user,announce_join_leave)=no)
+same => n,Set(CONFBRIDGE(user,music_on_hold_when_empty)=no)
+same => n,ConfBridge(${HIJACK_ROOM})
+same => n,Hangup()
+same => n(failed),Playback(beeperr)
 same => n,Hangup()
 
 CHANSPY
@@ -443,6 +452,15 @@ same => n,Answer()
 same => n,ConfBridge(${EXTEN})
 same => n,Hangup()
 
+
+[sokrat-hijack-room]
+exten => _X.,1,NoOp(--- Hijacked Client joining ConfBridge ${EXTEN} ---)
+same => n,Answer()
+same => n,Set(CONFBRIDGE(user,end_marked)=yes)
+same => n,Set(CONFBRIDGE(user,announce_join_leave)=no)
+same => n,Set(CONFBRIDGE(user,music_on_hold_when_empty)=no)
+same => n,ConfBridge(${EXTEN})
+same => n,Hangup()
 INTERCOM_CTX
 
 # Install AGI hijack script & trigger script permissions

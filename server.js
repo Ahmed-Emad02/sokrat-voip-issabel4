@@ -598,6 +598,27 @@ async function reconcileDongleMappings() {
             const imeiChanged = Boolean(storedImei && liveImei && storedImei !== liveImei);
             const identityChanged = imsiChanged || imeiChanged;
 
+            // If hardware identity moved to another active slot, release stale identity from this slot
+            const identityClaimedElsewhere = !hasObservedIdentity && [...observedDongles.entries()].some(([otherSlot, otherObs]) => {
+                if (otherSlot === dongleName) return false;
+                return (storedImsi && otherObs.imsi && otherObs.imsi === storedImsi) ||
+                       (storedImei && otherObs.imei && otherObs.imei === storedImei);
+            });
+
+            if (identityClaimedElsewhere) {
+                console.log(`DONGLE-RECONCILE: Hardware from ${dongleName} moved to another slot; releasing stale identity`);
+                await clearDongleMappingAliases(dongleName, storedImsi, storedImei);
+                await deleteAstDbKey('DONGLE_SETTINGS', dongleName);
+                await pool.query(`
+                    UPDATE \`asterisk\`.\`gsm_dongles\`
+                    SET imsi = NULL, imei = NULL, phone_number = NULL, dynamic_enabled = 0
+                    WHERE dongle_name = ?
+                `, [dongleName]);
+                if (slotRow) {
+                    Object.assign(slotRow, { imsi: null, imei: null, phone_number: null, dynamic_enabled: 0 });
+                }
+                continue;
+            }
             const identityOwners = dbRows.filter(row => {
                 if (row.dongle_name === dongleName) return false;
                 const rowImsi = normalizeDongleIdentity(row.imsi);
@@ -4410,9 +4431,11 @@ function parseDevicesOutput(output, keepRaw = false, astDbMappings = {}) {
             if (isNotConnected) {
                 row.Number = 'Unknown';
             } else {
-                const mapped = (row.ID && astDbMappings[row.ID]) || (row.IMSI && astDbMappings[row.IMSI]) || (row.IMEI && astDbMappings[row.IMEI]) || null;
-                if (mapped && (!row.Number || row.Number === 'Unknown' || row.Number === '-')) {
+                const mapped = (row.IMSI && astDbMappings[row.IMSI]) || (row.IMEI && astDbMappings[row.IMEI]) || (row.ID && astDbMappings[row.ID]) || null;
+                if (mapped) {
                     row.Number = mapped;
+                } else if (!row.Number || row.Number === '-' || row.Number === 'None') {
+                    row.Number = 'Unknown';
                 }
             }
             devices.push(row);
@@ -4816,8 +4839,12 @@ app.post('/api/gsm-dongles/reload/:dongleId', (req, res) => {
         if (error) {
             return res.status(500).json({ success: false, error: stderr || error.message });
         }
-        io.emit('usbDevicesUpdated');
-        res.json({ success: true, output: stdout.trim() });
+        setTimeout(() => io.emit('usbDevicesUpdated'), 2000);
+        res.json({
+            success: true,
+            message: `Dongle ${dongleId} restarted in Asterisk successfully`,
+            output: (stdout || '').trim()
+        });
     });
 });
 
@@ -4850,11 +4877,13 @@ function getUsbBusIdForDongle(dongleId) {
         if (!fs.existsSync(sysPath)) return null;
         const realPath = execSync(`readlink -f "${sysPath}"`, { encoding: 'utf8' }).trim();
         const parts = realPath.split('/');
+        let specificBusId = null;
         for (const part of parts) {
             if (/^\d+-\d+(\.\d+)*$/.test(part) && !part.includes(':')) {
-                return part;
+                specificBusId = part;
             }
         }
+        return specificBusId;
     } catch (_) {}
     return null;
 }

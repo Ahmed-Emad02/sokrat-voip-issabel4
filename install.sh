@@ -12,7 +12,7 @@ NODE_SETUP_URL=https://rpm.nodesource.com/setup_16.x
 MYSQL_ROOT_PWD=$(grep mysqlrootpwd /etc/issabel.conf | cut -d= -f2- | xargs)
 
 echo "============================================"
-echo " Issabel Dashboard Installer v1.7.0"
+echo " Issabel Dashboard Installer v1.8.0"
 echo " Target: Issabel 4 / Asterisk 11 (CentOS 7)"
 echo "============================================"
 
@@ -156,17 +156,30 @@ echo "[4/14] Installing npm dependencies..."
 npm install --omit=dev --legacy-peer-deps
 
 echo "  [4b] Installing ffmpeg (static build, recording upload conversion)..."
-if ! command -v ffmpeg &>/dev/null; then
-    yum install -y wget
-    cd /usr/local/bin
-    wget -q https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
-    tar xJf ffmpeg-release-amd64-static.tar.xz
-    cp ffmpeg-*-static/ffmpeg .
-    cp ffmpeg-*-static/ffprobe .
-    rm -rf ffmpeg-*-static ffmpeg-release-amd64-static.tar.xz
-    echo "  ffmpeg installed: $(ffmpeg -version 2>&1 | head -1)"
+if ! command -v ffmpeg &>/dev/null && [ ! -x /usr/local/bin/ffmpeg ]; then
+    if yum install -y ffmpeg &>/dev/null; then
+        echo "  ffmpeg installed via package manager"
+    else
+        echo "  Checking static ffmpeg mirrors (5s timeout)..."
+        cd /tmp
+        rm -rf ffmpeg-*-static ffmpeg-release-amd64-static.tar.xz
+        if curl -fsSL --connect-timeout 5 --max-time 15 -o /usr/local/bin/ffmpeg "https://github.com/eugeneware/ffmpeg-static/releases/download/b6.0/ffmpeg-linux-x64" 2>/dev/null; then
+            chmod +x /usr/local/bin/ffmpeg 2>/dev/null || true
+        elif curl -fsSL --connect-timeout 5 --max-time 20 -o ffmpeg-release-amd64-static.tar.xz "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz" 2>/dev/null; then
+            tar xJf ffmpeg-release-amd64-static.tar.xz 2>/dev/null || true
+            cp ffmpeg-*-static/ffmpeg /usr/local/bin/ 2>/dev/null || true
+            cp ffmpeg-*-static/ffprobe /usr/local/bin/ 2>/dev/null || true
+            chmod +x /usr/local/bin/ffmpeg /usr/local/bin/ffprobe 2>/dev/null || true
+            rm -rf ffmpeg-*-static ffmpeg-release-amd64-static.tar.xz
+        fi
+        cd "$INSTALL_DIR"
+    fi
+fi
+
+if command -v ffmpeg &>/dev/null || [ -x /usr/local/bin/ffmpeg ]; then
+    echo "  ffmpeg verified: $(/usr/local/bin/ffmpeg -version 2>&1 | head -1 || ffmpeg -version 2>&1 | head -1)"
 else
-    echo "  ffmpeg already installed: $(ffmpeg -version 2>&1 | head -1)"
+    echo "  Notice: ffmpeg binary skipped; audio conversion will use sox/issabel fallback"
 fi
 # ──────────────────────────────────────────────
 # Step 5 — Create the Environment File
@@ -469,7 +482,7 @@ mkdir -p /var/lib/asterisk/agi-bin
 cp "$INSTALL_DIR/agi-bin/hijack_call.py" /var/lib/asterisk/agi-bin/hijack_call.py
 chmod +x /var/lib/asterisk/agi-bin/hijack_call.py
 chown asterisk:asterisk /var/lib/asterisk/agi-bin/hijack_call.py
-chmod +x "$INSTALL_DIR/scripts/trigger-intercom-code.js" 2>/dev/null || true
+chmod +x "$INSTALL_DIR/scripts/"*.sh "$INSTALL_DIR/scripts/"*.js "$INSTALL_DIR/uninstall.sh" 2>/dev/null || true
 echo "  hijack_call.py and scripts initialized."
 
 # Strip old [from-dongle-custom] and [ext-moh] before appending (ensures upgrades get the latest version)

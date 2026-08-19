@@ -2668,24 +2668,34 @@ app.get('/cdr', async (req, res) => {
     try {
         const startDate = req.query.startDate ? moment(req.query.startDate).format('YYYY-MM-DD HH:mm:ss') : moment().startOf('day').format('YYYY-MM-DD HH:mm:ss');
         const endDate = req.query.endDate ? moment(req.query.endDate).format('YYYY-MM-DD HH:mm:ss') : moment().endOf('day').format('YYYY-MM-DD HH:mm:ss');
-        const selectedExtension = req.query.targetExtension || 'ALL';
-        const statusFilter = req.query.statusFilter || 'ALL';
         const searchSrc = req.query.searchSrc || '';
         const searchDst = req.query.searchDst || '';
         const searchDid = req.query.searchDid || '';
         const searchUniqueId = req.query.searchUniqueId || '';
         const directionFilter = req.query.directionFilter || 'ALL';
+        const callScopeFilter = req.query.callScopeFilter || 'ALL';
         const page = Math.max(1, parseInt(req.query.page) || 1);
         const perPage = Math.min(200, Math.max(1, parseInt(req.query.perPage) || 25));
         const offset = (page - 1) * perPage;
-        const directionCase = `
-            CASE
-                WHEN (UPPER(c.channel) LIKE 'SIP/%' OR UPPER(c.channel) LIKE 'PJSIP/%' OR UPPER(c.channel) LIKE 'IAX2/%')
-                 AND (UPPER(c.dstchannel) NOT LIKE 'SIP/%' AND UPPER(c.dstchannel) NOT LIKE 'PJSIP/%' AND UPPER(c.dstchannel) NOT LIKE 'IAX2/%')
-                THEN 'OUTBOUND'
-                ELSE 'INBOUND'
-            END
-        `;
+
+        let selectedExtensions = req.query.targetExtension;
+        if (!selectedExtensions) selectedExtensions = ['ALL'];
+        else if (!Array.isArray(selectedExtensions)) selectedExtensions = [selectedExtensions];
+        if (selectedExtensions.length > 1 && selectedExtensions.includes('ALL')) {
+            selectedExtensions = selectedExtensions.filter(e => e !== 'ALL');
+        }
+        const targetExtensionFilter = selectedExtensions.includes('ALL') ? 'ALL' : selectedExtensions;
+
+        let selectedStatuses = req.query.statusFilter;
+        if (!selectedStatuses) selectedStatuses = ['ALL'];
+        else if (!Array.isArray(selectedStatuses)) selectedStatuses = [selectedStatuses];
+        if (selectedStatuses.length > 1 && selectedStatuses.includes('ALL')) {
+            selectedStatuses = selectedStatuses.filter(s => s !== 'ALL');
+        }
+        const statusFilterList = selectedStatuses.includes('ALL') ? 'ALL' : selectedStatuses;
+
+        const directionCase = CDR_DIRECTION_CASE;
+        const callScopeCase = CDR_CALL_SCOPE_CASE;
 
         let countQuery = `
             SELECT COUNT(*) as total
@@ -2706,11 +2716,13 @@ app.get('/cdr', async (req, res) => {
         `;
         let queryParams = [startDate, endDate];
 
-        if (selectedExtension !== 'ALL') {
-            const clause = " AND (c.src = ? OR c.dst = ? OR c.cnum = ? OR c.channel REGEXP CONCAT('^[A-Za-z0-9_]+/', ?, '([^0-9]|$)') OR c.dstchannel REGEXP CONCAT('^[A-Za-z0-9_]+/', ?, '([^0-9]|$)'))";
+        if (targetExtensionFilter !== 'ALL') {
+            const exts = targetExtensionFilter;
+            const regexpPattern = exts.map(e => e.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+            const clause = " AND (c.src IN (?) OR c.dst IN (?) OR c.cnum IN (?) OR c.channel REGEXP CONCAT('^[A-Za-z0-9_]+/(', ?, ')([^0-9]|$)') OR c.dstchannel REGEXP CONCAT('^[A-Za-z0-9_]+/(', ?, ')([^0-9]|$)'))";
             query += clause; countQuery += clause;
-            queryParams.push(selectedExtension, selectedExtension, selectedExtension, selectedExtension, selectedExtension);
-            countParams.push(selectedExtension, selectedExtension, selectedExtension, selectedExtension, selectedExtension);
+            queryParams.push(exts, exts, exts, regexpPattern, regexpPattern);
+            countParams.push(exts, exts, exts, regexpPattern, regexpPattern);
         }
         if (searchSrc) {
             const clause = " AND c.src LIKE ?";
@@ -2736,17 +2748,27 @@ app.get('/cdr', async (req, res) => {
             queryParams.push(`%${searchUniqueId}%`);
             countParams.push(`%${searchUniqueId}%`);
         }
-        if (statusFilter !== 'ALL') {
-            const clause = " AND (TRIM(UPPER(c.disposition)) = TRIM(UPPER(?)) OR (TRIM(UPPER(?)) = 'FAILED' AND TRIM(UPPER(c.disposition)) = 'CONGESTION'))";
+        if (statusFilterList !== 'ALL') {
+            let statusesToMatch = [...statusFilterList];
+            if (statusesToMatch.includes('FAILED') && !statusesToMatch.includes('CONGESTION')) {
+                statusesToMatch.push('CONGESTION');
+            }
+            const clause = " AND (TRIM(UPPER(c.disposition)) IN (?) OR ('FAILED' IN (?) AND TRIM(UPPER(c.disposition)) = 'CONGESTION'))";
             query += clause; countQuery += clause;
-            queryParams.push(statusFilter, statusFilter);
-            countParams.push(statusFilter, statusFilter);
+            queryParams.push(statusesToMatch, statusFilterList);
+            countParams.push(statusesToMatch, statusFilterList);
         }
         if (directionFilter !== 'ALL') {
             const clause = ` AND ${directionCase} = ?`;
             query += clause; countQuery += clause;
             queryParams.push(directionFilter);
             countParams.push(directionFilter);
+        }
+        if (callScopeFilter !== 'ALL') {
+            const clause = ` AND ${callScopeCase} = ?`;
+            query += clause; countQuery += clause;
+            queryParams.push(callScopeFilter);
+            countParams.push(callScopeFilter);
         }
 
         query += " ORDER BY c.calldate DESC LIMIT ? OFFSET ?";
@@ -2771,7 +2793,7 @@ app.get('/cdr', async (req, res) => {
 
         res.render('cdr', {
             calls: formattedRows,
-            filters: { startDate, endDate, targetExtension: selectedExtension, statusFilter, searchSrc, searchDst, searchDid, searchUniqueId, directionFilter, page, perPage },
+            filters: { startDate, endDate, targetExtension: selectedExtensions, statusFilter: selectedStatuses, searchSrc, searchDst, searchDid, searchUniqueId, directionFilter, callScopeFilter, page, perPage },
             pagination: { total, totalPages, page, perPage },
             moment
         });
@@ -2783,21 +2805,32 @@ app.get('/cdr/export', async (req, res) => {
     try {
         const startDate = req.query.startDate ? moment(req.query.startDate).format('YYYY-MM-DD HH:mm:ss') : moment().startOf('day').format('YYYY-MM-DD HH:mm:ss');
         const endDate = req.query.endDate ? moment(req.query.endDate).format('YYYY-MM-DD HH:mm:ss') : moment().endOf('day').format('YYYY-MM-DD HH:mm:ss');
-        const selectedExtension = req.query.targetExtension || 'ALL';
-        const statusFilter = req.query.statusFilter || 'ALL';
         const searchSrc = req.query.searchSrc || '';
         const searchDst = req.query.searchDst || '';
         const searchDid = req.query.searchDid || '';
         const searchUniqueId = req.query.searchUniqueId || '';
         const directionFilter = req.query.directionFilter || 'ALL';
-        const directionCase = `
-            CASE
-                WHEN (UPPER(c.channel) LIKE 'SIP/%' OR UPPER(c.channel) LIKE 'PJSIP/%' OR UPPER(c.channel) LIKE 'IAX2/%')
-                 AND (UPPER(c.dstchannel) NOT LIKE 'SIP/%' AND UPPER(c.dstchannel) NOT LIKE 'PJSIP/%' AND UPPER(c.dstchannel) NOT LIKE 'IAX2/%')
-                THEN 'OUTBOUND'
-                ELSE 'INBOUND'
-            END
-        `;
+        const callScopeFilter = req.query.callScopeFilter || 'ALL';
+
+        let selectedExtensions = req.query.targetExtension;
+        if (!selectedExtensions) selectedExtensions = ['ALL'];
+        else if (!Array.isArray(selectedExtensions)) selectedExtensions = [selectedExtensions];
+        if (selectedExtensions.length > 1 && selectedExtensions.includes('ALL')) {
+            selectedExtensions = selectedExtensions.filter(e => e !== 'ALL');
+        }
+        const targetExtensionFilter = selectedExtensions.includes('ALL') ? 'ALL' : selectedExtensions;
+
+        let selectedStatuses = req.query.statusFilter;
+        if (!selectedStatuses) selectedStatuses = ['ALL'];
+        else if (!Array.isArray(selectedStatuses)) selectedStatuses = [selectedStatuses];
+        if (selectedStatuses.length > 1 && selectedStatuses.includes('ALL')) {
+            selectedStatuses = selectedStatuses.filter(s => s !== 'ALL');
+        }
+        const statusFilterList = selectedStatuses.includes('ALL') ? 'ALL' : selectedStatuses;
+
+        const directionCase = CDR_DIRECTION_CASE;
+        const callScopeCase = CDR_CALL_SCOPE_CASE;
+
         let query = `
             SELECT c.calldate, c.src, c.dst, c.duration, c.billsec, REPLACE(c.disposition, 'CONGESTION', 'FAILED') as disposition, c.uniqueid, c.recordingfile, c.channel, c.dstchannel, c.did, COALESCE(u.name, NULLIF(TRIM(c.cnam), ''), 'No Name') as src_name,
             ${directionCase} as direction
@@ -2808,10 +2841,12 @@ app.get('/cdr/export', async (req, res) => {
         `;
         let queryParams = [startDate, endDate];
 
-        if (selectedExtension !== 'ALL') {
-            const clause = " AND (c.src = ? OR c.dst = ? OR c.cnum = ? OR c.channel REGEXP CONCAT('^[A-Za-z0-9_]+/', ?, '([^0-9]|$)') OR c.dstchannel REGEXP CONCAT('^[A-Za-z0-9_]+/', ?, '([^0-9]|$)'))";
+        if (targetExtensionFilter !== 'ALL') {
+            const exts = targetExtensionFilter;
+            const regexpPattern = exts.map(e => e.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+            const clause = " AND (c.src IN (?) OR c.dst IN (?) OR c.cnum IN (?) OR c.channel REGEXP CONCAT('^[A-Za-z0-9_]+/(', ?, ')([^0-9]|$)') OR c.dstchannel REGEXP CONCAT('^[A-Za-z0-9_]+/(', ?, ')([^0-9]|$)'))";
             query += clause;
-            queryParams.push(selectedExtension, selectedExtension, selectedExtension, selectedExtension, selectedExtension);
+            queryParams.push(exts, exts, exts, regexpPattern, regexpPattern);
         }
         if (searchSrc) {
             const clause = " AND c.src LIKE ?";
@@ -2833,15 +2868,24 @@ app.get('/cdr/export', async (req, res) => {
             query += clause;
             queryParams.push(`%${searchUniqueId}%`);
         }
-        if (statusFilter !== 'ALL') {
-            const clause = " AND (TRIM(UPPER(c.disposition)) = TRIM(UPPER(?)) OR (TRIM(UPPER(?)) = 'FAILED' AND TRIM(UPPER(c.disposition)) = 'CONGESTION'))";
+        if (statusFilterList !== 'ALL') {
+            let statusesToMatch = [...statusFilterList];
+            if (statusesToMatch.includes('FAILED') && !statusesToMatch.includes('CONGESTION')) {
+                statusesToMatch.push('CONGESTION');
+            }
+            const clause = " AND (TRIM(UPPER(c.disposition)) IN (?) OR ('FAILED' IN (?) AND TRIM(UPPER(c.disposition)) = 'CONGESTION'))";
             query += clause;
-            queryParams.push(statusFilter, statusFilter);
+            queryParams.push(statusesToMatch, statusFilterList);
         }
         if (directionFilter !== 'ALL') {
             const clause = ` AND ${directionCase} = ?`;
             query += clause;
             queryParams.push(directionFilter);
+        }
+        if (callScopeFilter !== 'ALL') {
+            const clause = ` AND ${callScopeCase} = ?`;
+            query += clause;
+            queryParams.push(callScopeFilter);
         }
 
         query += " ORDER BY c.calldate DESC";

@@ -84,8 +84,7 @@ echo " GSM dongles selected: $NUM_DONGLES"
 echo "[1/14] Installing system packages..."
 # Install EPEL first so sox (which lives in EPEL) resolves
 yum install -y epel-release
-yum install -y nano net-tools sox sqlite picotts python3 python3-devel gcc gcc-c++ make
-
+yum install -y nano net-tools sox sqlite picotts python3 python3-devel gcc gcc-c++ make psmisc lvm2
 # Announcements in Issabel use picotts.agi, which requires both sox and pico2wave.
 PICO_AGI_SOURCE=/var/www/html/admin/modules/announcement/agi-bin/picotts.agi
 PICO_AGI_TARGET=/var/lib/asterisk/agi-bin/picotts.agi
@@ -118,6 +117,92 @@ else
     echo "  fail2ban not present, skipping"
 fi
 
+# ──────────────────────────────────────────────
+# Step 1b — Reclaim /home and Expand Root to 100% of Disk
+# ──────────────────────────────────────────────
+echo "  [1b] Optimizing disk storage: expanding root partition..."
+expand_root_partition() {
+    local root_dev=""
+    local home_dev=""
+    local home_mounted=false
+
+    root_dev=$(df -P / | tail -1 | awk '{print $1}')
+    if [[ "$root_dev" =~ ^/dev/mapper/ ]] || [[ "$root_dev" =~ ^/dev/[^/]+/[^/]+ ]]; then
+        echo "  Root volume detected on LVM: $root_dev"
+    else
+        echo "  Root is not on an LVM volume ($root_dev); attempting direct filesystem expansion..."
+        if command -v xfs_growfs &>/dev/null && [ "$(df -T / | tail -1 | awk '{print $2}')" = "xfs" ]; then
+            xfs_growfs / 2>/dev/null || true
+        elif command -v resize2fs &>/dev/null; then
+            resize2fs "$root_dev" 2>/dev/null || true
+        fi
+        return 0
+    fi
+
+    # Check if a separate /home filesystem is mounted
+    if mountpoint -q /home; then
+        home_dev=$(df -P /home | tail -1 | awk '{print $1}')
+        if [[ "$home_dev" =~ ^/dev/mapper/ ]] || [[ "$home_dev" =~ ^/dev/[^/]+/[^/]+ ]]; then
+            home_mounted=true
+        fi
+    fi
+
+    if [ "$home_mounted" = true ] && [ -n "$home_dev" ]; then
+        echo "  Found separate /home LVM volume ($home_dev); merging into root partition..."
+        local backup_dir
+        backup_dir=$(mktemp -d /root/home_backup_XXXXXX)
+        
+        # Backup /home contents
+        if [ -d /home ] && [ "$(ls -A /home 2>/dev/null)" ]; then
+            echo "  Preserving /home files into $backup_dir..."
+            cp -a /home/. "$backup_dir/"
+        fi
+
+        # Safely unmount /home
+        fuser -km /home 2>/dev/null || true
+        umount -f /home 2>/dev/null || umount /home 2>/dev/null || true
+
+        # Remove /home entry from /etc/fstab
+        sed -i '\@[[:space:]]/home[[:space:]]@d' /etc/fstab
+
+        # Remove home LV and extend root LV with 100% of free space
+        lvremove -y "$home_dev" 2>/dev/null || true
+        lvextend -l +100%FREE "$root_dev" 2>/dev/null || true
+
+        # Grow filesystem online
+        local fs_type
+        fs_type=$(df -T / | tail -1 | awk '{print $2}')
+        if [ "$fs_type" = "xfs" ] && command -v xfs_growfs &>/dev/null; then
+            xfs_growfs /
+        elif command -v resize2fs &>/dev/null; then
+            resize2fs "$root_dev" 2>/dev/null || true
+        fi
+
+        # Restore /home files
+        if [ -d "$backup_dir" ]; then
+            mkdir -p /home
+            cp -a "$backup_dir/." /home/ 2>/dev/null || true
+            rm -rf "$backup_dir"
+        fi
+        chmod 755 /home
+        restorecon -R /home 2>/dev/null || true
+        echo "  Successfully merged /home into root partition!"
+    else
+        echo "  No separate /home partition to merge; extending root volume with any unallocated space..."
+        lvextend -l +100%FREE "$root_dev" 2>/dev/null || true
+        local fs_type
+        fs_type=$(df -T / | tail -1 | awk '{print $2}')
+        if [ "$fs_type" = "xfs" ] && command -v xfs_growfs &>/dev/null; then
+            xfs_growfs / 2>/dev/null || true
+        elif command -v resize2fs &>/dev/null; then
+            resize2fs "$root_dev" 2>/dev/null || true
+        fi
+    fi
+
+    echo "  Root partition storage capacity:"
+    df -hT / | tail -1 | awk '{printf "  Total: %s | Used: %s | Available: %s (%s used)\n", $3, $4, $5, $6}'
+}
+expand_root_partition
 # ──────────────────────────────────────────────
 # Step 2 — Install Node.js 16 (CentOS 7 Compatible)
 # ──────────────────────────────────────────────

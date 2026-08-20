@@ -672,7 +672,9 @@ echo "[10/14] Setting up GSM dongles & chan_dongle..."
 # 10a — Install Build Dependencies
 echo "  [10a] Installing build dependencies..."
 yum -y install gcc gcc-c++ make automake autoconf libtool sqlite-devel usbutils usb_modeswitch minicom
-yum -y install asterisk-devel asterisk11-devel 2>/dev/null || yum -y install asterisk-devel || true
+if ! rpm -q asterisk11-devel &>/dev/null && ! rpm -q asterisk-devel &>/dev/null; then
+    yum -y install asterisk11-devel 2>/dev/null || yum -y install asterisk-devel 2>/dev/null || true
+fi
 
 # 10a2 — Compile and install the Asterisk 11 reliable ChanSpy wrapper
 echo "  [10a2] Installing reliable whisper/barge media support..."
